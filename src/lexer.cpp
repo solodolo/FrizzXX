@@ -1,0 +1,78 @@
+/*
+ * lexer.cpp
+ *
+ *  Created on: Aug 8, 2020
+ *      Author: dmmettlach
+ */
+#include <regex>
+#include <iostream>
+
+#include "lexer.h"
+
+bool Frizz::Lexer::tok_is_a(TokType type) {
+	return this->cur_tok.id == type;
+}
+
+void Frizz::Lexer::next_tok() {
+	std::string cur_line = this->line;
+
+	std::regex whitespace("^\\s+");
+	std::regex block_pattern("^@@");
+	std::regex str_pattern("^\"[^\n]+?\"");
+	std::regex ident_pattern("^[a-zA-Z_-]+=");
+	std::smatch results;
+
+	this->tokens.clear();
+
+	while(!cur_line.empty()) {
+		results = std::smatch();
+
+		if(std::regex_search(cur_line, results, whitespace)) {
+			//check for whitespace
+		}
+		else if(std::regex_search(cur_line, results, block_pattern)) {
+			Token tok(tok_block);
+			this->tokens.push_back(tok);
+		}
+		else if(std::regex_search(cur_line, results, str_pattern)) {
+			Token tok(tok_str);
+
+			//get the contents of the string witout the dbl quotes
+			std::string result_str = results.str();
+			tok.value = result_str.substr(1, result_str.length() - 2);
+
+			this->tokens.push_back(tok);
+		}
+		else if(std::regex_search(cur_line, results, ident_pattern)) {
+			Token tok(tok_ident);
+
+			//get the name of the identifier without '='
+			std::string result_str = results.str();
+			tok.value = result_str.substr(0, result_str.length() - 1);
+
+			this->tokens.push_back(tok);
+		}
+		else {
+			cur_line.clear();
+		}
+
+		if(!results.empty()) {
+			cur_line.erase(results.position(0), results.length(0));
+		}
+//		this->print_tokens();
+	}
+}
+
+void Frizz::Lexer::set_line(std::string line) {
+	this->line = line;
+}
+
+void Frizz::Lexer::print_tokens() {
+	std::cout << "Current tokens: ";
+
+	for(std::vector<Token>::iterator it = this->tokens.begin(); it != this->tokens.end(); ++it) {
+		std::cout << it->to_string() << ", ";
+	}
+
+	std::cout << std::endl;
+}
