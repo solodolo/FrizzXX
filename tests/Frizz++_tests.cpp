@@ -74,8 +74,6 @@ TEST_F(LexerTests, SpacePreambleTok) {
 	ASSERT_EQ(lexer.tokens.size(), 0);
 }
 
-
-
 // STRING "blah"
 TEST_F(LexerTests, StrTok) {
 	lexer.set_line("\"a\"");
@@ -211,8 +209,69 @@ TEST_F(LexerTests, InTok) {
 }
 
 //DEFAULT when there is no match
-TEST_F(LexerTests, NoMatch) {
+TEST_F(LexerTests, NoMatchAtStart) {
 	lexer.set_line("# markdown header");
 	lexer.next_tok();
-	ASSERT_EQ(lexer.tokens.size(), 0);
+	ASSERT_EQ(lexer.tokens.size(), 2);
+	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_ident);
+	EXPECT_EQ(lexer.tokens[1].id, Frizz::TokType::tok_ident);
+}
+
+
+//Complete example
+
+//helper for complete test
+std::vector<Frizz::TokType> map_tokens_by_id(std::vector<Frizz::Token> tokens) {
+	std::vector<Frizz::TokType> by_id;
+
+	for(std::vector<Frizz::Token>::iterator it = tokens.begin(); it != tokens.end(); ++it) {
+		by_id.push_back(it->id);
+	}
+
+	return by_id;
+}
+TEST_F(LexerTests, Complete) {
+	std::vector<std::string> lines;
+	lines.push_back("# This is a markdown file");
+	lines.push_back("~~");
+	lines.push_back("@@ foo=\"bar\"");
+	lines.push_back("~~");
+	lines.push_back("");
+	lines.push_back("@@ src=\"path/to/file.md\"");
+	lines.push_back("");
+	lines.push_back("**here is some bold text**");
+	lines.push_back("");
+	lines.push_back("@@ for foo in \"path/to/bar\"");
+	lines.push_back("@@ src=\"preview.md\" args=file");
+
+	std::vector<std::vector<Frizz::TokType>> expected;
+	expected.push_back(
+			std::vector<Frizz::TokType>(5, Frizz::TokType::tok_ident));
+	expected.push_back(std::vector<Frizz::TokType> {
+			Frizz::TokType::tok_preamble });
+	expected.push_back(std::vector<Frizz::TokType> { Frizz::TokType::tok_block,
+			Frizz::TokType::tok_ident, Frizz::TokType::tok_str });
+	expected.push_back(std::vector<Frizz::TokType> {
+			Frizz::TokType::tok_preamble });
+	expected.push_back(std::vector<Frizz::TokType>());
+	expected.push_back(std::vector<Frizz::TokType> { Frizz::TokType::tok_block,
+			Frizz::TokType::tok_ident, Frizz::TokType::tok_str });
+	expected.push_back(std::vector<Frizz::TokType>());
+	expected.push_back(
+			std::vector<Frizz::TokType>(5, Frizz::TokType::tok_ident));
+	expected.push_back(std::vector<Frizz::TokType>());
+	expected.push_back(std::vector<Frizz::TokType> { Frizz::TokType::tok_block,
+			Frizz::TokType::tok_for, Frizz::TokType::tok_ident,
+			Frizz::TokType::tok_in, Frizz::TokType::tok_str });
+	expected.push_back(std::vector<Frizz::TokType> { Frizz::TokType::tok_block,
+			Frizz::TokType::tok_ident, Frizz::TokType::tok_str,
+			Frizz::TokType::tok_ident, Frizz::TokType::tok_ident });
+
+	for(int i = 0; i < lines.size(); ++i) {
+		lexer.set_line(lines[i] + "\n");
+		lexer.next_tok();
+		std::vector<Frizz::TokType> line_expected = expected[i];
+		EXPECT_EQ(line_expected, map_tokens_by_id(lexer.tokens));
+
+	}
 }
