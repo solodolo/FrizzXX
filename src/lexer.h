@@ -39,15 +39,16 @@ struct Token {
 class Lexer {
 public:
 	Token cur_tok;
-	std::vector<Token> tokens;
 public:
 	Lexer(): cur_tok(tok_none) {};
 	void next_tok();
 	void set_line(std::string line);
 	bool tok_is_a(TokType type);
-
+	std::vector<Token> get_tokens();
+	void add_token(Token tok);
 private:
 	std::string line;
+	std::vector<Token> tokens;
 
 private:
 	void print_tokens();

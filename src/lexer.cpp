@@ -9,6 +9,14 @@
 
 #include "lexer.h"
 
+std::vector<Frizz::Token> Frizz::Lexer::get_tokens() {
+	return this->tokens;
+}
+
+void Frizz::Lexer::add_token(Token tok) {
+	this->tokens.push_back(tok);
+}
+
 bool Frizz::Lexer::tok_is_a(TokType type) {
 	return this->cur_tok.id == type;
 }
@@ -35,19 +43,19 @@ void Frizz::Lexer::next_tok() {
 		}
 		else if(std::regex_search(cur_line, results, block_pattern)) {
 			Token tok(tok_block);
-			this->tokens.push_back(tok);
+			this->add_token(tok);
 		}
 		else if(std::regex_search(cur_line, results, preamble_pattern)) {
 			Token tok(tok_preamble);
-			this->tokens.push_back(tok);
+			this->add_token(tok);
 		}
 		else if(std::regex_search(cur_line, results, for_pattern)) {
 			Token tok(tok_for);
-			this->tokens.push_back(tok);
+			this->add_token(tok);
 		}
 		else if(std::regex_search(cur_line, results, in_pattern)) {
 			Token tok(tok_in);
-			this->tokens.push_back(tok);
+			this->add_token(tok);
 		}
 		else if(std::regex_search(cur_line, results, str_pattern)) {
 			Token tok(tok_str);
@@ -56,7 +64,7 @@ void Frizz::Lexer::next_tok() {
 			std::string result_str = results.str();
 			tok.value = result_str.substr(1, result_str.length() - 2);
 
-			this->tokens.push_back(tok);
+			this->add_token(tok);
 		}
 		else if(std::regex_search(cur_line, results, ident_pattern)) {
 			Token tok(tok_ident);
@@ -71,7 +79,7 @@ void Frizz::Lexer::next_tok() {
 				tok.value = result_str;
 			}
 
-			this->tokens.push_back(tok);
+			this->add_token(tok);
 		}
 		else {
 			//no match so discard the first character and try again
@@ -91,7 +99,7 @@ void Frizz::Lexer::set_line(std::string line) {
 void Frizz::Lexer::print_tokens() {
 	std::cout << "Current tokens: ";
 
-	for(std::vector<Token>::iterator it = this->tokens.begin(); it != this->tokens.end(); ++it) {
+	for(std::vector<Token>::iterator it = this->get_tokens().begin(); it != this->get_tokens().end(); ++it) {
 		std::cout << it->to_string() << ", ";
 	}
 
