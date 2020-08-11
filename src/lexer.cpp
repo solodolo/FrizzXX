@@ -18,8 +18,10 @@ void Frizz::Lexer::next_tok() {
 
 	std::regex whitespace("^\\s+");
 	std::regex block_pattern("^@@");
+	std::regex preamble_pattern("^~~\n");
 	std::regex str_pattern("^\"[^\n]+?\"");
-	std::regex ident_pattern("^[a-zA-Z_-]+=");
+	std::regex ident_pattern("^[a-zA-Z_-]+=?");
+	std::regex for_pattern("^for ");
 	std::smatch results;
 
 	this->tokens.clear();
@@ -32,6 +34,10 @@ void Frizz::Lexer::next_tok() {
 		}
 		else if(std::regex_search(cur_line, results, block_pattern)) {
 			Token tok(tok_block);
+			this->tokens.push_back(tok);
+		}
+		else if(std::regex_search(cur_line, results, preamble_pattern)) {
+			Token tok(tok_preamble);
 			this->tokens.push_back(tok);
 		}
 		else if(std::regex_search(cur_line, results, str_pattern)) {
@@ -48,8 +54,18 @@ void Frizz::Lexer::next_tok() {
 
 			//get the name of the identifier without '='
 			std::string result_str = results.str();
-			tok.value = result_str.substr(0, result_str.length() - 1);
 
+			if(result_str[result_str.length() - 1] == '=') {
+				tok.value = result_str.substr(0, result_str.length() - 1);
+			}
+			else {
+				tok.value = result_str;
+			}
+
+			this->tokens.push_back(tok);
+		}
+		else if(std::regex_search(cur_line, results, for_pattern)) {
+			Token tok(tok_for);
 			this->tokens.push_back(tok);
 		}
 		else {
