@@ -164,6 +164,30 @@ TEST_F(LexerTests, NoEqualsIdentTok) {
 	EXPECT_EQ(lexer.tokens[0].value, "foo");
 }
 
+TEST_F(LexerTests, FortuneIdentTok) {
+	lexer.set_line("fortune");
+	lexer.next_tok();
+	ASSERT_EQ(lexer.tokens.size(), 1);
+	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_ident);
+	EXPECT_EQ(lexer.tokens[0].value, "fortune");
+}
+
+TEST_F(LexerTests, ForWithoutSpaceIdentTok) {
+	lexer.set_line("for");
+	lexer.next_tok();
+	ASSERT_EQ(lexer.tokens.size(), 1);
+	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_ident);
+	EXPECT_EQ(lexer.tokens[0].value, "for");
+}
+
+TEST_F(LexerTests, InWithoutSpaceIdentTok) {
+	lexer.set_line("in");
+	lexer.next_tok();
+	ASSERT_EQ(lexer.tokens.size(), 1);
+	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_ident);
+	EXPECT_EQ(lexer.tokens[0].value, "in");
+}
+
 //FOR for
 TEST_F(LexerTests, ForTok) {
 	lexer.set_line("for ");
