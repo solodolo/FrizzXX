@@ -10,7 +10,7 @@ set(SOURCES
 
 find_package(GTest REQUIRED)
 
-include_directories(${GTEST_BOTH_LIBRARIES} ../src)
+include_directories(${GTEST_BOTH_LIBRARIES} ${CMAKE_SOURCE_DIR}/src)
 
 add_executable(${TNAME} ${SOURCES})
 
