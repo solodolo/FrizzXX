@@ -6,7 +6,7 @@
  */
 #include <gtest/gtest.h>
 
-#include "../src/lexer.h"
+#include "lexer.h"
 
 class LexerTests : public ::testing::Test {
 protected:
@@ -17,27 +17,28 @@ protected:
 	Frizz::Lexer lexer;
 };
 
-TEST_F(LexerTests, BodyTok) {
+// BLOCK @@
+TEST_F(LexerTests, BlockTok) {
 	lexer.set_line("@@");
 	lexer.next_tok();
 	ASSERT_EQ(lexer.tokens.size(), 1);
 	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_block);
 }
 
-TEST_F(LexerTests, HalfBodyTok) {
+TEST_F(LexerTests, HalfBlockTok) {
 	lexer.set_line("@");
 	lexer.next_tok();
 	ASSERT_EQ(lexer.tokens.size(), 0);
 }
 
-TEST_F(LexerTests, LeadingWhitespaceBodyTok) {
+TEST_F(LexerTests, LeadingWhitespaceBlockTok) {
 	lexer.set_line("       @@");
 	lexer.next_tok();
 	ASSERT_EQ(lexer.tokens.size(), 1);
 	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_block);
 }
 
-TEST_F(LexerTests, MiddleWhitespaceBodyTok) {
+TEST_F(LexerTests, MiddleWhitespaceBlockTok) {
 	lexer.set_line("@@     @@");
 	lexer.next_tok();
 	ASSERT_EQ(lexer.tokens.size(), 2);
@@ -45,7 +46,7 @@ TEST_F(LexerTests, MiddleWhitespaceBodyTok) {
 	EXPECT_EQ(lexer.tokens[1].id, Frizz::TokType::tok_block);
 }
 
-TEST_F(LexerTests, MultiSequenceBodyTok) {
+TEST_F(LexerTests, MultiSequenceBlockTok) {
 	lexer.set_line("@@@@");
 	lexer.next_tok();
 	ASSERT_EQ(lexer.tokens.size(), 2);
@@ -53,6 +54,28 @@ TEST_F(LexerTests, MultiSequenceBodyTok) {
 	EXPECT_EQ(lexer.tokens[1].id, Frizz::TokType::tok_block);
 }
 
+// PREAMBLE ~~
+TEST_F(LexerTests, PreambleTok) {
+	lexer.set_line("~~\n");
+	lexer.next_tok();
+	ASSERT_EQ(lexer.tokens.size(), 1);
+}
+
+TEST_F(LexerTests, SingleLinePreambleTok) {
+	lexer.set_line("~~");
+	lexer.next_tok();
+	ASSERT_EQ(lexer.tokens.size(), 0);
+}
+
+TEST_F(LexerTests, SpacePreambleTok) {
+	lexer.set_line("~~ ");
+	lexer.next_tok();
+	ASSERT_EQ(lexer.tokens.size(), 0);
+}
+
+
+
+// STRING "blah"
 TEST_F(LexerTests, StrTok) {
 	lexer.set_line("\"a\"");
 	lexer.next_tok();
@@ -107,6 +130,7 @@ TEST_F(LexerTests, NewLineStrTok) {
 	ASSERT_EQ(lexer.tokens.size(), 0);
 }
 
+//IDENTIFIER foo or foo=
 TEST_F(LexerTests, IdentTok) {
 	lexer.set_line("src=");
 	lexer.next_tok();
@@ -115,12 +139,40 @@ TEST_F(LexerTests, IdentTok) {
 }
 
 TEST_F(LexerTests, ExpressionIdentTok) {
-	lexer.set_line("file=value");
+	lexer.set_line("foo=\"bar\"");
 	lexer.next_tok();
-	ASSERT_EQ(lexer.tokens.size(), 1);
-	EXPECT_EQ(lexer.tokens[0].value, "file");
+	ASSERT_EQ(lexer.tokens.size(), 2);
+	EXPECT_EQ(lexer.tokens[0].value, "foo");
+	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_ident);
+
+	EXPECT_EQ(lexer.tokens[1].value, "bar");
+	EXPECT_EQ(lexer.tokens[1].id, Frizz::TokType::tok_str);
 }
 
+TEST_F(LexerTests, DoubleIdentTok) {
+	lexer.set_line("file=value");
+	lexer.next_tok();
+	ASSERT_EQ(lexer.tokens.size(), 2);
+	EXPECT_EQ(lexer.tokens[0].value, "file");
+	EXPECT_EQ(lexer.tokens[1].value, "value");
+}
+
+TEST_F(LexerTests, NoEqualsIdentTok) {
+	lexer.set_line("foo");
+	lexer.next_tok();
+	ASSERT_EQ(lexer.tokens.size(), 1);
+	EXPECT_EQ(lexer.tokens[0].value, "foo");
+}
+
+//FOR for
+TEST_F(LexerTests, ForTok) {
+	lexer.set_line("for ");
+	lexer.next_tok();
+	ASSERT_EQ(lexer.tokens.size(), 1);
+	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_for);
+}
+
+//DEFAULT when there is no match
 TEST_F(LexerTests, NoMatch) {
 	lexer.set_line("# markdown header");
 	lexer.next_tok();
