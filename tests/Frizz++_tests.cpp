@@ -172,6 +172,14 @@ TEST_F(LexerTests, ForTok) {
 	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_for);
 }
 
+//IN in
+TEST_F(LexerTests, InTok) {
+	lexer.set_line("in ");
+	lexer.next_tok();
+	ASSERT_EQ(lexer.tokens.size(), 1);
+	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_in);
+}
+
 //DEFAULT when there is no match
 TEST_F(LexerTests, NoMatch) {
 	lexer.set_line("# markdown header");
