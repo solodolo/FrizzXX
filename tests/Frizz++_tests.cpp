@@ -59,6 +59,7 @@ TEST_F(LexerTests, PreambleTok) {
 	lexer.set_line("~~\n");
 	lexer.next_tok();
 	ASSERT_EQ(lexer.tokens.size(), 1);
+	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_preamble);
 }
 
 TEST_F(LexerTests, SingleLinePreambleTok) {
@@ -135,6 +136,7 @@ TEST_F(LexerTests, IdentTok) {
 	lexer.set_line("src=");
 	lexer.next_tok();
 	ASSERT_EQ(lexer.tokens.size(), 1);
+	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_ident);
 	EXPECT_EQ(lexer.tokens[0].value, "src");
 }
 
@@ -155,6 +157,9 @@ TEST_F(LexerTests, DoubleIdentTok) {
 	ASSERT_EQ(lexer.tokens.size(), 2);
 	EXPECT_EQ(lexer.tokens[0].value, "file");
 	EXPECT_EQ(lexer.tokens[1].value, "value");
+
+	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_ident);
+	EXPECT_EQ(lexer.tokens[1].id, Frizz::TokType::tok_ident);
 }
 
 TEST_F(LexerTests, NoEqualsIdentTok) {
@@ -162,6 +167,7 @@ TEST_F(LexerTests, NoEqualsIdentTok) {
 	lexer.next_tok();
 	ASSERT_EQ(lexer.tokens.size(), 1);
 	EXPECT_EQ(lexer.tokens[0].value, "foo");
+	EXPECT_EQ(lexer.tokens[0].id, Frizz::TokType::tok_ident);
 }
 
 TEST_F(LexerTests, FortuneIdentTok) {
