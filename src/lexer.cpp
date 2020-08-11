@@ -74,13 +74,13 @@ void Frizz::Lexer::next_tok() {
 			this->tokens.push_back(tok);
 		}
 		else {
-			cur_line.clear();
+			//no match so discard the first character and try again
+			cur_line = cur_line.substr(1);
 		}
 
 		if(!results.empty()) {
 			cur_line.erase(results.position(0), results.length(0));
 		}
-//		this->print_tokens();
 	}
 }
 
