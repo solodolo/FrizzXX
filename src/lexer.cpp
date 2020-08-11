@@ -22,6 +22,7 @@ void Frizz::Lexer::next_tok() {
 	std::regex str_pattern("^\"[^\n]+?\"");
 	std::regex ident_pattern("^[a-zA-Z_-]+=?");
 	std::regex for_pattern("^for ");
+	std::regex in_pattern("^in ");
 	std::smatch results;
 
 	this->tokens.clear();
@@ -38,6 +39,14 @@ void Frizz::Lexer::next_tok() {
 		}
 		else if(std::regex_search(cur_line, results, preamble_pattern)) {
 			Token tok(tok_preamble);
+			this->tokens.push_back(tok);
+		}
+		else if(std::regex_search(cur_line, results, for_pattern)) {
+			Token tok(tok_for);
+			this->tokens.push_back(tok);
+		}
+		else if(std::regex_search(cur_line, results, in_pattern)) {
+			Token tok(tok_in);
 			this->tokens.push_back(tok);
 		}
 		else if(std::regex_search(cur_line, results, str_pattern)) {
@@ -62,10 +71,6 @@ void Frizz::Lexer::next_tok() {
 				tok.value = result_str;
 			}
 
-			this->tokens.push_back(tok);
-		}
-		else if(std::regex_search(cur_line, results, for_pattern)) {
-			Token tok(tok_for);
 			this->tokens.push_back(tok);
 		}
 		else {
