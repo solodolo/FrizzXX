@@ -11,19 +11,22 @@ void Frizz::Parser::set_tokens(std::vector<Token> tokens) {
 	this->tokens = tokens;
 }
 
-
 void Frizz::Parser::next_token() {
-	this->cur_tok = *this->tokens.begin();
+	if (!this->tokens.empty()) {
+		this->cur_tok = *(this->tokens.begin());
+	}
 
 	this->block();
 }
 
 void Frizz::Parser::block() {
-
+	if(this->can_have(TokType::tok_block)) {
+		// Do stuff
+	}
 }
 
 bool Frizz::Parser::can_have(TokType id) {
-	if(id == this->cur_tok.id) {
+	if (id == this->cur_tok.id) {
 		this->next_token();
 		return true;
 	}
@@ -32,7 +35,7 @@ bool Frizz::Parser::can_have(TokType id) {
 }
 
 bool Frizz::Parser::must_have(TokType id) {
-	if(this->can_have(id)) {
+	if (this->can_have(id)) {
 		return true;
 	}
 
@@ -43,12 +46,13 @@ bool Frizz::Parser::must_have(TokType id) {
 }
 
 bool Frizz::Parser::must_have(TokType id, std::string val) {
-	if(id == this->cur_tok.id && this->cur_tok.value == val) {
+	if (id == this->cur_tok.id && this->cur_tok.value == val) {
 		this->next_token();
 		return true;
 	}
 
-	std::string msg = "Expected " << id << " with val " << val << ", Got: " << this->cur_tok.id << " with val " << this->cur_tok.value;
+	std::string msg = "Expected " << id << " with val " << val << ", Got: "
+			<< this->cur_tok.id << " with val " << this->cur_tok.value;
 	this->add_error(msg);
 	return false;
 }
