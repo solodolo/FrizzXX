@@ -28,7 +28,7 @@ void Frizz::Lexer::next_tok() {
 	std::regex block_pattern("^@@");
 	std::regex preamble_pattern("^~~\n");
 	std::regex str_pattern("^\"[^\n]+?\"");
-	std::regex ident_pattern("^[a-zA-Z_-]+=?");
+	std::regex ident_pattern("^[a-zA-Z_-]+");
 	std::regex for_pattern("^for ");
 	std::regex in_pattern("^in ");
 	std::smatch results;
@@ -69,20 +69,17 @@ void Frizz::Lexer::next_tok() {
 		else if(std::regex_search(cur_line, results, ident_pattern)) {
 			Token tok(tok_ident);
 
-			//get the name of the identifier without '='
 			std::string result_str = results.str();
-
-			if(result_str[result_str.length() - 1] == '=') {
-				tok.value = result_str.substr(0, result_str.length() - 1);
-			}
-			else {
-				tok.value = result_str;
-			}
+			tok.value = result_str;
 
 			this->add_token(tok);
 		}
 		else {
 			//no match so discard the first character and try again
+			Token tok(tok_sym);
+			tok.value = cur_line[0];
+			this->add_token(tok);
+
 			cur_line = cur_line.substr(1);
 		}
 
