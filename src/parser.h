@@ -23,9 +23,10 @@ private:
 
 private:
 	void block();
-	bool can_have(TokType id);
-	bool must_have(TokType id);
-	bool must_have(TokType id, std::string val);
+	void preamble();
+	bool optional_found(TokType id);
+	bool required_found(TokType id);
+	bool required_found(TokType id, std::string val);
 	void add_error(std::string message);
 };
 }

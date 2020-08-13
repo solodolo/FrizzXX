@@ -15,17 +15,21 @@ void Frizz::Parser::next_token() {
 	if (!this->tokens.empty()) {
 		this->cur_tok = *(this->tokens.begin());
 	}
-
-	this->block();
 }
 
 void Frizz::Parser::block() {
-	if(this->can_have(TokType::tok_block)) {
+	if(this->optional_found(TokType::tok_block)) {
 		// Do stuff
 	}
 }
 
-bool Frizz::Parser::can_have(TokType id) {
+void Frizz::Parser::preamble() {
+	if(this->optional_found(TokType::tok_preamble)) {
+
+	}
+}
+
+bool Frizz::Parser::optional_found(TokType id) {
 	if (id == this->cur_tok.id) {
 		this->next_token();
 		return true;
@@ -34,8 +38,8 @@ bool Frizz::Parser::can_have(TokType id) {
 	return false;
 }
 
-bool Frizz::Parser::must_have(TokType id) {
-	if (this->can_have(id)) {
+bool Frizz::Parser::required_found(TokType id) {
+	if (this->optional_found(id)) {
 		return true;
 	}
 
@@ -45,7 +49,7 @@ bool Frizz::Parser::must_have(TokType id) {
 
 }
 
-bool Frizz::Parser::must_have(TokType id, std::string val) {
+bool Frizz::Parser::required_found(TokType id, std::string val) {
 	if (id == this->cur_tok.id && this->cur_tok.value == val) {
 		this->next_token();
 		return true;
