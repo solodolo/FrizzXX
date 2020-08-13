@@ -5,7 +5,8 @@ set(TNAME Frizz++_tests)
 project(${TNAME})
 
 set(SOURCES
-	Frizz++_tests.cpp
+	lexer_tests.cpp
+	parser_tests.cpp
 )
 
 find_package(GTest REQUIRED)
