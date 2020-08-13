@@ -25,10 +25,15 @@ enum TokType {
 };
 
 struct Token {
-	const TokType id;
+	TokType id;
+
+	Token(): id(TokType::tok_none) {};
+
 	Token(TokType id) :
 			id(id) {
 	}
+
+	Token(TokType id, std::string value): id(id), value(value) {};
 
 	std::string value;
 
