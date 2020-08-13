@@ -13,12 +13,16 @@ enable_testing()
 
 set(HEADERS
   src/lexer.h
+  src/parser.h
+  src/expressions.h
   src/md_preprocessor.h
 )
 
 set(SOURCES
   src/frizz++.cpp
   src/lexer.cpp
+  src/parser.cpp
+  src/expressions.cpp
   src/md_preprocessor.cpp
 )
 
