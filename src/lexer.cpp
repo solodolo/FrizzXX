@@ -96,7 +96,9 @@ void Frizz::Lexer::set_line(std::string line) {
 void Frizz::Lexer::print_tokens() {
 	std::cout << "Current tokens: ";
 
-	for(std::vector<Token>::iterator it = this->get_tokens().begin(); it != this->get_tokens().end(); ++it) {
+	std::vector<Token> tokens = this->get_tokens();
+	std::vector<Token>::iterator it = tokens.begin();
+	for(; it != tokens.end(); ++it) {
 		std::cout << it->to_string() << ", ";
 	}
 
