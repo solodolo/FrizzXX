@@ -16,6 +16,7 @@ set(HEADERS
   src/parser.h
   src/expressions.h
   src/md_preprocessor.h
+  src/frizz_config.h
 )
 
 set(SOURCES
@@ -24,6 +25,7 @@ set(SOURCES
   src/parser.cpp
   src/expressions.cpp
   src/md_preprocessor.cpp
+  src/frizz_config.cpp
 )
 
 include_directories(${CMAKE_CURRENT_DIRECTORY}/src)
