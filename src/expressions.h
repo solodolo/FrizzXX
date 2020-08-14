@@ -12,18 +12,23 @@
 
 namespace Frizz {
 
-class AssignmentExp {
-public:
-	AssignmentExp(std::string name, std::string value): name(name), value(value) {};
-	std::string evaluate();
+    class BasicExp {
+        public:
+            std::string evaluate(std::string root_path);
+    };
 
-private:
-	bool is_src();
+    class AssignmentExp : public BasicExp {
+    public:
+        AssignmentExp(std::string name, std::string value): name(name), value(value) {};
+        std::string evaluate(std::string root_path);
 
-private:
-	std::string name;
-	std::string value;
-};
+    private:
+        bool is_src();
+
+    private:
+        std::string name;
+        std::string value;
+    };
 
 }
 

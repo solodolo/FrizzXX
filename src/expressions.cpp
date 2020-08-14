@@ -13,8 +13,8 @@
 bool Frizz::AssignmentExp::is_src() {
 	return this->name == "src";
 }
-std::string Frizz::AssignmentExp::evaluate() {
+std::string Frizz::AssignmentExp::evaluate(std::string root_path) {
 	if(this->is_src()) {
-		std::filesystem::path root_path("/home/dmmettlach/Documents");
+		
 	}
 }
