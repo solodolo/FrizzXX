@@ -24,7 +24,7 @@ TEST_F(ParserTests, SingleLineSingleExp) {
 
     parser.parse();
 
-    ASSERT_EQ(parser.expressions.size(), 1);
+    ASSERT_EQ(parser.structures.size(), 1);
 }
 
 TEST_F(ParserTests, SingleLineMultiExp) {
@@ -39,5 +39,5 @@ TEST_F(ParserTests, SingleLineMultiExp) {
 
     parser.parse();
 
-    ASSERT_EQ(parser.expressions.size(), 2);
+    ASSERT_EQ(parser.structures.size(), 2);
 }

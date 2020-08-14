@@ -15,8 +15,8 @@ void Frizz::Parser::parse() {
             while(true) {
                 this->required_found(TokType::tok_block);
 
-                if(std::unique_ptr<BasicExp> exp = this->block()) {
-                    this->expressions.push_back(std::move(exp));
+                if(std::unique_ptr<BasicStruct> exp = this->block()) {
+                    this->structures.push_back(std::move(exp));
                 }
                 else {
                     break;
@@ -42,7 +42,7 @@ void Frizz::Parser::next_token() {
     }
 }
 
-std::unique_ptr<Frizz::BasicExp> Frizz::Parser::block() {
+std::unique_ptr<Frizz::BasicStruct> Frizz::Parser::block() {
     if(this->peek_current(TokType::tok_ident)) {
         this->required_found(TokType::tok_ident);
         std::string ident_name = this->last_val;
@@ -52,7 +52,7 @@ std::unique_ptr<Frizz::BasicExp> Frizz::Parser::block() {
         this->required_found(TokType::tok_str);
         std::string ident_val = this->last_val;
 
-        std::unique_ptr<BasicExp> exp = std::make_unique<AssignmentExp>(ident_name, ident_val);
+        std::unique_ptr<BasicStruct> exp = std::make_unique<AssignmentStruct>(ident_name, ident_val);
 
         return std::move(exp);
     }

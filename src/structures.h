@@ -1,25 +1,25 @@
 /*
- * expressions.h
+ * structures.h
  *
  *  Created on: Aug 12, 2020
  *      Author: dmmettlach
  */
 
-#ifndef SRC_EXPRESSIONS_H_
-#define SRC_EXPRESSIONS_H_
+#ifndef SRC_STRUCTURES_H_
+#define SRC_STRUCTURES_H_
 
 #include <string>
 
 namespace Frizz {
 
-    class BasicExp {
+    class BasicStruct {
         public:
             std::string evaluate(std::string root_path);
     };
 
-    class AssignmentExp : public BasicExp {
+    class AssignmentStruct : public BasicStruct {
     public:
-        AssignmentExp(std::string name, std::string value): name(name), value(value) {};
+        AssignmentStruct(std::string name, std::string value): name(name), value(value) {};
         std::string evaluate(std::string root_path);
 
     private:
@@ -32,4 +32,4 @@ namespace Frizz {
 
 }
 
-#endif /* SRC_EXPRESSIONS_H_ */
+#endif /* SRC_STRUCTURES_H_ */
