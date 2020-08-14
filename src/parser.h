@@ -8,7 +8,10 @@
 #ifndef SRC_PARSER_H_
 #define SRC_PARSER_H_
 
+#include <memory>
+
 #include "lexer.h"
+#include "expressions.h"
 
 namespace Frizz {
 class Parser {
@@ -16,6 +19,7 @@ public:
 	void next_token();
 	void set_tokens(std::vector<Token> tokens);
 	void parse();
+	std::vector<std::unique_ptr<BasicExp>> expressions;
 
 private:
 	Token cur_tok;
@@ -24,9 +28,11 @@ private:
 	std::vector<std::string> errors;
 
 private:
-	void block();
+	std::unique_ptr<BasicExp> block();
 	void preamble();
+	bool peek_current(TokType id);
 	bool optional_found(TokType id);
+	bool optional_found(TokType id, std::string val);
 	bool required_found(TokType id);
 	bool required_found(TokType id, std::string val);
 	void add_error(std::string message);
