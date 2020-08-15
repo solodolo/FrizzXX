@@ -13,8 +13,16 @@
 bool Frizz::AssignmentStruct::is_src() {
 	return this->name == "src";
 }
-std::string Frizz::AssignmentStruct::evaluate(std::string root_path) {
+
+std::string Frizz::AssignmentStruct::do_evaluate(std::string root_path) {
 	if(this->is_src()) {
 		
 	}
+
+	return "";
+}
+
+std::string Frizz::PassthroughStruct::do_evaluate(std::string root_path) {
+	// Return the value unmodified
+	return this->value;
 }
