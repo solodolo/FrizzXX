@@ -1,5 +1,5 @@
 /*
- * Frizz++_tests.cpp
+ * lexer_tests.cpp
  *
  *  Created on: Aug 9, 2020
  *      Author: dmmettlach
