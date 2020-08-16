@@ -1,0 +1,4 @@
+{
+  "source_root_path": "/path/to/root",
+  "build_path": "/path/to/build/dir"
+}
