@@ -20,6 +20,7 @@ public:
 	void set_tokens(std::vector<Token> tokens);
 	void parse();
 	const std::vector<std::unique_ptr<BasicStruct>>& get_structures();
+	void clear_structures();
 
 private:
 	Token cur_tok;

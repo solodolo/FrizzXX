@@ -130,3 +130,7 @@ bool Frizz::Parser::has_errors() {
 const std::vector<std::unique_ptr<Frizz::BasicStruct>>& Frizz::Parser::get_structures() {
   return this->structures;
 }
+
+void Frizz::Parser::clear_structures() {
+  this->structures.clear();
+}
