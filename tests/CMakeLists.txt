@@ -8,6 +8,7 @@ set(SOURCES
 	lexer_tests.cpp
 	parser_tests.cpp
 	structure_tests.cpp
+	config_tests.cpp
 )
 
 find_package(GTest REQUIRED)

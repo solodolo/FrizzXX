@@ -16,8 +16,8 @@ void Frizz::FrizzConfig::load_configuration(std::string path_to_config) {
 
     input >> json_config;
 
-    if(json_config.contains("static_files_root")) {
-        this->static_files_root = json_config["static_files_root"];
+    if(json_config.contains("source_root_path")) {
+        this->source_root_path = json_config["source_root_path"];
     }
 
     if(json_config.contains("build_path")) {
@@ -25,8 +25,8 @@ void Frizz::FrizzConfig::load_configuration(std::string path_to_config) {
     }
 }
 
-std::string Frizz::FrizzConfig::get_static_files_root() {
-    return this->static_files_root;
+std::string Frizz::FrizzConfig::get_source_root_path() {
+    return this->source_root_path;
 }
 
 std::string Frizz::FrizzConfig::get_build_path() {
@@ -34,7 +34,7 @@ std::string Frizz::FrizzConfig::get_build_path() {
 }
 
 std::filesystem::path Frizz::FrizzConfig::get_path_to_input_file(std::string filename) {
-    std::filesystem::path path(this->get_static_files_root());
+    std::filesystem::path path(this->get_source_root_path());
     path /= filename;
 
     return path;
