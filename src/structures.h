@@ -12,37 +12,40 @@
 
 namespace Frizz {
 
-    class BasicStruct {
-        public:
-            std::string evaluate(std::string root_path) { return this->do_evaluate(root_path); };
-            virtual ~BasicStruct() {};
+class BasicStruct {
+public:
+  std::string evaluate(const std::string& root_path) { return this->do_evaluate(root_path); };
+  virtual ~BasicStruct() {};
 
-        private:
-            virtual std::string do_evaluate(std::string root_path) = 0;
-    };
+private:
+  virtual std::string do_evaluate(const std::string& root_path) = 0;
+};
 
-    class AssignmentStruct : public BasicStruct {
-        public:
-            AssignmentStruct(std::string name, std::string value): name(name), value(value) {};
-  
+class AssignmentStruct : public BasicStruct {
+public:
+  AssignmentStruct(std::string name, std::string value)
+    : name(name)
+    , value(value) {};
 
-        private:
-            bool is_src();
-            std::string do_evaluate(std::string root_path) override;
+private:
+  bool is_src();
+  std::string do_evaluate(const std::string& root_path) override;
+  std::string load_from_file(const std::string& root_path);
 
-        private:
-            std::string name;
-            std::string value;
-    };
+private:
+  std::string name;
+  std::string value;
+};
 
-    class PassthroughStruct : public BasicStruct {
-        public:
-            PassthroughStruct(std::string value) : value(value) {};
+class PassthroughStruct : public BasicStruct {
+public:
+  PassthroughStruct(std::string value)
+    : value(value) {};
 
-        private:
-            std::string value;
-            std::string do_evaluate(std::string root_path) override;
-    };
+private:
+  std::string value;
+  std::string do_evaluate(const std::string& root_path) override;
+};
 
 }
 
