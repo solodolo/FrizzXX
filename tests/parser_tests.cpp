@@ -1,5 +1,5 @@
 /*
- * Frizz++_tests.cpp
+ * parser_tests.cpp
  *
  *  Created on: Aug 9, 2020
  *      Author: dmmettlach
@@ -10,34 +10,47 @@
 
 using namespace Frizz;
 
-class ParserTests: public ::testing::Test {
-    public:
-        Parser parser;
+class ParserTests : public ::testing::Test {
+public:
+  Parser parser;
 };
 
 TEST_F(ParserTests, SingleLineSingleExp) {
-    std::vector<Token> tokens { Token(TokType::tok_block), Token(
-            TokType::tok_ident, "src"), Token(TokType::tok_sym, "="), Token(
-            TokType::tok_str, "test.md") };
+  std::vector<Token> tokens { Token(TokType::tok_block),
+                              Token(TokType::tok_ident, "src"),
+                              Token(TokType::tok_sym, "="),
+                              Token(TokType::tok_str, "test.md") };
 
-    parser.set_tokens(tokens);
+  parser.set_tokens(tokens);
 
-    parser.parse();
+  parser.parse();
 
-    ASSERT_EQ(parser.structures.size(), 1);
+  ASSERT_EQ(parser.get_structures().size(), 1);
 }
 
 TEST_F(ParserTests, SingleLineMultiExp) {
-    std::vector<Token> tokens { Token(TokType::tok_block), Token(
-        TokType::tok_ident, "src"), Token(TokType::tok_sym, "="), Token(
-        TokType::tok_str, "test.md"), Token(TokType::tok_sym, ","), 
-        Token(TokType::tok_block), Token(
-        TokType::tok_ident, "src"), Token(TokType::tok_sym, "="), Token(
-        TokType::tok_str, "test.md")};
+  std::vector<Token> tokens {
+    Token(TokType::tok_block),         Token(TokType::tok_ident, "src"),
+    Token(TokType::tok_sym, "="),      Token(TokType::tok_str, "test.md"),
+    Token(TokType::tok_sym, ","),      Token(TokType::tok_block),
+    Token(TokType::tok_ident, "src"),  Token(TokType::tok_sym, "="),
+    Token(TokType::tok_str, "test.md")
+  };
 
-    parser.set_tokens(tokens);
+  parser.set_tokens(tokens);
 
-    parser.parse();
+  parser.parse();
 
-    ASSERT_EQ(parser.structures.size(), 2);
+  ASSERT_EQ(parser.get_structures().size(), 2);
+}
+
+TEST_F(ParserTests, SinglePassthroughLine) {
+  std::vector<Token> tokens { Token(TokType::tok_sym, "#"),
+                              Token(TokType::tok_ident, "this is a header") };
+
+  parser.set_tokens(tokens);
+
+  parser.parse();
+
+  ASSERT_EQ(parser.get_structures().size(), 2);
 }
