@@ -19,16 +19,19 @@ public:
 	void next_token();
 	void set_tokens(std::vector<Token> tokens);
 	void parse();
-	std::vector<std::unique_ptr<BasicStruct>> structures;
+	const std::vector<std::unique_ptr<BasicStruct>>& get_structures();
 
 private:
 	Token cur_tok;
 	std::string last_val;
 	std::vector<Token> tokens;
 	std::vector<std::string> errors;
+	std::vector<std::unique_ptr<BasicStruct>> structures;
 
 private:
 	std::unique_ptr<BasicStruct> block();
+	std::unique_ptr<BasicStruct> passthrough();
+	
 	void preamble();
 	bool peek_current(TokType id);
 	bool optional_found(TokType id);
