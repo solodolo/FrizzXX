@@ -33,8 +33,15 @@ std::string Frizz::FrizzConfig::get_build_path() {
     return this->build_path;
 }
 
-std::filesystem::path Frizz::FrizzConfig::get_path_to_file(std::string filename) {
+std::filesystem::path Frizz::FrizzConfig::get_path_to_input_file(std::string filename) {
     std::filesystem::path path(this->get_static_files_root());
+    path /= filename;
+
+    return path;
+}
+
+std::filesystem::path Frizz::FrizzConfig::get_path_to_output_file(std::string filename) {
+    std::filesystem::path path(this->get_build_path());
     path /= filename;
 
     return path;
