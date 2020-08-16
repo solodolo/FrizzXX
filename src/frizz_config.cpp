@@ -16,12 +16,12 @@ void Frizz::FrizzConfig::load_configuration(std::string path_to_config) {
 
     input >> json_config;
 
-    if(json_config.contains("source_root_path")) {
-        this->source_root_path = json_config["source_root_path"];
+    if(json_config.contains(Frizz::FrizzConfig::BASE_TEMPLATES_PATH_KEY)) {
+        this->source_root_path = json_config[Frizz::FrizzConfig::BASE_TEMPLATES_PATH_KEY];
     }
 
-    if(json_config.contains("build_path")) {
-        this->build_path = json_config["build_path"];
+    if(json_config.contains(Frizz::FrizzConfig::BUILD_PATH_KEY)) {
+        this->build_path = json_config[Frizz::FrizzConfig::BUILD_PATH_KEY];
     }
 }
 
