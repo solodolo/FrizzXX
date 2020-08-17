@@ -8,7 +8,7 @@
 #include <fstream>
 #include <gtest/gtest.h>
 
-#include "structures.h"
+#include "abstract_syntax_trees.h"
 
 static const std::string TEST_FILE_DIR = "./tests/test_files/sources";
 
@@ -23,8 +23,8 @@ std::string get_expected(std::filesystem::path path) {
 
   return expected;
 }
-TEST(AssignmentStructTests, ReadsFileContents) {
-  Frizz::AssignmentStruct structure("src", "test1.md");
+TEST(AssignmentAstTests, ReadsFileContents) {
+  Frizz::AssignmentAst structure("src", "test1.md");
   std::string contents = structure.evaluate(TEST_FILE_DIR);
 
   std::filesystem::path p(TEST_FILE_DIR);

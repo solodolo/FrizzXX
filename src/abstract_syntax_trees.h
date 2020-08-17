@@ -12,18 +12,18 @@
 
 namespace Frizz {
 
-class BasicStruct {
+class BasicAst {
 public:
   std::string evaluate(const std::string& root_path) { return this->do_evaluate(root_path); };
-  virtual ~BasicStruct() {};
+  virtual ~BasicAst() {};
 
 private:
   virtual std::string do_evaluate(const std::string& root_path) = 0;
 };
 
-class AssignmentStruct : public BasicStruct {
+class AssignmentAst : public BasicAst {
 public:
-  AssignmentStruct(std::string name, std::string value)
+  AssignmentAst(std::string name, std::string value)
     : name(name)
     , value(value) {};
 
@@ -37,7 +37,7 @@ private:
   std::string value;
 };
 
-class PassthroughStruct : public BasicStruct {
+class PassthroughStruct : public BasicAst {
 public:
   PassthroughStruct(std::string value)
     : value(value) {};

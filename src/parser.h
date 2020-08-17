@@ -11,7 +11,7 @@
 #include <memory>
 
 #include "lexer.h"
-#include "structures.h"
+#include "abstract_syntax_trees.h"
 
 namespace Frizz {
 class Parser {
@@ -19,7 +19,7 @@ public:
 	void next_token();
 	void set_tokens(std::vector<Token> tokens);
 	void parse();
-	const std::vector<std::unique_ptr<BasicStruct>>& get_structures();
+	const std::vector<std::unique_ptr<BasicAst>>& get_structures();
 	void clear_structures();
 
 private:
@@ -27,11 +27,11 @@ private:
 	std::string last_val;
 	std::vector<Token> tokens;
 	std::vector<std::string> errors;
-	std::vector<std::unique_ptr<BasicStruct>> structures;
+	std::vector<std::unique_ptr<BasicAst>> structures;
 
 private:
-	std::unique_ptr<BasicStruct> block();
-	std::unique_ptr<BasicStruct> passthrough();
+	std::unique_ptr<BasicAst> block();
+	std::unique_ptr<BasicAst> passthrough();
 	
 	void preamble();
 	bool peek_current(TokType id);

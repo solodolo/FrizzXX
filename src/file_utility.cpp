@@ -46,7 +46,7 @@ void Frizz::FileUtility::process_source_file(std::filesystem::path file_path,
       this->parser.set_tokens(lexer.get_tokens());
       this->parser.parse();
 
-      std::vector<std::unique_ptr<Frizz::BasicStruct>>::const_iterator it =
+      std::vector<std::unique_ptr<Frizz::BasicAst>>::const_iterator it =
         this->parser.get_structures().begin();
 
       for(; it != this->parser.get_structures().end(); ++it) {
