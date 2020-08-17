@@ -44,6 +44,9 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
+# Build folder
+build
+
 ## Eclipse
 .metadata
 bin/
