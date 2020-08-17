@@ -22,17 +22,9 @@ protected:
 };
 
 TEST_F(ConfigTests, CorrectSourcePath) {
-  ASSERT_EQ(config.get_source_root_path(), "/path/to/root");
+  ASSERT_EQ(config.get_source_root_path().string(), "/path/to/root");
 }
 
 TEST_F(ConfigTests, CorrectBuildPath) {
-  ASSERT_EQ(config.get_build_path(), "/path/to/build/dir");
-}
-
-TEST_F(ConfigTests, CorrectPathToInputFile) {
-  ASSERT_EQ(config.get_path_to_input_file("foo.md").string(), "/path/to/root/foo.md");
-}
-
-TEST_F(ConfigTests, CorrectPathToOutputFile) {
-  ASSERT_EQ(config.get_path_to_output_file("foo.md").string(), "/path/to/build/dir/foo.md");
+  ASSERT_EQ(config.get_build_path().string(), "/path/to/build/dir");
 }
