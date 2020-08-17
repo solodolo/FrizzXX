@@ -7,37 +7,38 @@
 //============================================================================
 
 #include <iostream>
-#include <fstream>
-#include <sstream>
 
-#include "maddy/parser.h"
+#include "file_utility.h"
 #include "frizz_config.h"
 #include "lexer.h"
+#include "maddy/parser.h"
+#include "parser.h"
 
-using namespace std;
+int main(int argc, char** argv) {
+  int ret_val = 0;
 
-int main(int argc, char **argv) {
-	if(argc > 1) {
-		std::string config_file_path = std::string(argv[1]);
-	
-		Frizz::FrizzConfig config;
-		config.load_configuration(config_file_path);
-		std::ifstream test_input_stream(config.get_static_files_root());
+  if(argc > 1) {
+    std::string config_file_path = std::string(argv[1]);
 
-		Frizz::Lexer lexer;
+    Frizz::FrizzConfig config;
+    if(!config.load_configuration(config_file_path)) {
+      std::cout << "Invalid config file" << std::endl;
+      ret_val = -1;
+    }
+    else {
+      Frizz::Lexer lexer;
+      Frizz::Parser parser;
 
-		if(test_input_stream) {
-			while(!test_input_stream.fail()) {
-				std::cout << "Reading line " << std::endl;
+      Frizz::FileUtility util(lexer, parser);
+      util.process_source_files(config.get_source_root_path(),
+                                config.get_partial_templates_path(),
+                                config.get_build_path());
+    }
+  }
+  else {
+    std::cout << "usage: FrizzXX /path/to/config.json" << std::endl;
+    ret_val = -1;
+  }
 
-				std::string line;
-				std::getline(test_input_stream, line);
-
-				lexer.set_line(line);
-				lexer.next_tok();
-			}
-		}
-	}
-	
-	return 0;
+  return ret_val;
 }
