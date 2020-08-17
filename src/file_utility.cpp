@@ -7,6 +7,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <cstring>
 
 #include "file_utility.h"
 
@@ -23,7 +24,7 @@ void Frizz::FileUtility::process_source_files(std::filesystem::path source_files
     std::filesystem::path output_file_path = build_path;
     output_file_path /= path.filename();
 
-    this->process_source_file(path, output_file_path);
+    this->process_source_file(path, replacement_lookup_path, output_file_path);
   }
 }
 
