@@ -5,69 +5,50 @@
  *      Author: dmmettlach
  */
 
+#include <cstring>
 #include <fstream>
 #include <iostream>
-#include <cstring>
 
 #include "file_utility.h"
 
-void Frizz::FileUtility::process_source_files(std::filesystem::path source_files_path,
-                                              std::filesystem::path replacement_lookup_path,
-                                              std::filesystem::path build_path) {
-  std::filesystem::directory_iterator source_it(source_files_path);
+bool Frizz::FileUtility::is_valid_extension(std::string extension) {
+  // just md for now
+  return extension == ".md";
+}
+
+std::vector<std::filesystem::path> Frizz::FileUtility::get_source_file_paths() {
+  std::vector<std::filesystem::path> source_paths;
+
+  std::filesystem::path source_root = this->config.get_source_root_path();
+  std::filesystem::directory_iterator source_it(source_root);
+
   for(auto& entry : source_it) {
     std::filesystem::path path = entry.path();
-    if(path.extension() != ".md") {
+    if(!this->is_valid_extension(path.extension())) {
       continue;
     }
 
-    std::filesystem::path output_file_path = build_path;
-    output_file_path /= path.filename();
-
-    this->process_source_file(path, replacement_lookup_path, output_file_path);
+    source_paths.push_back(path);
   }
+
+  return source_paths;
 }
 
-void Frizz::FileUtility::process_source_file(std::filesystem::path file_path,
-                                             std::filesystem::path replacement_lookup_path,
-                                             std::filesystem::path output_file_path) {
+std::string Frizz::FileUtility::get_partial_contents(std::string filename) {
+  std::string contents;
+  std::filesystem::path path = this->config.get_partial_templates_path() /= filename;
 
-  std::ifstream input_stream(file_path);
-  std::ofstream output_stream(output_file_path);
-
-  if(input_stream && output_stream) {
-    while(!input_stream.eof()) {
-      std::string line;
-      std::getline(input_stream, line);
-
-      this->lexer.set_line(line);
-      this->lexer.next_tok();
-
-      this->parser.set_tokens(lexer.get_tokens());
-      this->parser.parse();
-
-      std::vector<std::unique_ptr<Frizz::BasicAst>>::const_iterator it =
-        this->parser.get_structures().begin();
-
-      for(; it != this->parser.get_structures().end(); ++it) {
-        std::string evaluated = (**it).evaluate(replacement_lookup_path);
-        output_stream << evaluated << " ";
-      }
-
-      this->parser.clear_structures();
-      output_stream << "\n";
-    }
-  }
-  else {
-    if(input_stream.fail()) {
-      std::cout << "Input stream could not be created: " << strerror(errno) << std::endl;
-    }
-
-    if(output_stream.fail()) {
-      std::cout << "Output stream could not be created: " << strerror(errno) << std::endl;
-    }
+  if(!this->is_valid_extension(path.extension())) {
+    return contents;
   }
 
-  input_stream.close();
-  output_stream.close();
+  std::ifstream input(path);
+  char c;
+  while(input.get(c)) {
+    contents.push_back(c);
+  }
+
+  input.close();
+
+  return contents;
 }

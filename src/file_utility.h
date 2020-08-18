@@ -9,27 +9,24 @@
 #define FILE_UTILITY_H_
 
 #include <filesystem>
+#include <vector>
 
-#include "lexer.h"
-#include "parser.h"
+#include "frizz_config.h"
 
 namespace Frizz {
 class FileUtility {
 public:
-  FileUtility(Frizz::Lexer& lexer, Frizz::Parser& parser)
-    : lexer(lexer)
-    , parser(parser) {};
+  FileUtility(Frizz::FrizzConfig& config)
+    : config(config) {};
 
-  void process_source_files(std::filesystem::path source_files_path,
-                            std::filesystem::path replacement_lookup_path,
-                            std::filesystem::path build_path);
+  std::vector<std::filesystem::path> get_source_file_paths();
+  std::string get_partial_contents(std::string filename);
 
 private:
-  void process_source_file(std::filesystem::path file_path,
-                           std::filesystem::path replacement_lookup_path,
-                           std::filesystem::path build_path);
-  Frizz::Lexer& lexer;
-  Frizz::Parser& parser;
+  bool is_valid_extension(std::string extension);
+
+private:
+  Frizz::FrizzConfig& config;
 };
 }
 
