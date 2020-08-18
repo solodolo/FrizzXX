@@ -67,7 +67,7 @@ std::unique_ptr<Frizz::BasicAst> Frizz::Parser::block() {
 
 std::unique_ptr<Frizz::BasicAst> Frizz::Parser::passthrough() {
   std::unique_ptr<BasicAst> exp =
-    std::make_unique<PassthroughStruct>(this->cur_tok.value);
+    std::make_unique<PassthroughAst>(this->cur_tok.value);
 
   return std::move(exp);
 }

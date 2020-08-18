@@ -40,7 +40,7 @@ std::string Frizz::AssignmentAst::do_evaluate(const std::string& root_path) {
   return this->value;
 }
 
-std::string Frizz::PassthroughStruct::do_evaluate(const std::string& root_path) {
+std::string Frizz::PassthroughAst::do_evaluate(const std::string& root_path) {
   // Return the value unmodified
   return this->value;
 }

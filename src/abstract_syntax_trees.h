@@ -37,16 +37,15 @@ private:
   std::string value;
 };
 
-class PassthroughStruct : public BasicAst {
+class PassthroughAst : public BasicAst {
 public:
-  PassthroughStruct(std::string value)
+  PassthroughAst(std::string value)
     : value(value) {};
 
 private:
   std::string value;
   std::string do_evaluate(const std::string& root_path) override;
 };
-
 }
 
 #endif /* SRC_STRUCTURES_H_ */
