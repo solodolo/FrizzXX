@@ -25,6 +25,10 @@ TEST_F(ConfigTests, CorrectSourcePath) {
   ASSERT_EQ(config.get_source_root_path().string(), "/path/to/root");
 }
 
+TEST_F(ConfigTests, CorrectPartialPath) {
+  ASSERT_EQ(config.get_partial_templates_path().string(), "/path/to/partials");
+}
+
 TEST_F(ConfigTests, CorrectBuildPath) {
   ASSERT_EQ(config.get_build_path().string(), "/path/to/build/dir");
 }
