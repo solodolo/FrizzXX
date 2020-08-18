@@ -1,24 +1,24 @@
 /*
- * structures.h
+ * abstract_syntax_trees.h
  *
  *  Created on: Aug 12, 2020
  *      Author: dmmettlach
  */
 
-#ifndef SRC_STRUCTURES_H_
-#define SRC_STRUCTURES_H_
+#ifndef SRC_ABSTRACT_SYNTAX_TREES_H_
+#define SRC_ABSTRACT_SYNTAX_TREES_H_
 
 #include <string>
 
+#include "file_utility.h"
+
 namespace Frizz {
+class AstVisitor;
 
 class BasicAst {
 public:
-  std::string evaluate(const std::string& root_path) { return this->do_evaluate(root_path); };
+  virtual std::string accept(AstVisitor& visitor) = 0;
   virtual ~BasicAst() {};
-
-private:
-  virtual std::string do_evaluate(const std::string& root_path) = 0;
 };
 
 class AssignmentAst : public BasicAst {
@@ -27,10 +27,9 @@ public:
     : name(name)
     , value(value) {};
 
-private:
-  bool is_src();
-  std::string do_evaluate(const std::string& root_path) override;
-  std::string load_from_file(const std::string& root_path);
+  std::string accept(AstVisitor& visitor) override;
+  std::string get_value() const;
+  bool is_src() const;
 
 private:
   std::string name;
@@ -42,10 +41,23 @@ public:
   PassthroughAst(std::string value)
     : value(value) {};
 
+  std::string accept(AstVisitor& visitor) override;
+  std::string get_value() const;
+
 private:
   std::string value;
-  std::string do_evaluate(const std::string& root_path) override;
+};
+
+class AstVisitor {
+public:
+  AstVisitor(Frizz::FileUtility& f_util)
+    : f_util(f_util) {}
+  std::string visit(AssignmentAst& ast);
+  std::string visit(PassthroughAst& ast);
+
+private:
+  Frizz::FileUtility& f_util;
 };
 }
 
-#endif /* SRC_STRUCTURES_H_ */
+#endif /* SRC_ABSTRACT_SYNTAX_TREES_H_ */

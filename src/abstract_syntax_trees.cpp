@@ -11,36 +11,41 @@
 
 #include "abstract_syntax_trees.h"
 
-bool Frizz::AssignmentAst::is_src() {
+std::string Frizz::AssignmentAst::accept(Frizz::AstVisitor& visitor) {
+  return visitor.visit(*this);
+}
+
+bool Frizz::AssignmentAst::is_src() const {
   return this->name == "src";
 }
 
-std::string Frizz::AssignmentAst::load_from_file(const std::string& root_path) {
-  std::string file_contents;
-
-  std::filesystem::path input_path(root_path);
-  input_path /= this->value;
-
-  std::ifstream input(input_path);
-
-  char c;
-  while(input.get(c)) {
-    file_contents.push_back(c);
-  }
-
-  input.close();
-  return file_contents;
-}
-
-std::string Frizz::AssignmentAst::do_evaluate(const std::string& root_path) {
-  if(this->is_src()) {
-    return this->load_from_file(root_path);
-  }
-
+std::string Frizz::AssignmentAst::get_value() const {
   return this->value;
 }
 
-std::string Frizz::PassthroughAst::do_evaluate(const std::string& root_path) {
+std::string Frizz::PassthroughAst::accept(Frizz::AstVisitor& visitor) {
+  return visitor.visit(*this);
+}
+
+std::string Frizz::PassthroughAst::get_value() const {
+  return this->value;
+}
+
+/*
+  ########### AstVisitor ##########
+*/
+std::string Frizz::AstVisitor::visit(Frizz::AssignmentAst& ast) {
+  std::string contents;
+
+  if(ast.is_src()) {
+    std::string filename = ast.get_value();
+    contents = this->f_util.get_partial_contents(filename);
+  }
+
+  return contents;
+}
+
+std::string Frizz::AstVisitor::visit(Frizz::PassthroughAst& ast) {
   // Return the value unmodified
-  return this->value;
+  return ast.get_value();
 }
