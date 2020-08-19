@@ -70,10 +70,9 @@ void process_source_files(Frizz::FrizzConfig& config) {
   Frizz::AstVisitor visitor(util);
 
   std::vector<std::filesystem::path> source_file_paths = util.get_source_file_paths();
-  std::filesystem::path build_path = config.get_build_path();
 
   for(auto path : source_file_paths) {
-    std::filesystem::path output_path = build_path /= path.filename();
+    std::filesystem::path output_path = config.get_build_path() /= path.filename();
     process_source_file(lexer, parser, visitor, path, output_path);
   }
 }
