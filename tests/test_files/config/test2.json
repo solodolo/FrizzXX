@@ -1,0 +1,5 @@
+{
+  "base_templates_path": "/path/to/root",
+  "partial_templates_path": "./test_files/partials",
+  "build_path": "/path/to/build/dir"
+}

@@ -23,14 +23,22 @@ std::string get_expected(std::filesystem::path path) {
 
   return expected;
 }
-TEST(AssignmentAstTests, ReadsFileContents) {
-  Frizz::AssignmentAst structure("src", "test1.md");
-  std::string contents = structure.evaluate(TEST_FILE_DIR);
 
-  std::filesystem::path p(TEST_FILE_DIR);
-  p /= "test1.md";
+class AssignmentAstTests: public ::testing::Test {
+  protected:
+    Frizz::FrizzConfig config;
+    Frizz::FileUtility util;
+    Frizz::AstVisitor visitor;
 
-  std::string expected = get_expected(p);
+    AssignmentAstTests() : util(config), visitor(util) {
+      config.load_configuration("./tests/test_files/config/test2.json");
+    }
+};
 
-  ASSERT_EQ(expected, contents);
-}
+TEST_F(AssignmentAstTests, ReadsFileContents) {
+  std::string expected = get_expected("./test_files/partials/test1.md");
+  Frizz::AssignmentAst ast("src", "test2.md");
+  std::string result = ast.accept(visitor);
+
+  ASSERT_EQ(expected, result);
+};
