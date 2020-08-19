@@ -7,7 +7,7 @@ project(${TNAME})
 set(SOURCES
 	lexer_tests.cpp
 	parser_tests.cpp
-	structure_tests.cpp
+	abstract_syntax_tree_tests.cpp
 	config_tests.cpp
 )
 
