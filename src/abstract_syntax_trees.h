@@ -37,9 +37,12 @@ public:
   std::string get_value() const;
   bool is_src() const;
 
+  void set_context(std::unordered_map<std::string, std::string> context);
+
 private:
   std::string name;
   std::string value;
+  std::unordered_map<std::string, std::string> context;
 };
 
 class ForLoopAst : public BasicAst {

@@ -31,6 +31,10 @@ std::string Frizz::AssignmentAst::get_value() const {
   return this->value;
 }
 
+void Frizz::AssignmentAst::set_context(std::unordered_map<std::string, std::string> context) {
+  this->context = context;
+}
+
 /*
   ########## ForLoopAst ##########
 */
