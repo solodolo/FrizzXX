@@ -11,7 +11,15 @@
 
 #include "abstract_syntax_trees.h"
 
+/*
+  ########## AssignmentAst ##########
+*/
 std::string Frizz::AssignmentAst::accept(Frizz::AstVisitor& visitor) {
+  return visitor.visit(*this);
+}
+
+std::unordered_map<std::string, std::string> Frizz::AssignmentAst::accept(
+  Frizz::ContextVisitor& visitor) {
   return visitor.visit(*this);
 }
 
@@ -23,7 +31,37 @@ std::string Frizz::AssignmentAst::get_value() const {
   return this->value;
 }
 
+/*
+  ########## ForLoopAst ##########
+*/
+
+std::string Frizz::ForLoopAst::accept(Frizz::AstVisitor& visitor) {
+  return visitor.visit(*this);
+}
+
+std::unordered_map<std::string, std::string> Frizz::ForLoopAst::accept(
+  Frizz::ContextVisitor& visitor) {
+  return visitor.visit(*this);
+}
+
+std::string Frizz::ForLoopAst::get_key() {
+  return this->name;
+}
+
+std::string Frizz::ForLoopAst::get_value() {
+  return this->value;
+}
+
+/*
+  ########## PassthroughAst ##########
+*/
+
 std::string Frizz::PassthroughAst::accept(Frizz::AstVisitor& visitor) {
+  return visitor.visit(*this);
+}
+
+std::unordered_map<std::string, std::string> Frizz::PassthroughAst::accept(
+  Frizz::ContextVisitor& visitor) {
   return visitor.visit(*this);
 }
 
@@ -45,7 +83,21 @@ std::string Frizz::AstVisitor::visit(Frizz::AssignmentAst& ast) {
   return contents;
 }
 
+std::string Frizz::AstVisitor::visit(Frizz::ForLoopAst& ast) {
+  return "";
+}
+
 std::string Frizz::AstVisitor::visit(Frizz::PassthroughAst& ast) {
   // Return the value unmodified
   return ast.get_value();
+}
+
+/*
+  ########### ContextVisitor ##########
+*/
+std::unordered_map<std::string, std::string> Frizz::ContextVisitor::visit(Frizz::ForLoopAst& ast) {
+  std::unordered_map<std::string, std::string> context;
+  context.emplace(ast.get_key(), ast.get_value());
+
+  return context;
 }
