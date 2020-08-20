@@ -61,6 +61,18 @@ std::unique_ptr<Frizz::BasicAst> Frizz::Parser::block() {
 
     return std::move(exp);
   }
+  else if(this->peek_current(TokType::tok_for)) {
+    this->required_found(TokType::tok_for);
+    this->required_found(TokType::tok_ident);
+    std::string ident_name = this->last_val;
+
+    this->required_found(TokType::tok_in);
+    this->required_found(TokType::tok_str);
+    std::string ident_val = this->last_val;
+
+    std::unique_ptr<BasicAst> exp =
+      std::make_unique<ForLoopAst>(ident_name, ident_val);
+  }
 
   return nullptr;
 }
