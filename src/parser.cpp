@@ -5,6 +5,7 @@
  *      Author: dmmettlach
  */
 #include <iostream>
+
 #include "parser.h"
 
 void Frizz::Parser::parse() {
@@ -21,8 +22,23 @@ void Frizz::Parser::parse() {
           break;
         }
 
-        if(this->has_errors() ||
-           !this->optional_found(Frizz::TokType::tok_sym, ",")) {
+        if(this->has_errors() || !this->optional_found(Frizz::TokType::tok_sym, ",")) {
+          break;
+        }
+      }
+    }
+    else if(this->peek_current(TokType::tok_preamble)) {
+      this->required_found(TokType::tok_preamble);
+
+      while(true) {
+        if(std::unique_ptr<BasicAst> exp = this->ident()) {
+          this->structures.push_back(std::move(exp));
+        }
+        else {
+          break;
+        }
+
+        if(this->peek_current(TokType::tok_preamble)) {
           break;
         }
       }
@@ -48,18 +64,7 @@ void Frizz::Parser::next_token() {
 
 std::unique_ptr<Frizz::BasicAst> Frizz::Parser::block() {
   if(this->peek_current(TokType::tok_ident)) {
-    this->required_found(TokType::tok_ident);
-    std::string ident_name = this->last_val;
-
-    this->required_found(TokType::tok_sym, "=");
-
-    this->required_found(TokType::tok_str);
-    std::string ident_val = this->last_val;
-
-    std::unique_ptr<BasicAst> exp =
-      std::make_unique<AssignmentAst>(ident_name, ident_val);
-
-    return std::move(exp);
+    return std::move(this->ident());
   }
   else if(this->peek_current(TokType::tok_for)) {
     this->required_found(TokType::tok_for);
@@ -70,16 +75,30 @@ std::unique_ptr<Frizz::BasicAst> Frizz::Parser::block() {
     this->required_found(TokType::tok_str);
     std::string ident_val = this->last_val;
 
-    std::unique_ptr<BasicAst> exp =
-      std::make_unique<ForLoopAst>(ident_name, ident_val);
+    std::unique_ptr<BasicAst> exp = std::make_unique<ForLoopAst>(ident_name, ident_val);
   }
 
   return nullptr;
 }
 
+std::unique_ptr<Frizz::BasicAst> Frizz::Parser::ident() {
+  this->required_found(TokType::tok_ident);
+  std::string ident_name = this->last_val;
+
+  this->required_found(TokType::tok_sym, "=");
+
+  this->required_found(TokType::tok_str);
+  std::string ident_val = this->last_val;
+
+  std::unique_ptr<AssignmentAst> exp = std::make_unique<AssignmentAst>(ident_name, ident_val);
+
+  if(this->has_errors())
+    return nullptr;
+  return std::move(exp);
+}
+
 std::unique_ptr<Frizz::BasicAst> Frizz::Parser::passthrough() {
-  std::unique_ptr<BasicAst> exp =
-    std::make_unique<PassthroughAst>(this->cur_tok.value);
+  std::unique_ptr<BasicAst> exp = std::make_unique<PassthroughAst>(this->cur_tok.value);
 
   return std::move(exp);
 }
@@ -113,8 +132,7 @@ bool Frizz::Parser::required_found(TokType id) {
     return true;
   }
 
-  std::string msg = "Expected " + std::to_string(id) +
-                    ", Got: " + std::to_string(this->cur_tok.id);
+  std::string msg = "Expected " + std::to_string(id) + ", Got: " + std::to_string(this->cur_tok.id);
   this->add_error(msg);
   return false;
 }
@@ -125,8 +143,8 @@ bool Frizz::Parser::required_found(TokType id, std::string val) {
   }
 
   std::string msg = "Expected " + std::to_string(id) + " with val " + val +
-                    ", Got: " + std::to_string(this->cur_tok.id) +
-                    " with val " + this->cur_tok.value;
+                    ", Got: " + std::to_string(this->cur_tok.id) + " with val " +
+                    this->cur_tok.value;
   this->add_error(msg);
   return false;
 }

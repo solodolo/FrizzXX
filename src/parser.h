@@ -28,12 +28,13 @@ private:
 	std::vector<Token> tokens;
 	std::vector<std::string> errors;
 	std::vector<std::unique_ptr<BasicAst>> structures;
+	Frizz::ContextVisitor context_visitor;
 
 private:
 	std::unique_ptr<BasicAst> block();
+	std::unique_ptr<BasicAst> ident();
 	std::unique_ptr<BasicAst> passthrough();
-	
-	void preamble();
+
 	bool peek_current(TokType id);
 	bool optional_found(TokType id);
 	bool optional_found(TokType id, std::string val);

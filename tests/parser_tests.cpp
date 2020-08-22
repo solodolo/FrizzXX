@@ -74,3 +74,23 @@ TEST_F(ParserTests, PreambleSingleAssignment) {
   ASSERT_EQ(parser.get_structures().size(), 1);
   EXPECT_EQ(parser.get_structures()[0]->get_value(), "foo");
 }
+
+TEST_F(ParserTests, PreambleMultiAssignment) {
+  std::vector<Token> tokens {
+    Token(TokType::tok_preamble), Token(TokType::tok_ident, "a"),
+    Token(TokType::tok_sym, "="), Token(TokType::tok_str, "foo"),
+    Token(TokType::tok_ident, "b"), Token(TokType::tok_sym, "="),
+    Token(TokType::tok_str, "bar"), Token(TokType::tok_ident, "c"),
+    Token(TokType::tok_sym, "="), Token(TokType::tok_str, "baz"),
+    Token(TokType::tok_preamble)
+  };
+
+  parser.set_tokens(tokens);
+
+  parser.parse();
+
+  ASSERT_EQ(parser.get_structures().size(), 3);
+  EXPECT_EQ(parser.get_structures()[0]->get_value(), "foo");
+  EXPECT_EQ(parser.get_structures()[1]->get_value(), "bar");
+  EXPECT_EQ(parser.get_structures()[2]->get_value(), "baz");
+}
