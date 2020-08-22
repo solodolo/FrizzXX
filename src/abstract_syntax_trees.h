@@ -21,8 +21,12 @@ class BasicAst {
 public:
   virtual std::string accept(AstVisitor& visitor) = 0;
   virtual std::unordered_map<std::string, std::string> accept(ContextVisitor& visitor) = 0;
+  virtual std::string get_value() const { return this->value; }
 
   virtual ~BasicAst() {};
+
+private:
+  std::string value;
 };
 
 class AssignmentAst : public BasicAst {
@@ -34,7 +38,7 @@ public:
   std::string accept(AstVisitor& visitor) override;
   std::unordered_map<std::string, std::string> accept(ContextVisitor& visitor) override;
 
-  std::string get_value() const;
+  std::string get_value() const override;
   bool is_src() const;
 
   void set_context(std::unordered_map<std::string, std::string> context);
@@ -55,7 +59,7 @@ public:
   std::unordered_map<std::string, std::string> accept(ContextVisitor& visitor) override;
 
   std::string get_key();
-  std::string get_value();
+  std::string get_value() const override;
 
 private:
   std::string name;
@@ -69,7 +73,7 @@ public:
 
   std::string accept(AstVisitor& visitor) override;
   std::unordered_map<std::string, std::string> accept(ContextVisitor& visitor) override;
-  std::string get_value() const;
+  std::string get_value() const override;
 
 private:
   std::string value;

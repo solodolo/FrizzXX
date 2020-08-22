@@ -52,7 +52,7 @@ std::string Frizz::ForLoopAst::get_key() {
   return this->name;
 }
 
-std::string Frizz::ForLoopAst::get_value() {
+std::string Frizz::ForLoopAst::get_value() const {
   return this->value;
 }
 
@@ -101,7 +101,8 @@ std::string Frizz::AstVisitor::visit(Frizz::PassthroughAst& ast) {
 */
 std::unordered_map<std::string, std::string> Frizz::ContextVisitor::visit(Frizz::ForLoopAst& ast) {
   std::unordered_map<std::string, std::string> context;
-  context.emplace(ast.get_key(), ast.get_value());
+  
+
 
   return context;
 }
