@@ -26,15 +26,16 @@ TEST_F(ParserTests, SingleLineSingleExp) {
   parser.parse();
 
   ASSERT_EQ(parser.get_structures().size(), 1);
+  EXPECT_EQ(parser.get_structures()[0]->get_value(), "test.md");
 }
 
 TEST_F(ParserTests, SingleLineMultiExp) {
   std::vector<Token> tokens {
     Token(TokType::tok_block),         Token(TokType::tok_ident, "src"),
-    Token(TokType::tok_sym, "="),      Token(TokType::tok_str, "test.md"),
+    Token(TokType::tok_sym, "="),      Token(TokType::tok_str, "test1.md"),
     Token(TokType::tok_sym, ","),      Token(TokType::tok_block),
     Token(TokType::tok_ident, "src"),  Token(TokType::tok_sym, "="),
-    Token(TokType::tok_str, "test.md")
+    Token(TokType::tok_str, "test2.md")
   };
 
   parser.set_tokens(tokens);
@@ -42,6 +43,8 @@ TEST_F(ParserTests, SingleLineMultiExp) {
   parser.parse();
 
   ASSERT_EQ(parser.get_structures().size(), 2);
+  EXPECT_EQ(parser.get_structures()[0]->get_value(), "test1.md");
+  EXPECT_EQ(parser.get_structures()[1]->get_value(), "test2.md");
 }
 
 TEST_F(ParserTests, SinglePassthroughLine) {
@@ -53,4 +56,21 @@ TEST_F(ParserTests, SinglePassthroughLine) {
   parser.parse();
 
   ASSERT_EQ(parser.get_structures().size(), 2);
+  EXPECT_EQ(parser.get_structures()[0]->get_value(), "#");
+  EXPECT_EQ(parser.get_structures()[1]->get_value(), "this is a header");
+}
+
+TEST_F(ParserTests, PreambleSingleAssignment) {
+  std::vector<Token> tokens {
+    Token(TokType::tok_preamble), Token(TokType::tok_ident),
+    Token(TokType::tok_sym, "="), Token(TokType::tok_str, "foo"),
+    Token(TokType::tok_preamble)
+  };
+
+  parser.set_tokens(tokens);
+
+  parser.parse();
+
+  ASSERT_EQ(parser.get_structures().size(), 1);
+  EXPECT_EQ(parser.get_structures()[0]->get_value(), "foo");
 }
