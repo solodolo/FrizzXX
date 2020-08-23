@@ -9,6 +9,7 @@ set(SOURCES
 	parser_tests.cpp
 	abstract_syntax_tree_tests.cpp
 	config_tests.cpp
+	runner_tests.cpp
 )
 
 find_package(GTest REQUIRED)

@@ -18,6 +18,7 @@ set(HEADERS
   src/md_preprocessor.h
   src/frizz_config.h
   src/file_utility.h
+  src/runner.h
 )
 
 set(SOURCES
@@ -28,6 +29,7 @@ set(SOURCES
   src/md_preprocessor.cpp
   src/frizz_config.cpp
   src/file_utility.cpp
+  src/runner.cpp
 )
 
 include_directories(${CMAKE_CURRENT_DIRECTORY}/src)
