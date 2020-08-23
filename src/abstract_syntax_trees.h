@@ -19,8 +19,8 @@ class ContextVisitor;
 
 class BasicAst {
 public:
-  virtual std::string accept(AstVisitor& visitor) = 0;
-  virtual std::unordered_map<std::string, std::string> accept(ContextVisitor& visitor) = 0;
+  virtual std::tuple<std::string, std::string> accept(AstVisitor& visitor) = 0;
+  virtual std::vector<std::filesystem::path> accept(ContextVisitor& visitor) = 0;
   virtual std::string get_value() const { return this->value; }
 
   virtual ~BasicAst() {};
@@ -35,10 +35,11 @@ public:
     : name(name)
     , value(value) {};
 
-  std::string accept(AstVisitor& visitor) override;
-  std::unordered_map<std::string, std::string> accept(ContextVisitor& visitor) override;
+  std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
+  std::vector<std::filesystem::path> accept(ContextVisitor& visitor) override;
 
   std::string get_value() const override;
+  std::string get_name() const;
   bool is_src() const;
 
   void set_context(std::unordered_map<std::string, std::string> context);
@@ -55,8 +56,8 @@ public:
     : name(name)
     , value(value) {}
 
-  std::string accept(AstVisitor& visitor) override;
-  std::unordered_map<std::string, std::string> accept(ContextVisitor& visitor) override;
+  std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
+  std::vector<std::filesystem::path> accept(ContextVisitor& visitor) override;
 
   std::string get_key();
   std::string get_value() const override;
@@ -71,8 +72,8 @@ public:
   PassthroughAst(std::string value)
     : value(value) {};
 
-  std::string accept(AstVisitor& visitor) override;
-  std::unordered_map<std::string, std::string> accept(ContextVisitor& visitor) override;
+  std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
+  std::vector<std::filesystem::path> accept(ContextVisitor& visitor) override;
   std::string get_value() const override;
 
 private:
@@ -84,9 +85,9 @@ public:
   AstVisitor(Frizz::FileUtility& f_util)
     : f_util(f_util) {}
 
-  std::string visit(AssignmentAst& ast);
-  std::string visit(ForLoopAst& ast);
-  std::string visit(PassthroughAst& ast);
+  std::tuple<std::string, std::string> visit(AssignmentAst& ast);
+  std::tuple<std::string, std::string> visit(ForLoopAst& ast);
+  std::tuple<std::string, std::string> visit(PassthroughAst& ast);
 
 private:
   Frizz::FileUtility& f_util;
@@ -94,17 +95,23 @@ private:
 
 class ContextVisitor {
 public:
-  std::unordered_map<std::string, std::string> visit(AssignmentAst& ast) {
-    std::unordered_map<std::string, std::string> map;
-    return map;
+  ContextVisitor(Frizz::FileUtility& f_util)
+    : f_util(f_util) {};
+
+  std::vector<std::filesystem::path> visit(AssignmentAst& ast) {
+    std::vector<std::filesystem::path> paths;
+    return paths;
   };
 
-  std::unordered_map<std::string, std::string> visit(PassthroughAst& ast) {
-    std::unordered_map<std::string, std::string> map;
-    return map;
+  std::vector<std::filesystem::path> visit(PassthroughAst& ast) {
+    std::vector<std::filesystem::path> paths;
+    return paths;
   };
 
-  std::unordered_map<std::string, std::string> visit(ForLoopAst& ast);
+  std::vector<std::filesystem::path> visit(ForLoopAst& ast);
+
+private:
+  Frizz::FileUtility& f_util;
 };
 
 }

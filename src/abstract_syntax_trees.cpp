@@ -14,17 +14,20 @@
 /*
   ########## AssignmentAst ##########
 */
-std::string Frizz::AssignmentAst::accept(Frizz::AstVisitor& visitor) {
+std::tuple<std::string, std::string> Frizz::AssignmentAst::accept(Frizz::AstVisitor& visitor) {
   return visitor.visit(*this);
 }
 
-std::unordered_map<std::string, std::string> Frizz::AssignmentAst::accept(
-  Frizz::ContextVisitor& visitor) {
+std::vector<std::filesystem::path> Frizz::AssignmentAst::accept(Frizz::ContextVisitor& visitor) {
   return visitor.visit(*this);
 }
 
 bool Frizz::AssignmentAst::is_src() const {
-  return this->name == "src";
+  return this->get_name() == "src";
+}
+
+std::string Frizz::AssignmentAst::get_name() const {
+  return this->name;
 }
 
 std::string Frizz::AssignmentAst::get_value() const {
@@ -38,13 +41,11 @@ void Frizz::AssignmentAst::set_context(std::unordered_map<std::string, std::stri
 /*
   ########## ForLoopAst ##########
 */
-
-std::string Frizz::ForLoopAst::accept(Frizz::AstVisitor& visitor) {
+std::tuple<std::string, std::string> Frizz::ForLoopAst::accept(Frizz::AstVisitor& visitor) {
   return visitor.visit(*this);
 }
 
-std::unordered_map<std::string, std::string> Frizz::ForLoopAst::accept(
-  Frizz::ContextVisitor& visitor) {
+std::vector<std::filesystem::path> Frizz::ForLoopAst::accept(Frizz::ContextVisitor& visitor) {
   return visitor.visit(*this);
 }
 
@@ -60,12 +61,11 @@ std::string Frizz::ForLoopAst::get_value() const {
   ########## PassthroughAst ##########
 */
 
-std::string Frizz::PassthroughAst::accept(Frizz::AstVisitor& visitor) {
+std::tuple<std::string, std::string> Frizz::PassthroughAst::accept(Frizz::AstVisitor& visitor) {
   return visitor.visit(*this);
 }
 
-std::unordered_map<std::string, std::string> Frizz::PassthroughAst::accept(
-  Frizz::ContextVisitor& visitor) {
+std::vector<std::filesystem::path> Frizz::PassthroughAst::accept(Frizz::ContextVisitor& visitor) {
   return visitor.visit(*this);
 }
 
@@ -76,33 +76,33 @@ std::string Frizz::PassthroughAst::get_value() const {
 /*
   ########### AstVisitor ##########
 */
-std::string Frizz::AstVisitor::visit(Frizz::AssignmentAst& ast) {
+std::tuple<std::string, std::string> Frizz::AstVisitor::visit(Frizz::AssignmentAst& ast) {
   std::string contents;
+  std::string name;
 
   if(ast.is_src()) {
     std::string filename = ast.get_value();
     contents = this->f_util.get_partial_contents(filename);
   }
+  else {
+    contents = ast.get_value();
+  }
 
-  return contents;
+  return std::make_tuple(ast.get_name(), contents);
 }
 
-std::string Frizz::AstVisitor::visit(Frizz::ForLoopAst& ast) {
-  return "";
+std::tuple<std::string, std::string> Frizz::AstVisitor::visit(Frizz::ForLoopAst& ast) {
+  return std::make_tuple("", "");
 }
 
-std::string Frizz::AstVisitor::visit(Frizz::PassthroughAst& ast) {
+std::tuple<std::string, std::string> Frizz::AstVisitor::visit(Frizz::PassthroughAst& ast) {
   // Return the value unmodified
-  return ast.get_value();
+  return std::make_tuple("", ast.get_value());
 }
 
 /*
   ########### ContextVisitor ##########
 */
-std::unordered_map<std::string, std::string> Frizz::ContextVisitor::visit(Frizz::ForLoopAst& ast) {
-  std::unordered_map<std::string, std::string> context;
-  
-
-
-  return context;
+std::vector<std::filesystem::path> Frizz::ContextVisitor::visit(Frizz::ForLoopAst& ast) {
+  return this->f_util.get_partial_file_paths(ast.get_value());
 }

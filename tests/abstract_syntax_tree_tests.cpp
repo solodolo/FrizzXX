@@ -40,14 +40,14 @@ protected:
 TEST_F(AstTests, AssignmentAstReadsFileContents) {
   std::string expected = get_expected("./test_files/partials/test1.md");
   Frizz::AssignmentAst ast("src", "test2.md");
-  std::string result = ast.accept(visitor);
+  std::string result = std::get<1>(ast.accept(visitor));
 
   ASSERT_EQ(expected, result);
 };
 
 TEST_F(AstTests, PassthroughAstPassesValueThrough) {
   Frizz::PassthroughAst ast("foo");
-  std::string val = ast.accept(visitor);
+  std::string val = std::get<1>(ast.accept(visitor));
 
   ASSERT_EQ(val, "foo");
 }
