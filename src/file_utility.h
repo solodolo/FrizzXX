@@ -20,6 +20,7 @@ public:
     : config(config) {};
 
   std::vector<std::filesystem::path> get_source_file_paths();
+  std::vector<std::filesystem::path> get_partial_file_paths(std::string subdir);
   std::string get_partial_contents(std::string filename);
 
 private:

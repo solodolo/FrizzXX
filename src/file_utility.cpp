@@ -34,6 +34,16 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_source_file_paths() {
   return source_paths;
 }
 
+//TODO: this and get_partial_contents and get_partial_file_path are unsafe
+std::vector<std::filesystem::path> Frizz::FileUtility::get_partial_file_paths(std::string subdir) {
+  std::vector<std::filesystem::path> paths;
+
+  std::filesystem::path dir = this->config.get_partial_templates_path() /= subdir;
+  std::filesystem::directory_iterator it(dir);
+
+  return paths;
+}
+
 std::string Frizz::FileUtility::get_partial_contents(std::string filename) {
   std::string contents;
   std::filesystem::path path = this->config.get_partial_templates_path() /= filename;
