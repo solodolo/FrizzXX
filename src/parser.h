@@ -10,38 +10,41 @@
 
 #include <memory>
 
-#include "lexer.h"
 #include "abstract_syntax_trees.h"
+#include "lexer.h"
 
 namespace Frizz {
 class Parser {
 public:
-	void next_token();
-	void set_tokens(std::vector<Token> tokens);
-	void parse();
-	const std::vector<std::unique_ptr<BasicAst>>& get_structures();
-	void clear_structures();
+  Parser(Frizz::FileUtility& util)
+    : util(util) {};
+
+  void next_token();
+  void set_tokens(std::vector<Token> tokens);
+  void parse();
+  const std::vector<std::shared_ptr<BasicAst>>& get_structures();
+  void clear_structures();
 
 private:
-	Token cur_tok;
-	std::string last_val;
-	std::vector<Token> tokens;
-	std::vector<std::string> errors;
-	std::vector<std::unique_ptr<BasicAst>> structures;
-	Frizz::ContextVisitor context_visitor;
+  Frizz::FileUtility& util;
+  Token cur_tok;
+  std::string last_val;
+  std::vector<Token> tokens;
+  std::vector<std::string> errors;
+  std::vector<std::shared_ptr<BasicAst>> structures;
 
 private:
-	std::unique_ptr<BasicAst> block();
-	std::unique_ptr<BasicAst> ident();
-	std::unique_ptr<BasicAst> passthrough();
+  bool block();
+  bool ident();
+  bool passthrough();
 
-	bool peek_current(TokType id);
-	bool optional_found(TokType id);
-	bool optional_found(TokType id, std::string val);
-	bool required_found(TokType id);
-	bool required_found(TokType id, std::string val);
-	void add_error(std::string message);
-	bool has_errors();
+  bool peek_current(TokType id);
+  bool optional_found(TokType id);
+  bool optional_found(TokType id, std::string val);
+  bool required_found(TokType id);
+  bool required_found(TokType id, std::string val);
+  void add_error(std::string message);
+  bool has_errors();
 };
 }
 #endif /* SRC_PARSER_H_ */

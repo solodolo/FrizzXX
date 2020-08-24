@@ -15,10 +15,7 @@ void Frizz::Parser::parse() {
       while(true) {
         this->required_found(TokType::tok_block);
 
-        if(std::unique_ptr<BasicAst> exp = this->block()) {
-          this->structures.push_back(std::move(exp));
-        }
-        else {
+        if(!this->block()) {
           break;
         }
 
@@ -31,21 +28,20 @@ void Frizz::Parser::parse() {
       this->required_found(TokType::tok_preamble);
 
       while(true) {
-        if(std::unique_ptr<BasicAst> exp = this->ident()) {
-          this->structures.push_back(std::move(exp));
-        }
-        else {
-          break;
-        }
-
-        if(this->peek_current(TokType::tok_preamble)) {
+        if(!this->ident() || this->peek_current(TokType::tok_preamble)) {
           break;
         }
       }
     }
+    else if(this->peek_current(TokType::tok_ctx_name)) {
+      this->required_found(TokType::tok_ctx_name);
+      std::string ctx_var_name = this->last_val;
+
+      this->required_found(TokType::tok_ctx_val);
+      std::string ctx_var_val = this->last_val;
+    }
     else {
-      std::unique_ptr<BasicAst> exp = this->passthrough();
-      this->structures.push_back(std::move(exp));
+      this->passthrough();
     }
   }
 }
@@ -62,9 +58,9 @@ void Frizz::Parser::next_token() {
   }
 }
 
-std::unique_ptr<Frizz::BasicAst> Frizz::Parser::block() {
+bool Frizz::Parser::block() {
   if(this->peek_current(TokType::tok_ident)) {
-    return std::move(this->ident());
+    return this->ident();
   }
   else if(this->peek_current(TokType::tok_for)) {
     this->required_found(TokType::tok_for);
@@ -75,13 +71,31 @@ std::unique_ptr<Frizz::BasicAst> Frizz::Parser::block() {
     this->required_found(TokType::tok_str);
     std::string ident_val = this->last_val;
 
-    std::unique_ptr<BasicAst> exp = std::make_unique<ForLoopAst>(ident_name, ident_val);
+    std::shared_ptr<ForLoopAst> loop = std::make_shared<ForLoopAst>(ident_name, ident_val);
+
+    this->required_found(TokType::tok_src);
+    this->required_found(TokType::tok_str);
+
+    std::string template_name = this->last_val;
+
+    std::vector<std::filesystem::path> paths = this->util.get_partial_file_paths(ident_val);
+
+    for(auto it = paths.begin(); it != paths.end(); ++it) {
+      std::shared_ptr<AssignmentAst> assign =
+        std::make_shared<AssignmentAst>(ident_name, ident_val);
+      assign->set_parent(loop);
+
+      assign->set_context_filepath(*it);
+      this->structures.push_back(std::move(assign));
+    }
+
+    return true;
   }
 
-  return nullptr;
+  return false;
 }
 
-std::unique_ptr<Frizz::BasicAst> Frizz::Parser::ident() {
+bool Frizz::Parser::ident() {
   this->required_found(TokType::tok_ident);
   std::string ident_name = this->last_val;
 
@@ -90,17 +104,20 @@ std::unique_ptr<Frizz::BasicAst> Frizz::Parser::ident() {
   this->required_found(TokType::tok_str);
   std::string ident_val = this->last_val;
 
-  std::unique_ptr<AssignmentAst> exp = std::make_unique<AssignmentAst>(ident_name, ident_val);
-
   if(this->has_errors())
-    return nullptr;
-  return std::move(exp);
+    return false;
+
+  std::shared_ptr<AssignmentAst> exp = std::make_shared<AssignmentAst>(ident_name, ident_val);
+
+  this->structures.push_back(std::move(exp));
+  return true;
 }
 
-std::unique_ptr<Frizz::BasicAst> Frizz::Parser::passthrough() {
-  std::unique_ptr<BasicAst> exp = std::make_unique<PassthroughAst>(this->cur_tok.value);
+bool Frizz::Parser::passthrough() {
+  std::shared_ptr<BasicAst> exp = std::make_shared<PassthroughAst>(this->cur_tok.value);
 
-  return std::move(exp);
+  this->structures.push_back(std::move(exp));
+  return true;
 }
 
 bool Frizz::Parser::peek_current(TokType id) {
@@ -157,7 +174,7 @@ bool Frizz::Parser::has_errors() {
   return !this->errors.empty();
 }
 
-const std::vector<std::unique_ptr<Frizz::BasicAst>>& Frizz::Parser::get_structures() {
+const std::vector<std::shared_ptr<Frizz::BasicAst>>& Frizz::Parser::get_structures() {
   return this->structures;
 }
 
