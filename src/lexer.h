@@ -8,56 +8,66 @@
 #ifndef LEXER_H_
 #define LEXER_H_
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
 namespace Frizz {
 enum TokType {
-	tok_none = -1,
-	tok_block = 1,
-	tok_preamble = 2,
-	tok_ident = 3,
-	tok_str = 4,
-	tok_src = 5,
-	tok_for = 6,
-	tok_in = 7,
-	tok_sym = 8
+  tok_none = -1,
+  tok_block = 1,
+  tok_preamble = 2,
+  tok_ident = 3,
+  tok_str = 4,
+  tok_src = 5,
+  tok_for = 6,
+  tok_in = 7,
+  tok_sym = 8,
+  tok_ctx_name = 9,
+  tok_ctx_val = 10,
+  tok_nl = 11
 };
 
 struct Token {
-	TokType id;
+  TokType id;
 
-	Token(): id(TokType::tok_none) {};
+  Token()
+    : id(TokType::tok_none) {};
 
-	Token(TokType id) :
-			id(id) {
-	}
+  Token(TokType id)
+    : id(id) {};
 
-	Token(TokType id, std::string value): id(id), value(value) {};
+  Token(TokType id, std::string value)
+    : id(id)
+    , value(value) {};
 
-	std::string value;
+  std::string value;
 
-	std::string to_string() {
-		return std::to_string(id);
-	}
+  std::string to_string() { return std::to_string(id); }
 };
 
 class Lexer {
 public:
-	Token cur_tok;
+  Token cur_tok;
+
 public:
-	Lexer(): cur_tok(tok_none) {};
-	void next_tok();
-	void set_line(std::string line);
-	bool tok_is_a(TokType type);
-	std::vector<Token> get_tokens();
-	void add_token(Token tok);
-private:
-	std::string line;
-	std::vector<Token> tokens;
+  Lexer()
+    : cur_tok(tok_none) {};
+
+  void lex(std::filesystem::path path);
+  void next_tok();
+  void set_line(std::string line);
+  bool tok_is_a(TokType type);
+  std::vector<Token> get_tokens();
+  void add_token(Token tok);
+  void clear_tokens();
 
 private:
-	void print_tokens();
+  std::string line;
+  std::vector<Token> tokens;
+
+private:
+  void print_tokens();
 };
 }
 
