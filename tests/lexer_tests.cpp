@@ -11,6 +11,9 @@
 class LexerTests: public ::testing::Test {
 protected:
 	Frizz::Lexer lexer;
+	void SetUp() override {
+		this->lexer.clear_tokens();
+	}
 };
 
 // BLOCK @@
@@ -73,6 +76,16 @@ TEST_F(LexerTests, SpacePreambleTok) {
 	ASSERT_EQ(lexer.get_tokens().size(), 2);
 	EXPECT_EQ(lexer.get_tokens()[0].id, Frizz::TokType::tok_sym);
 	EXPECT_EQ(lexer.get_tokens()[1].id, Frizz::TokType::tok_sym);
+}
+
+// CTX {post.title}
+TEST_F(LexerTests, ContextTok) {
+	lexer.set_line("{post.title}");
+	lexer.next_tok();
+
+	ASSERT_EQ(lexer.get_tokens().size(), 2);
+	EXPECT_EQ(lexer.get_tokens()[0].value, "post");
+	EXPECT_EQ(lexer.get_tokens()[1].value, "title");
 }
 
 // STRING "blah"
@@ -305,8 +318,21 @@ TEST_F(LexerTests, Complete) {
 		lexer.set_line(lines[i] + "\n");
 		lexer.next_tok();
 		std::vector<Frizz::TokType> line_expected = expected[i];
-		EXPECT_EQ(line_expected, map_tokens_by_id(lexer.get_tokens()))
+		auto tokens = lexer.get_tokens();
+		EXPECT_EQ(line_expected, map_tokens_by_id(tokens))
 				<< "Failure on line " << i;
 
+		lexer.clear_tokens();
 	}
 }
+
+// read file
+TEST_F(LexerTests, FromFileTest) {
+	std::filesystem::path input_path("./tests/test_files/partials/test1.md");
+	lexer.lex(input_path);
+
+	auto tokens = lexer.get_tokens();
+	auto it = tokens.begin();
+
+	ASSERT_EQ(tokens.size(), 33);
+};
