@@ -10,15 +10,20 @@
 #include <iostream>
 
 #include "abstract_syntax_trees.h"
+/*
+  ########## BasicAst ##########
+*/
+std::filesystem::path Frizz::BasicAst::accept(ContextVisitor& visitor) {
+  return visitor.visit(*this);
+}
 
+std::shared_ptr<const Frizz::BasicAst> Frizz::BasicAst::accept(ParentVisitor& visitor) {
+  return visitor.visit(*this);
+}
 /*
   ########## AssignmentAst ##########
 */
 std::tuple<std::string, std::string> Frizz::AssignmentAst::accept(Frizz::AstVisitor& visitor) {
-  return visitor.visit(*this);
-}
-
-std::vector<std::filesystem::path> Frizz::AssignmentAst::accept(Frizz::ContextVisitor& visitor) {
   return visitor.visit(*this);
 }
 
@@ -34,14 +39,30 @@ std::string Frizz::AssignmentAst::get_value() const {
   return this->value;
 }
 
+void Frizz::AssignmentAst::set_parent(std::shared_ptr<BasicAst> parent) {
+  this->parent = std::move(parent);
+}
+
+std::shared_ptr<const Frizz::BasicAst> Frizz::AssignmentAst::get_parent() {
+  return this->parent;
+}
+
+void Frizz::AssignmentAst::set_context_filepath(std::filesystem::path path) {
+  this->context_filepath = path;
+}
+
+std::filesystem::path Frizz::AssignmentAst::get_context_filepath() {
+  return this->context_filepath;
+}
+
+void Frizz::AssignmentAst::set_context(std::unordered_map<std::string, std::string> context) {
+  this->context = context;
+}
+
 /*
   ########## ForLoopAst ##########
 */
 std::tuple<std::string, std::string> Frizz::ForLoopAst::accept(Frizz::AstVisitor& visitor) {
-  return visitor.visit(*this);
-}
-
-std::vector<std::filesystem::path> Frizz::ForLoopAst::accept(Frizz::ContextVisitor& visitor) {
   return visitor.visit(*this);
 }
 
@@ -58,10 +79,6 @@ std::string Frizz::ForLoopAst::get_value() const {
 */
 
 std::tuple<std::string, std::string> Frizz::PassthroughAst::accept(Frizz::AstVisitor& visitor) {
-  return visitor.visit(*this);
-}
-
-std::vector<std::filesystem::path> Frizz::PassthroughAst::accept(Frizz::ContextVisitor& visitor) {
   return visitor.visit(*this);
 }
 
@@ -99,6 +116,6 @@ std::tuple<std::string, std::string> Frizz::AstVisitor::visit(Frizz::Passthrough
 /*
   ########### ContextVisitor ##########
 */
-std::vector<std::filesystem::path> Frizz::ContextVisitor::visit(Frizz::ForLoopAst& ast) {
-  return this->f_util.get_partial_file_paths(ast.get_value());
+std::filesystem::path Frizz::ContextVisitor::visit(Frizz::AssignmentAst& ast) {
+  return ast.get_context_filepath();
 }

@@ -16,11 +16,14 @@
 namespace Frizz {
 class AstVisitor;
 class ContextVisitor;
+class ParentVisitor;
 
 class BasicAst {
 public:
   virtual std::tuple<std::string, std::string> accept(AstVisitor& visitor) = 0;
-  virtual std::vector<std::filesystem::path> accept(ContextVisitor& visitor) = 0;
+  virtual std::filesystem::path accept(ContextVisitor& visitor);
+  virtual std::shared_ptr<const BasicAst> accept(ParentVisitor& visitor);
+
   virtual std::string get_value() const { return this->value; }
 
   virtual ~BasicAst() {};
@@ -36,15 +39,25 @@ public:
     , value(value) {};
 
   std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
-  std::vector<std::filesystem::path> accept(ContextVisitor& visitor) override;
 
   std::string get_value() const override;
   std::string get_name() const;
   bool is_src() const;
 
+  void set_parent(std::shared_ptr<BasicAst> parent);
+  std::shared_ptr<const BasicAst> get_parent();
+
+  void set_context_filepath(std::filesystem::path path);
+  std::filesystem::path get_context_filepath();
+
+  void set_context(std::unordered_map<std::string, std::string> context);
+
 private:
   std::string name;
   std::string value;
+  std::shared_ptr<BasicAst> parent;
+  std::filesystem::path context_filepath;
+  std::unordered_map<std::string, std::string> context;
 };
 
 class ForLoopAst : public BasicAst {
@@ -54,10 +67,12 @@ public:
     , value(value) {}
 
   std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
-  std::vector<std::filesystem::path> accept(ContextVisitor& visitor) override;
 
   std::string get_key();
   std::string get_value() const override;
+
+public:
+  std::vector<std::unordered_map<std::string, std::string>> context;
 
 private:
   std::string name;
@@ -70,7 +85,6 @@ public:
     : value(value) {};
 
   std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
-  std::vector<std::filesystem::path> accept(ContextVisitor& visitor) override;
   std::string get_value() const override;
 
 private:
@@ -92,23 +106,18 @@ private:
 
 class ContextVisitor {
 public:
-  ContextVisitor(Frizz::FileUtility& f_util)
-    : f_util(f_util) {};
+  std::filesystem::path visit(AssignmentAst& ast);
 
-  std::vector<std::filesystem::path> visit(AssignmentAst& ast) {
-    std::vector<std::filesystem::path> paths;
-    return paths;
+  std::filesystem::path visit(BasicAst& ast) {
+    std::filesystem::path empty;
+    return empty;
   };
+};
 
-  std::vector<std::filesystem::path> visit(PassthroughAst& ast) {
-    std::vector<std::filesystem::path> paths;
-    return paths;
-  };
-
-  std::vector<std::filesystem::path> visit(ForLoopAst& ast);
-
-private:
-  Frizz::FileUtility& f_util;
+class ParentVisitor {
+public:
+  std::shared_ptr<const BasicAst> visit(BasicAst& ast) { return nullptr; }
+  std::shared_ptr<const BasicAst> visit(AssignmentAst& ast) { return ast.get_parent(); }
 };
 
 }
