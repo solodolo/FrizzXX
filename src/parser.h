@@ -37,6 +37,7 @@ private:
   bool block();
   bool ident();
   bool passthrough();
+  bool context();
 
   bool peek_current(TokType id);
   bool optional_found(TokType id);

@@ -34,16 +34,31 @@ void Frizz::Parser::parse() {
       }
     }
     else if(this->peek_current(TokType::tok_ctx_name)) {
-      this->required_found(TokType::tok_ctx_name);
-      std::string ctx_var_name = this->last_val;
-
-      this->required_found(TokType::tok_ctx_val);
-      std::string ctx_var_val = this->last_val;
+      this->context();
     }
     else {
       this->passthrough();
     }
   }
+}
+
+bool Frizz::Parser::context() {
+  this->required_found(TokType::tok_ctx_name);
+  std::string ctx_var_name = this->last_val;
+
+  this->required_found(TokType::tok_ctx_val);
+  std::string ctx_var_val = this->last_val;
+
+  if(this->has_errors()) {
+    return false;
+  }
+
+  std::shared_ptr<CtxReplacementAst> ast =
+    std::make_shared<CtxReplacementAst>(ctx_var_name, ctx_var_val);
+
+  this->structures.push_back(std::move(ast));
+
+  return true;
 }
 
 void Frizz::Parser::set_tokens(std::vector<Token> tokens) {
