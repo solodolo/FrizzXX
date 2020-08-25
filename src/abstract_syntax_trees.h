@@ -92,6 +92,17 @@ private:
   std::string value;
 };
 
+class CtxReplacementAst : public BasicAst {
+public:
+  CtxReplacementAst(std::string key, std::string val)
+    : key(key)
+    , val(val) {};
+
+private:
+  std::string key;
+  std::string val;
+};
+
 class AstVisitor {
 public:
   AstVisitor(Frizz::FileUtility& f_util)
