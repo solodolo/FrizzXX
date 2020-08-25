@@ -39,7 +39,7 @@ std::unordered_map<std::string, std::string> Frizz::Runner::process_partial_prea
   parser.set_tokens(lexer.get_tokens());
   parser.parse();
 
-  for(auto const& s : parser.get_structures()) {
+  for(auto const& s : parser.get_trees()) {
     std::tuple<std::string, std::string> key_val = s->accept(a_visitor);
 
     std::string key = std::get<0>(key_val);
@@ -73,9 +73,9 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
 
   if(output_stream) {
     std::vector<std::shared_ptr<Frizz::BasicAst>>::const_iterator it =
-      parser.get_structures().begin();
+      parser.get_trees().begin();
 
-    for(; it != parser.get_structures().end(); ++it) {
+    for(; it != parser.get_trees().end(); ++it) {
       std::filesystem::path context_path = (**it).accept(c_visitor);
 
       if(!context_path.empty()) {

@@ -25,8 +25,8 @@ TEST_F(ParserTests, SingleLineSingleExp) {
 
   parser.parse();
 
-  ASSERT_EQ(parser.get_structures().size(), 1);
-  EXPECT_EQ(parser.get_structures()[0]->get_value(), "test.md");
+  ASSERT_EQ(parser.get_trees().size(), 1);
+  EXPECT_EQ(parser.get_trees()[0]->get_value(), "test.md");
 }
 
 TEST_F(ParserTests, SingleLineMultiExp) {
@@ -42,9 +42,9 @@ TEST_F(ParserTests, SingleLineMultiExp) {
 
   parser.parse();
 
-  ASSERT_EQ(parser.get_structures().size(), 2);
-  EXPECT_EQ(parser.get_structures()[0]->get_value(), "test1.md");
-  EXPECT_EQ(parser.get_structures()[1]->get_value(), "test2.md");
+  ASSERT_EQ(parser.get_trees().size(), 2);
+  EXPECT_EQ(parser.get_trees()[0]->get_value(), "test1.md");
+  EXPECT_EQ(parser.get_trees()[1]->get_value(), "test2.md");
 }
 
 TEST_F(ParserTests, SinglePassthroughLine) {
@@ -55,9 +55,9 @@ TEST_F(ParserTests, SinglePassthroughLine) {
 
   parser.parse();
 
-  ASSERT_EQ(parser.get_structures().size(), 2);
-  EXPECT_EQ(parser.get_structures()[0]->get_value(), "#");
-  EXPECT_EQ(parser.get_structures()[1]->get_value(), "this is a header");
+  ASSERT_EQ(parser.get_trees().size(), 2);
+  EXPECT_EQ(parser.get_trees()[0]->get_value(), "#");
+  EXPECT_EQ(parser.get_trees()[1]->get_value(), "this is a header");
 }
 
 TEST_F(ParserTests, PreambleSingleAssignment) {
@@ -71,8 +71,8 @@ TEST_F(ParserTests, PreambleSingleAssignment) {
 
   parser.parse();
 
-  ASSERT_EQ(parser.get_structures().size(), 1);
-  EXPECT_EQ(parser.get_structures()[0]->get_value(), "foo");
+  ASSERT_EQ(parser.get_trees().size(), 1);
+  EXPECT_EQ(parser.get_trees()[0]->get_value(), "foo");
 }
 
 TEST_F(ParserTests, PreambleMultiAssignment) {
@@ -89,8 +89,8 @@ TEST_F(ParserTests, PreambleMultiAssignment) {
 
   parser.parse();
 
-  ASSERT_EQ(parser.get_structures().size(), 3);
-  EXPECT_EQ(parser.get_structures()[0]->get_value(), "foo");
-  EXPECT_EQ(parser.get_structures()[1]->get_value(), "bar");
-  EXPECT_EQ(parser.get_structures()[2]->get_value(), "baz");
+  ASSERT_EQ(parser.get_trees().size(), 3);
+  EXPECT_EQ(parser.get_trees()[0]->get_value(), "foo");
+  EXPECT_EQ(parser.get_trees()[1]->get_value(), "bar");
+  EXPECT_EQ(parser.get_trees()[2]->get_value(), "baz");
 }

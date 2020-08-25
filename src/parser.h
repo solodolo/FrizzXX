@@ -22,8 +22,8 @@ public:
   void next_token();
   void set_tokens(std::vector<Token> tokens);
   void parse();
-  const std::vector<std::shared_ptr<BasicAst>>& get_structures();
-  void clear_structures();
+  const std::vector<std::shared_ptr<BasicAst>>& get_trees();
+  void clear_trees();
 
 private:
   Frizz::FileUtility& util;
@@ -31,7 +31,7 @@ private:
   std::string last_val;
   std::vector<Token> tokens;
   std::vector<std::string> errors;
-  std::vector<std::shared_ptr<BasicAst>> structures;
+  std::vector<std::shared_ptr<BasicAst>> trees;
 
 private:
   bool block();

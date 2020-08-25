@@ -56,7 +56,7 @@ bool Frizz::Parser::context() {
   std::shared_ptr<CtxReplacementAst> ast =
     std::make_shared<CtxReplacementAst>(ctx_var_name, ctx_var_val);
 
-  this->structures.push_back(std::move(ast));
+  this->trees.push_back(std::move(ast));
 
   return true;
 }
@@ -112,7 +112,7 @@ bool Frizz::Parser::for_loop() {
     assign->set_parent(loop);
 
     assign->set_context_filepath(*it);
-    this->structures.push_back(std::move(assign));
+    this->trees.push_back(std::move(assign));
   }
 
   return true;
@@ -132,14 +132,14 @@ bool Frizz::Parser::ident() {
 
   std::shared_ptr<AssignmentAst> exp = std::make_shared<AssignmentAst>(ident_name, ident_val);
 
-  this->structures.push_back(std::move(exp));
+  this->trees.push_back(std::move(exp));
   return true;
 }
 
 bool Frizz::Parser::passthrough() {
   std::shared_ptr<BasicAst> exp = std::make_shared<PassthroughAst>(this->cur_tok.value);
 
-  this->structures.push_back(std::move(exp));
+  this->trees.push_back(std::move(exp));
   return true;
 }
 
@@ -197,10 +197,10 @@ bool Frizz::Parser::has_errors() {
   return !this->errors.empty();
 }
 
-const std::vector<std::shared_ptr<Frizz::BasicAst>>& Frizz::Parser::get_structures() {
-  return this->structures;
+const std::vector<std::shared_ptr<Frizz::BasicAst>>& Frizz::Parser::get_trees() {
+  return this->trees;
 }
 
-void Frizz::Parser::clear_structures() {
-  this->structures.clear();
+void Frizz::Parser::clear_trees() {
+  this->trees.clear();
 }
