@@ -13,6 +13,10 @@
 /*
   ########## BasicAst ##########
 */
+std::tuple<std::string, std::string> Frizz::BasicAst::accept(AstVisitor& visitor) {
+  return std::make_tuple("", "");
+}
+
 std::filesystem::path Frizz::BasicAst::accept(ContextVisitor& visitor) {
   return visitor.visit(*this);
 }

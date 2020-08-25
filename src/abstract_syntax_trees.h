@@ -21,7 +21,7 @@ class ParentVisitor;
 // Add new ast for context replacement
 class BasicAst {
 public:
-  virtual std::tuple<std::string, std::string> accept(AstVisitor& visitor) = 0;
+  virtual std::tuple<std::string, std::string> accept(AstVisitor& visitor);
   virtual std::filesystem::path accept(ContextVisitor& visitor);
   virtual std::shared_ptr<const BasicAst> accept(ParentVisitor& visitor);
 
