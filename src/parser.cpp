@@ -78,36 +78,44 @@ bool Frizz::Parser::block() {
     return this->ident();
   }
   else if(this->peek_current(TokType::tok_for)) {
-    this->required_found(TokType::tok_for);
-    this->required_found(TokType::tok_ident);
-    std::string ident_name = this->last_val;
-
-    this->required_found(TokType::tok_in);
-    this->required_found(TokType::tok_str);
-    std::string ident_val = this->last_val;
-
-    std::shared_ptr<ForLoopAst> loop = std::make_shared<ForLoopAst>(ident_name, ident_val);
-
-    this->required_found(TokType::tok_src);
-    this->required_found(TokType::tok_str);
-
-    std::string template_name = this->last_val;
-
-    std::vector<std::filesystem::path> paths = this->util.get_partial_file_paths(ident_val);
-
-    for(auto it = paths.begin(); it != paths.end(); ++it) {
-      std::shared_ptr<AssignmentAst> assign =
-        std::make_shared<AssignmentAst>(ident_name, ident_val);
-      assign->set_parent(loop);
-
-      assign->set_context_filepath(*it);
-      this->structures.push_back(std::move(assign));
-    }
-
-    return true;
+    this->for_loop();
   }
 
   return false;
+}
+
+bool Frizz::Parser::for_loop() {
+  this->required_found(TokType::tok_for);
+  this->required_found(TokType::tok_ident);
+  std::string ident_name = this->last_val;
+
+  this->required_found(TokType::tok_in);
+  this->required_found(TokType::tok_str);
+  std::string ident_val = this->last_val;
+
+  std::shared_ptr<ForLoopAst> loop = std::make_shared<ForLoopAst>(ident_name, ident_val);
+
+  this->required_found(TokType::tok_src);
+  this->required_found(TokType::tok_str);
+
+  if(this->has_errors()) {
+    return false;
+  }
+
+  std::string template_name = this->last_val;
+
+  std::vector<std::filesystem::path> paths = this->util.get_partial_file_paths(ident_val);
+
+  for(auto it = paths.begin(); it != paths.end(); ++it) {
+    std::shared_ptr<AssignmentAst> assign =
+      std::make_shared<AssignmentAst>(ident_name, ident_val);
+    assign->set_parent(loop);
+
+    assign->set_context_filepath(*it);
+    this->structures.push_back(std::move(assign));
+  }
+
+  return true;
 }
 
 bool Frizz::Parser::ident() {

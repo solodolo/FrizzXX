@@ -38,6 +38,7 @@ private:
   bool ident();
   bool passthrough();
   bool context();
+  bool for_loop();
 
   bool peek_current(TokType id);
   bool optional_found(TokType id);
