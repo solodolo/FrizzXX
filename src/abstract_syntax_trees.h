@@ -18,6 +18,7 @@ class AstVisitor;
 class ContextVisitor;
 class ParentVisitor;
 
+// Add new ast for context replacement
 class BasicAst {
 public:
   virtual std::tuple<std::string, std::string> accept(AstVisitor& visitor) = 0;

@@ -5,120 +5,104 @@
  *      Author: dmmettlach
  */
 
+#include <cstring>
 #include <fstream>
 #include <iostream>
-#include <cstring>
 
 #include "runner.h"
+
+std::string Frizz::Runner::process_with_context(
+  std::filesystem::path file_path,
+  std::unordered_map<std::string, std::string> context,
+  Frizz::FileUtility& util) {
+
+  Frizz::Lexer lexer;
+  Frizz::Parser parser(util);
+
+  lexer.lex(file_path);
+  parser.set_tokens(lexer.get_tokens());
+  parser.parse();
+
+  // Visit structs and replace ctx replacement ast
+}
 
 std::unordered_map<std::string, std::string> Frizz::Runner::process_partial_preamble(
   std::filesystem::path file_path, Frizz::FileUtility& util) {
 
   Frizz::Lexer lexer;
-  Frizz::Parser parser;
+  Frizz::Parser parser(util);
   Frizz::AstVisitor a_visitor(util);
-
-  std::ifstream input_stream(file_path);
 
   std::unordered_map<std::string, std::string> context;
 
-  if(input_stream) {
-    while(!input_stream.eof()) {
-      std::string line;
-      std::getline(input_stream, line);
+  lexer.lex(file_path);
+  parser.set_tokens(lexer.get_tokens());
+  parser.parse();
 
-      lexer.set_line(line);
-      lexer.next_tok();
+  for(auto const& s : parser.get_structures()) {
+    std::tuple<std::string, std::string> key_val = s->accept(a_visitor);
 
-      parser.set_tokens(lexer.get_tokens());
-      parser.parse();
+    std::string key = std::get<0>(key_val);
+    std::string val = std::get<1>(key_val);
 
-      std::vector<std::unique_ptr<Frizz::BasicAst>>::const_iterator it =
-        parser.get_structures().begin();
-      
-      for(; it != parser.get_structures().end(); ++it) {
-        std::tuple<std::string, std::string> key_val = (**it).accept(a_visitor);
-        
-        std::string key = std::get<0>(key_val);
-        std::string val = std::get<1>(key_val);
-
-        if(!key.empty() && !val.empty()) {
-          context.emplace(key, val);
-        }
-      }
+    if(!key.empty() && !val.empty()) {
+      context.emplace(key, val);
     }
   }
+
+  // lexer.clear_tokens();
+  // parser.clear_structures();
 
   return context;
 }
 
 void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
-                         Frizz::Parser& parser,
-                         Frizz::FileUtility& util,
-                         std::filesystem::path input_path,
-                         std::filesystem::path output_path) {
+                                        Frizz::Parser& parser,
+                                        Frizz::FileUtility& util,
+                                        std::filesystem::path input_path,
+                                        std::filesystem::path output_path) {
 
-  Frizz::ContextVisitor c_visitor(util);
+  Frizz::ContextVisitor c_visitor;
   Frizz::AstVisitor a_visitor(util);
 
-  std::ifstream input_stream(input_path);
   std::ofstream output_stream(output_path);
 
-  std::vector<std::unordered_map<std::string, std::string>> context;
+  lexer.lex(input_path);
+  parser.set_tokens(lexer.get_tokens());
+  parser.parse();
 
-  if(input_stream && output_stream) {
-    while(!input_stream.eof()) {
-      std::string line;
-      std::getline(input_stream, line);
+  if(output_stream) {
+    std::vector<std::shared_ptr<Frizz::BasicAst>>::const_iterator it =
+      parser.get_structures().begin();
 
-      lexer.set_line(line);
-      lexer.next_tok();
+    for(; it != parser.get_structures().end(); ++it) {
+      std::filesystem::path context_path = (**it).accept(c_visitor);
 
-      parser.set_tokens(lexer.get_tokens());
-      parser.parse();
-
-      std::vector<std::unique_ptr<Frizz::BasicAst>>::const_iterator it =
-        parser.get_structures().begin();
-
-      for(; it != parser.get_structures().end(); ++it) {
-        std::vector<std::filesystem::path> paths = (**it).accept(c_visitor);
-
-        for(auto it = paths.begin(); it != paths.end(); ++it) {
-          context.push_back(process_partial_preamble(*it, util));
-        }
-
-        for(auto it = context.begin(); it != context.end(); ++it) {
-          
-        }
-
-        std::string evaluated = std::get<1>((**it).accept(a_visitor));
-        output_stream << evaluated << " ";
+      if(!context_path.empty()) {
+        std::unordered_map<std::string, std::string> context =
+          this->process_partial_preamble(context_path, util);
       }
 
-      parser.clear_structures();
-      output_stream << "\n";
-    }
-  }
-  else {
-    if(input_stream.fail()) {
-      std::cout << "Input stream could not be created: " << strerror(errno) << std::endl;
+      std::string evaluated = std::get<1>((**it).accept(a_visitor));
+      output_stream << evaluated << " ";
     }
 
+    output_stream << "\n";
+  }
+  else {
     if(output_stream.fail()) {
       std::cout << "Output stream could not be created: " << strerror(errno) << std::endl;
     }
   }
 
-  input_stream.close();
   output_stream.close();
 }
 
 void Frizz::Runner::process_source_files(Frizz::FrizzConfig& config) {
+  Frizz::FileUtility util(config);
 
   Frizz::Lexer lexer;
-  Frizz::Parser parser;
-
-  Frizz::FileUtility util(config);
+  Frizz::Parser parser(util);
 
   std::vector<std::filesystem::path> source_file_paths = util.get_source_file_paths();
 
