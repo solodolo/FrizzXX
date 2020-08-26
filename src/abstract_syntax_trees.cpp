@@ -17,13 +17,10 @@ std::tuple<std::string, std::string> Frizz::BasicAst::accept(AstVisitor& visitor
   return std::make_tuple("", "");
 }
 
-std::filesystem::path Frizz::BasicAst::accept(ContextVisitor& visitor) {
+std::tuple<std::string, std::filesystem::path> Frizz::BasicAst::accept(ContextVisitor& visitor) {
   return visitor.visit(*this);
 }
 
-std::shared_ptr<const Frizz::BasicAst> Frizz::BasicAst::accept(ParentVisitor& visitor) {
-  return visitor.visit(*this);
-}
 /*
   ########## AssignmentAst ##########
 */
@@ -43,12 +40,12 @@ std::string Frizz::AssignmentAst::get_value() const {
   return this->value;
 }
 
-void Frizz::AssignmentAst::set_parent(std::shared_ptr<BasicAst> parent) {
+void Frizz::AssignmentAst::set_parent(std::shared_ptr<ForLoopAst> parent) {
   this->parent = std::move(parent);
 }
 
-std::shared_ptr<const Frizz::BasicAst> Frizz::AssignmentAst::get_parent() {
-  return this->parent;
+std::string Frizz::AssignmentAst::get_parent_name() {
+  return this->parent->get_key();
 }
 
 void Frizz::AssignmentAst::set_context_filepath(std::filesystem::path path) {
@@ -120,6 +117,11 @@ std::tuple<std::string, std::string> Frizz::AstVisitor::visit(Frizz::Passthrough
 /*
   ########### ContextVisitor ##########
 */
-std::filesystem::path Frizz::ContextVisitor::visit(Frizz::AssignmentAst& ast) {
-  return ast.get_context_filepath();
+std::tuple<std::string, std::filesystem::path> Frizz::ContextVisitor::visit(
+  Frizz::AssignmentAst& ast) {
+
+  std::string parent_name = ast.get_parent_name();
+  std::filesystem::path context_filepath = ast.get_context_filepath();
+
+  return std::make_tuple(parent_name, context_filepath);
 }

@@ -16,14 +16,12 @@
 namespace Frizz {
 class AstVisitor;
 class ContextVisitor;
-class ParentVisitor;
 
 // Add new ast for context replacement
 class BasicAst {
 public:
   virtual std::tuple<std::string, std::string> accept(AstVisitor& visitor);
-  virtual std::filesystem::path accept(ContextVisitor& visitor);
-  virtual std::shared_ptr<const BasicAst> accept(ParentVisitor& visitor);
+  virtual std::tuple<std::string, std::filesystem::path> accept(ContextVisitor& visitor);
 
   virtual std::string get_value() const { return this->value; }
 
@@ -31,34 +29,6 @@ public:
 
 private:
   std::string value;
-};
-
-class AssignmentAst : public BasicAst {
-public:
-  AssignmentAst(std::string name, std::string value)
-    : name(name)
-    , value(value) {};
-
-  std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
-
-  std::string get_value() const override;
-  std::string get_name() const;
-  bool is_src() const;
-
-  void set_parent(std::shared_ptr<BasicAst> parent);
-  std::shared_ptr<const BasicAst> get_parent();
-
-  void set_context_filepath(std::filesystem::path path);
-  std::filesystem::path get_context_filepath();
-
-  void set_context(std::unordered_map<std::string, std::string> context);
-
-private:
-  std::string name;
-  std::string value;
-  std::shared_ptr<BasicAst> parent;
-  std::filesystem::path context_filepath;
-  std::unordered_map<std::string, std::string> context;
 };
 
 class ForLoopAst : public BasicAst {
@@ -78,6 +48,34 @@ public:
 private:
   std::string name;
   std::string value;
+};
+
+class AssignmentAst : public BasicAst {
+public:
+  AssignmentAst(std::string name, std::string value)
+    : name(name)
+    , value(value) {};
+
+  std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
+
+  std::string get_value() const override;
+  std::string get_name() const;
+  bool is_src() const;
+
+  void set_parent(std::shared_ptr<ForLoopAst> parent);
+  std::string get_parent_name();
+
+  void set_context_filepath(std::filesystem::path path);
+  std::filesystem::path get_context_filepath();
+
+  void set_context(std::unordered_map<std::string, std::string> context);
+
+private:
+  std::string name;
+  std::string value;
+  std::shared_ptr<ForLoopAst> parent;
+  std::filesystem::path context_filepath;
+  std::unordered_map<std::string, std::string> context;
 };
 
 class PassthroughAst : public BasicAst {
@@ -118,18 +116,12 @@ private:
 
 class ContextVisitor {
 public:
-  std::filesystem::path visit(AssignmentAst& ast);
+  std::tuple<std::string, std::filesystem::path> visit(AssignmentAst& ast);
 
-  std::filesystem::path visit(BasicAst& ast) {
+  std::tuple<std::string, std::filesystem::path> visit(BasicAst& ast) {
     std::filesystem::path empty;
-    return empty;
+    return std::make_tuple("", empty);
   };
-};
-
-class ParentVisitor {
-public:
-  std::shared_ptr<const BasicAst> visit(BasicAst& ast) { return nullptr; }
-  std::shared_ptr<const BasicAst> visit(AssignmentAst& ast) { return ast.get_parent(); }
 };
 
 }
