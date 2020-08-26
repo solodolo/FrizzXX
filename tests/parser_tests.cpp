@@ -12,6 +12,11 @@ using namespace Frizz;
 
 class ParserTests : public ::testing::Test {
 public:
+  ParserTests()
+    : util(config)
+    , parser(util) {}
+  FrizzConfig config;
+  FileUtility util;
   Parser parser;
 };
 
@@ -31,10 +36,10 @@ TEST_F(ParserTests, SingleLineSingleExp) {
 
 TEST_F(ParserTests, SingleLineMultiExp) {
   std::vector<Token> tokens {
-    Token(TokType::tok_block),         Token(TokType::tok_ident, "src"),
-    Token(TokType::tok_sym, "="),      Token(TokType::tok_str, "test1.md"),
-    Token(TokType::tok_sym, ","),      Token(TokType::tok_block),
-    Token(TokType::tok_ident, "src"),  Token(TokType::tok_sym, "="),
+    Token(TokType::tok_block),          Token(TokType::tok_ident, "src"),
+    Token(TokType::tok_sym, "="),       Token(TokType::tok_str, "test1.md"),
+    Token(TokType::tok_sym, ","),       Token(TokType::tok_block),
+    Token(TokType::tok_ident, "src"),   Token(TokType::tok_sym, "="),
     Token(TokType::tok_str, "test2.md")
   };
 
@@ -61,11 +66,11 @@ TEST_F(ParserTests, SinglePassthroughLine) {
 }
 
 TEST_F(ParserTests, PreambleSingleAssignment) {
-  std::vector<Token> tokens {
-    Token(TokType::tok_preamble), Token(TokType::tok_ident),
-    Token(TokType::tok_sym, "="), Token(TokType::tok_str, "foo"),
-    Token(TokType::tok_preamble)
-  };
+  std::vector<Token> tokens { Token(TokType::tok_preamble),
+                              Token(TokType::tok_ident),
+                              Token(TokType::tok_sym, "="),
+                              Token(TokType::tok_str, "foo"),
+                              Token(TokType::tok_preamble) };
 
   parser.set_tokens(tokens);
 
@@ -76,14 +81,12 @@ TEST_F(ParserTests, PreambleSingleAssignment) {
 }
 
 TEST_F(ParserTests, PreambleMultiAssignment) {
-  std::vector<Token> tokens {
-    Token(TokType::tok_preamble), Token(TokType::tok_ident, "a"),
-    Token(TokType::tok_sym, "="), Token(TokType::tok_str, "foo"),
-    Token(TokType::tok_ident, "b"), Token(TokType::tok_sym, "="),
-    Token(TokType::tok_str, "bar"), Token(TokType::tok_ident, "c"),
-    Token(TokType::tok_sym, "="), Token(TokType::tok_str, "baz"),
-    Token(TokType::tok_preamble)
-  };
+  std::vector<Token> tokens { Token(TokType::tok_preamble),   Token(TokType::tok_ident, "a"),
+                              Token(TokType::tok_sym, "="),   Token(TokType::tok_str, "foo"),
+                              Token(TokType::tok_ident, "b"), Token(TokType::tok_sym, "="),
+                              Token(TokType::tok_str, "bar"), Token(TokType::tok_ident, "c"),
+                              Token(TokType::tok_sym, "="),   Token(TokType::tok_str, "baz"),
+                              Token(TokType::tok_preamble) };
 
   parser.set_tokens(tokens);
 
