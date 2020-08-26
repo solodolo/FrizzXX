@@ -23,11 +23,11 @@ std::string Frizz::Runner::process_with_context(
   parser.set_tokens(lexer.get_tokens());
   parser.parse();
 
-  // Visit structs and replace ctx replacement ast
+  for(auto const& s : parser.get_trees()) {}
 }
 
 std::unordered_map<std::string, std::string> Frizz::Runner::process_partial_preamble(
-  std::filesystem::path file_path, Frizz::FileUtility& util) {
+  std::string context_namespace, std::filesystem::path file_path, Frizz::FileUtility& util) {
 
   Frizz::Lexer lexer;
   Frizz::Parser parser(util);
@@ -72,15 +72,16 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
   parser.parse();
 
   if(output_stream) {
-    std::vector<std::shared_ptr<Frizz::BasicAst>>::const_iterator it =
-      parser.get_trees().begin();
+    std::vector<std::shared_ptr<Frizz::BasicAst>>::const_iterator it = parser.get_trees().begin();
 
     for(; it != parser.get_trees().end(); ++it) {
-      std::filesystem::path context_path = (**it).accept(c_visitor);
+      std::tuple<std::string, std::filesystem::path> namespaced_context = (**it).accept(c_visitor);
+      std::string context_namespace = std::get<0>(namespaced_context);
+      std::filesystem::path context_path = std::get<1>(namespaced_context);
 
       if(!context_path.empty()) {
         std::unordered_map<std::string, std::string> context =
-          this->process_partial_preamble(context_path, util);
+          this->process_partial_preamble(context_namespace, context_path, util);
       }
 
       std::string evaluated = std::get<1>((**it).accept(a_visitor));
