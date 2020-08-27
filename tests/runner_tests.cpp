@@ -1,5 +1,5 @@
 /*
- * main_tests.cpp
+ * runner_tests.cpp
  *
  *  Created on: Aug 22, 2020
  *      Author: dmmettlach
@@ -23,8 +23,8 @@ public:
 };
 
 TEST_F(RunnerTests, ProcessPreamble) {
-  std::unordered_map<std::string, std::string> map =
-    runner.process_partial_preamble(config.get_partial_templates_path() /= "posts/post1.md", util);
+  std::unordered_map<std::string, std::string> map = runner.process_partial_preamble(
+    "", config.get_partial_templates_path() /= "posts/post1.md", util);
 
   ASSERT_EQ(map.size(), 1);
 
@@ -33,8 +33,8 @@ TEST_F(RunnerTests, ProcessPreamble) {
 }
 
 TEST_F(RunnerTests, ProcessPreambleMultiple) {
-  std::unordered_map<std::string, std::string> map =
-    runner.process_partial_preamble(config.get_partial_templates_path() /= "posts/post2.md", util);
+  std::unordered_map<std::string, std::string> map = runner.process_partial_preamble(
+    "", config.get_partial_templates_path() /= "posts/post2.md", util);
 
   ASSERT_EQ(map.size(), 3);
 
@@ -49,11 +49,24 @@ TEST_F(RunnerTests, ProcessPreambleMultiple) {
 }
 
 TEST_F(RunnerTests, ProcessPreambleIgnoresNonIdents) {
-  std::unordered_map<std::string, std::string> map =
-    runner.process_partial_preamble(config.get_partial_templates_path() /= "posts/post3.md", util);
+  std::unordered_map<std::string, std::string> map = runner.process_partial_preamble(
+    "", config.get_partial_templates_path() /= "posts/post3.md", util);
 
   ASSERT_EQ(map.size(), 1);
 
   auto found = map.find("is");
   EXPECT_EQ(found->second, "a block");
+}
+
+TEST_F(RunnerTests, ProcessWithContext) {
+  std::string title = "This is the title of the post";
+
+  std::unordered_map<std::string, std::string> context;
+  context.emplace("post.title", title);
+
+  std::string result = runner.process_with_context(
+    config.get_partial_templates_path() /= "contextual_partial.md", context, util);
+
+  std::string expected = "["+title+"](test_link)";
+  ASSERT_EQ(result, expected);
 }

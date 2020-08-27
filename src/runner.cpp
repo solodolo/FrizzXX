@@ -18,12 +18,19 @@ std::string Frizz::Runner::process_with_context(
 
   Frizz::Lexer lexer;
   Frizz::Parser parser(util);
+  Frizz::ContextReplacementVisitor visitor;
 
   lexer.lex(file_path);
   parser.set_tokens(lexer.get_tokens());
   parser.parse();
 
-  for(auto const& s : parser.get_trees()) {}
+  std::string replaced;
+
+  for(auto const& s : parser.get_trees()) {
+    replaced += s->accept(visitor, context);
+  }
+
+  return replaced;
 }
 
 std::unordered_map<std::string, std::string> Frizz::Runner::process_partial_preamble(
@@ -46,12 +53,15 @@ std::unordered_map<std::string, std::string> Frizz::Runner::process_partial_prea
     std::string val = std::get<1>(key_val);
 
     if(!key.empty() && !val.empty()) {
-      context.emplace(key, val);
+      if(context_namespace.empty()) {
+        context.emplace(key, val);
+      }
+      else {
+        std::string namespaced_key = context_namespace + ":" + key;
+        context.emplace(namespaced_key, val);
+      }
     }
   }
-
-  // lexer.clear_tokens();
-  // parser.clear_structures();
 
   return context;
 }
@@ -82,6 +92,12 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
       if(!context_path.empty()) {
         std::unordered_map<std::string, std::string> context =
           this->process_partial_preamble(context_namespace, context_path, util);
+
+        std::tuple<std::string, std::string> template_info = (**it).accept(a_visitor);
+        std::string template_name = std::get<1>(template_info);
+        std::filesystem::path template_file_path = util.get_partial_file_path(template_name);
+        
+        output_stream << this->process_with_context(template_file_path, context, util);
       }
 
       std::string evaluated = std::get<1>((**it).accept(a_visitor));
