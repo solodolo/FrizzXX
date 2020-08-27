@@ -41,7 +41,15 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_partial_file_paths(st
   std::filesystem::path dir = this->config.get_partial_templates_path() /= subdir;
   std::filesystem::directory_iterator it(dir);
 
+  for(auto f : it) {
+    paths.push_back(f);
+  }
+
   return paths;
+}
+
+std::filesystem::path Frizz::FileUtility::get_partial_file_path(std::string filename) {
+  return this->config.get_partial_templates_path() /= filename;
 }
 
 std::string Frizz::FileUtility::get_partial_contents(std::string filename) {
