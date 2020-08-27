@@ -108,7 +108,7 @@ bool Frizz::Parser::for_loop() {
 
   for(auto it = paths.begin(); it != paths.end(); ++it) {
     std::shared_ptr<AssignmentAst> assign =
-      std::make_shared<AssignmentAst>(ident_name, ident_val);
+      std::make_shared<AssignmentAst>("src", template_name);
     assign->set_parent(loop);
 
     assign->set_context_filepath(*it);
