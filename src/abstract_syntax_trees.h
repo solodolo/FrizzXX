@@ -16,12 +16,15 @@
 namespace Frizz {
 class AstVisitor;
 class ContextVisitor;
+class ContextReplacementVisitor;
 
 // Add new ast for context replacement
 class BasicAst {
 public:
   virtual std::tuple<std::string, std::string> accept(AstVisitor& visitor);
   virtual std::tuple<std::string, std::filesystem::path> accept(ContextVisitor& visitor);
+  virtual std::string accept(ContextReplacementVisitor& visitor,
+                             std::unordered_map<std::string, std::string> context);
 
   virtual std::string get_value() const { return this->value; }
 
@@ -92,13 +95,15 @@ private:
 
 class CtxReplacementAst : public BasicAst {
 public:
-  CtxReplacementAst(std::string key, std::string val)
+  CtxReplacementAst(std::string key, std::string value)
     : key(key)
-    , val(val) {};
+    , value(value) {};
+
+  std::string get_namespaced_key();
 
 private:
   std::string key;
-  std::string val;
+  std::string value;
 };
 
 class AstVisitor {
@@ -122,6 +127,14 @@ public:
     std::filesystem::path empty;
     return std::make_tuple("", empty);
   };
+};
+
+class ContextReplacementVisitor {
+public:
+  std::string visit(CtxReplacementAst& ast, std::unordered_map<std::string, std::string> context);
+  std::string visit(BasicAst& ast, std::unordered_map<std::string, std::string> context) {
+    return ast.get_value();
+  }
 };
 
 }

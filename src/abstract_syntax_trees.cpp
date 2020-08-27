@@ -21,6 +21,11 @@ std::tuple<std::string, std::filesystem::path> Frizz::BasicAst::accept(ContextVi
   return visitor.visit(*this);
 }
 
+std::string Frizz::BasicAst::accept(ContextReplacementVisitor& visitor,
+                                    std::unordered_map<std::string, std::string> context) {
+  return visitor.visit(*this, context);
+}
+
 /*
   ########## AssignmentAst ##########
 */
@@ -88,6 +93,15 @@ std::string Frizz::PassthroughAst::get_value() const {
 }
 
 /*
+  ########## CtxReplacementAst
+*/
+
+std::string Frizz::CtxReplacementAst::get_namespaced_key() {
+  return this->key + ":" + this->value;
+  ;
+}
+
+/*
   ########### AstVisitor ##########
 */
 std::tuple<std::string, std::string> Frizz::AstVisitor::visit(Frizz::AssignmentAst& ast) {
@@ -124,4 +138,19 @@ std::tuple<std::string, std::filesystem::path> Frizz::ContextVisitor::visit(
   std::filesystem::path context_filepath = ast.get_context_filepath();
 
   return std::make_tuple(parent_name, context_filepath);
+}
+
+/*
+  ########## ContextReplacementVisitor ##########
+*/
+std::string Frizz::ContextReplacementVisitor::visit(
+  CtxReplacementAst& ast, std::unordered_map<std::string, std::string> context) {
+  std::string lookup_key = ast.get_namespaced_key();
+  auto got = context.find(lookup_key);
+
+  if(got == context.end()) {
+    return "";
+  }
+
+  return got->second;
 }
