@@ -60,6 +60,7 @@ public:
     , value(value) {};
 
   std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
+  std::tuple<std::string, std::filesystem::path> accept(ContextVisitor& visitor) override;
 
   std::string get_value() const override;
   std::string get_name() const;
@@ -100,6 +101,8 @@ public:
     , value(value) {};
 
   std::string get_namespaced_key();
+  std::string accept(ContextReplacementVisitor& visitor,
+                     std::unordered_map<std::string, std::string> context) override;
 
 private:
   std::string key;

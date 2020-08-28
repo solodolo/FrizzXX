@@ -33,6 +33,11 @@ std::tuple<std::string, std::string> Frizz::AssignmentAst::accept(Frizz::AstVisi
   return visitor.visit(*this);
 }
 
+std::tuple<std::string, std::filesystem::path> Frizz::AssignmentAst::accept(
+  Frizz::ContextVisitor& visitor) {
+  return visitor.visit(*this);
+}
+
 bool Frizz::AssignmentAst::is_src() const {
   return this->get_name() == "src";
 }
@@ -98,7 +103,12 @@ std::string Frizz::PassthroughAst::get_value() const {
 
 std::string Frizz::CtxReplacementAst::get_namespaced_key() {
   return this->key + ":" + this->value;
-  ;
+}
+
+std::string Frizz::CtxReplacementAst::accept(ContextReplacementVisitor& visitor,
+                                             std::unordered_map<std::string, std::string> context) {
+
+  return visitor.visit(*this, context);
 }
 
 /*
