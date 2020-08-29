@@ -62,11 +62,11 @@ TEST_F(RunnerTests, ProcessWithContext) {
   std::string title = "This is the title of the post";
 
   std::unordered_map<std::string, std::string> context;
-  context.emplace("post.title", title);
+  context.emplace("post:title", title);
 
   std::string result = runner.process_with_context(
     config.get_partial_templates_path() /= "contextual_partial.md", context, util);
 
-  std::string expected = "["+title+"](test_link)";
+  std::string expected = "["+title+"](test_link)\n";
   ASSERT_EQ(result, expected);
 }
