@@ -25,7 +25,8 @@ enum TokType {
   tok_sym = 8,
   tok_ctx_name = 9,
   tok_ctx_val = 10,
-  tok_nl = 11
+  tok_nl = 11,
+  tok_eof = 12
 };
 
 struct Token {
