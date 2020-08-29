@@ -259,6 +259,74 @@ std::vector<Frizz::TokType> map_tokens_by_id(std::vector<Frizz::Token> tokens) {
 	return by_id;
 }
 
+//context replacement
+TEST_F(LexerTests, ContextReplacement) {
+	lexer.set_line("[{post.title}](test_link)");
+	lexer.next_tok();
+
+	std::vector<Frizz::Token> tokens = lexer.get_tokens();
+
+	ASSERT_EQ(tokens.size(), 7);
+
+	EXPECT_EQ(tokens[0].value, "[");
+	EXPECT_EQ(tokens[0].id, Frizz::TokType::tok_sym);
+
+	EXPECT_EQ(tokens[1].value, "post");
+	EXPECT_EQ(tokens[1].id, Frizz::TokType::tok_ctx_name);
+
+	EXPECT_EQ(tokens[2].value, "title");
+	EXPECT_EQ(tokens[2].id, Frizz::TokType::tok_ctx_val);
+
+	EXPECT_EQ(tokens[3].value, "]");
+	EXPECT_EQ(tokens[3].id, Frizz::TokType::tok_sym);
+
+	EXPECT_EQ(tokens[4].value, "(");
+	EXPECT_EQ(tokens[4].id, Frizz::TokType::tok_sym);
+
+	EXPECT_EQ(tokens[5].value, "test_link");
+	EXPECT_EQ(tokens[5].id, Frizz::TokType::tok_ident);
+
+	EXPECT_EQ(tokens[6].value, ")");
+	EXPECT_EQ(tokens[6].id, Frizz::TokType::tok_sym);
+}
+
+//context replacement
+TEST_F(LexerTests, ContextReplacementFromFile) {
+	std::filesystem::path filepath("./tests/test_files/partials/contextual_partial.md");
+	lexer.lex(filepath);
+
+	std::vector<Frizz::Token> tokens = lexer.get_tokens();
+
+	ASSERT_EQ(tokens.size(), 9);
+
+	EXPECT_EQ(tokens[0].value, "[");
+	EXPECT_EQ(tokens[0].id, Frizz::TokType::tok_sym);
+
+	EXPECT_EQ(tokens[1].value, "post");
+	EXPECT_EQ(tokens[1].id, Frizz::TokType::tok_ctx_name);
+
+	EXPECT_EQ(tokens[2].value, "title");
+	EXPECT_EQ(tokens[2].id, Frizz::TokType::tok_ctx_val);
+
+	EXPECT_EQ(tokens[3].value, "]");
+	EXPECT_EQ(tokens[3].id, Frizz::TokType::tok_sym);
+
+	EXPECT_EQ(tokens[4].value, "(");
+	EXPECT_EQ(tokens[4].id, Frizz::TokType::tok_sym);
+
+	EXPECT_EQ(tokens[5].value, "test_link");
+	EXPECT_EQ(tokens[5].id, Frizz::TokType::tok_ident);
+
+	EXPECT_EQ(tokens[6].value, ")");
+	EXPECT_EQ(tokens[6].id, Frizz::TokType::tok_sym);
+
+	EXPECT_EQ(tokens[7].value, "\n");
+	EXPECT_EQ(tokens[7].id, Frizz::TokType::tok_nl);
+
+	EXPECT_EQ(tokens[8].value, "");
+	EXPECT_EQ(tokens[8].id, Frizz::TokType::tok_eof);
+}
+
 TEST_F(LexerTests, Complete) {
 	std::vector<std::string> lines;
 	lines.push_back("# This is a markdown file");
@@ -334,5 +402,6 @@ TEST_F(LexerTests, FromFileTest) {
 	auto tokens = lexer.get_tokens();
 	auto it = tokens.begin();
 
-	ASSERT_EQ(tokens.size(), 33);
+	ASSERT_EQ(tokens.size(), 34);
+	EXPECT_EQ(tokens.back().id, Frizz::TokType::tok_eof);
 };
