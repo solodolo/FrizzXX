@@ -47,6 +47,7 @@ private:
   bool required_found(TokType id, std::string val);
   void add_error(std::string message);
   bool has_errors();
+  bool is_eof();
 };
 }
 #endif /* SRC_PARSER_H_ */

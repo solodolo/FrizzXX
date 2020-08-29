@@ -9,8 +9,8 @@
 #include "parser.h"
 
 void Frizz::Parser::parse() {
-  while(!this->tokens.empty()) {
-    this->next_token();
+  this->next_token();
+  while(!this->is_eof()) {
     if(this->peek_current(TokType::tok_block)) {
       while(true) {
         this->required_found(TokType::tok_block);
@@ -63,9 +63,16 @@ bool Frizz::Parser::context() {
 
 void Frizz::Parser::set_tokens(std::vector<Token> tokens) {
   this->tokens = tokens;
+  
+  if(this->tokens.back().id != TokType::tok_eof) {
+    Token eof(TokType::tok_eof);
+    this->tokens.push_back(eof);
+  }
 }
 
 void Frizz::Parser::next_token() {
+  this->last_val = this->cur_tok.value;
+  
   if(!this->tokens.empty()) {
     this->cur_tok = *(this->tokens.begin());
 
@@ -140,6 +147,9 @@ bool Frizz::Parser::passthrough() {
   std::shared_ptr<BasicAst> exp = std::make_shared<PassthroughAst>(this->cur_tok.value);
 
   this->trees.push_back(std::move(exp));
+
+  this->next_token();
+  
   return true;
 }
 
@@ -149,7 +159,6 @@ bool Frizz::Parser::peek_current(TokType id) {
 
 bool Frizz::Parser::optional_found(TokType id) {
   if(id == this->cur_tok.id) {
-    this->last_val = this->cur_tok.value;
     this->next_token();
     return true;
   }
@@ -159,7 +168,6 @@ bool Frizz::Parser::optional_found(TokType id) {
 
 bool Frizz::Parser::optional_found(TokType id, std::string val) {
   if(id == this->cur_tok.id && val == this->cur_tok.value) {
-    this->last_val = this->cur_tok.value;
     this->next_token();
     return true;
   }
@@ -203,4 +211,8 @@ const std::vector<std::shared_ptr<Frizz::BasicAst>>& Frizz::Parser::get_trees() 
 
 void Frizz::Parser::clear_trees() {
   this->trees.clear();
+}
+
+bool Frizz::Parser::is_eof() {
+  return this->cur_tok.id == TokType::tok_eof;
 }
