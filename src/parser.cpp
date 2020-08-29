@@ -63,7 +63,7 @@ bool Frizz::Parser::context() {
 
 void Frizz::Parser::set_tokens(std::vector<Token> tokens) {
   this->tokens = tokens;
-  
+
   if(this->tokens.back().id != TokType::tok_eof) {
     Token eof(TokType::tok_eof);
     this->tokens.push_back(eof);
@@ -102,8 +102,9 @@ bool Frizz::Parser::for_loop() {
 
   std::shared_ptr<ForLoopAst> loop = std::make_shared<ForLoopAst>(ident_name, ident_val);
 
-  this->required_found(TokType::tok_src);
-  this->required_found(TokType::tok_str);
+  this->required_found(TokType::tok_nl);
+  this->required_found(TokType::tok_block);
+  this->ident();
 
   if(this->has_errors()) {
     return false;
