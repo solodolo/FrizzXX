@@ -19,7 +19,6 @@ enum TokType {
   tok_preamble = 2,
   tok_ident = 3,
   tok_str = 4,
-  tok_src = 5,
   tok_for = 6,
   tok_in = 7,
   tok_sym = 8,
