@@ -97,3 +97,19 @@ TEST_F(ParserTests, PreambleMultiAssignment) {
   EXPECT_EQ(parser.get_trees()[1]->get_value(), "bar");
   EXPECT_EQ(parser.get_trees()[2]->get_value(), "baz");
 }
+
+TEST_F(ParserTests, ForLoopContext) {
+  config.load_configuration("./tests/test_files/config/test2.json");
+
+  std::vector<Token> tokens { Token(TokType::tok_block),    Token(TokType::tok_for),
+                              Token(TokType::tok_ident),    Token(TokType::tok_in),
+                              Token(TokType::tok_str, "posts"),      Token(TokType::tok_nl),
+                              Token(TokType::tok_block),    Token(TokType::tok_ident),
+                              Token(TokType::tok_sym, "="), Token(TokType::tok_str, "test.md") };
+
+  parser.set_tokens(tokens);
+
+  parser.parse();
+
+  ASSERT_EQ(parser.get_trees().size(), 4);
+}
