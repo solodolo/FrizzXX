@@ -39,10 +39,13 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_partial_file_paths(st
   std::vector<std::filesystem::path> paths;
 
   std::filesystem::path dir = this->config.get_partial_templates_path() /= subdir;
-  std::filesystem::directory_iterator it(dir);
 
-  for(auto f : it) {
-    paths.push_back(f);
+  if(std::filesystem::exists(dir)) {
+    std::filesystem::directory_iterator it(dir);
+    
+    for(auto f : it) {
+      paths.push_back(f);
+    }
   }
 
   return paths;
