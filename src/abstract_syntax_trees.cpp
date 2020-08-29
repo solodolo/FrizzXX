@@ -77,7 +77,7 @@ std::tuple<std::string, std::string> Frizz::ForLoopAst::accept(Frizz::AstVisitor
   return visitor.visit(*this);
 }
 
-std::string Frizz::ForLoopAst::get_key() {
+std::string Frizz::ForLoopAst::get_key() const {
   return this->name;
 }
 

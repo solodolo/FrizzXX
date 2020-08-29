@@ -42,7 +42,7 @@ public:
 
   std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
 
-  std::string get_key();
+  std::string get_key() const;
   std::string get_value() const override;
 
 public:
