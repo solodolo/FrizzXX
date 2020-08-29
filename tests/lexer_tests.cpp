@@ -400,8 +400,28 @@ TEST_F(LexerTests, FromFileTest) {
 	lexer.lex(input_path);
 
 	auto tokens = lexer.get_tokens();
-	auto it = tokens.begin();
 
 	ASSERT_EQ(tokens.size(), 34);
 	EXPECT_EQ(tokens.back().id, Frizz::TokType::tok_eof);
 };
+
+
+TEST_F(LexerTests, ForLoopTest) {
+	std::filesystem::path input_path("./tests/test_files/sources/for_loop.md");
+	lexer.lex(input_path);
+
+	auto tokens = lexer.get_tokens();
+	
+	EXPECT_EQ(tokens[0].id, Frizz::TokType::tok_block);
+	EXPECT_EQ(tokens[1].id, Frizz::TokType::tok_for);
+	EXPECT_EQ(tokens[2].id, Frizz::TokType::tok_ident);
+	EXPECT_EQ(tokens[3].id, Frizz::TokType::tok_in);
+	EXPECT_EQ(tokens[4].id, Frizz::TokType::tok_str);
+	EXPECT_EQ(tokens[5].id, Frizz::TokType::tok_nl);
+	EXPECT_EQ(tokens[6].id, Frizz::TokType::tok_block);
+	EXPECT_EQ(tokens[7].id, Frizz::TokType::tok_ident);
+	EXPECT_EQ(tokens[8].id, Frizz::TokType::tok_sym);
+	EXPECT_EQ(tokens[9].id, Frizz::TokType::tok_str);
+	EXPECT_EQ(tokens[10].id, Frizz::TokType::tok_nl);
+	EXPECT_EQ(tokens[11].id, Frizz::TokType::tok_eof);
+}
