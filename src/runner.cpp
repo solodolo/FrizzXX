@@ -95,7 +95,6 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
           this->process_partial_preamble(context_namespace, context_path, util);
 
         std::tuple<std::string, std::string> template_info = (**it).accept(a_visitor);
-        std::string test = (**it).get_value();
         std::string template_name = std::get<1>(template_info);
         std::filesystem::path template_file_path = util.get_partial_file_path(template_name);
         
