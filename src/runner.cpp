@@ -38,7 +38,7 @@ std::unordered_map<std::string, std::string> Frizz::Runner::process_partial_prea
 
   Frizz::Lexer lexer;
   Frizz::Parser parser(util);
-  Frizz::AstVisitor a_visitor(util);
+  Frizz::AstVisitor a_visitor;
 
   std::unordered_map<std::string, std::string> context;
 
@@ -73,7 +73,8 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
                                         std::filesystem::path output_path) {
 
   Frizz::ContextVisitor c_visitor;
-  Frizz::AstVisitor a_visitor(util);
+  Frizz::AstVisitor a_visitor;
+  Frizz::FileContentVisitor fc_visitor(util);
 
   std::ofstream output_stream(output_path);
 
@@ -94,13 +95,14 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
           this->process_partial_preamble(context_namespace, context_path, util);
 
         std::tuple<std::string, std::string> template_info = (**it).accept(a_visitor);
+        std::string test = (**it).get_value();
         std::string template_name = std::get<1>(template_info);
         std::filesystem::path template_file_path = util.get_partial_file_path(template_name);
         
         output_stream << this->process_with_context(template_file_path, context, util);
       }
 
-      std::string evaluated = std::get<1>((**it).accept(a_visitor));
+      std::string evaluated = (**it).accept(fc_visitor);
       output_stream << evaluated << " ";
     }
 
