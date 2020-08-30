@@ -101,9 +101,12 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
         
         output_stream << this->process_with_context(template_file_path, context, util);
       }
+      else {
+        std::string file_contents = (**it).accept(fc_visitor);
+        std::tuple<std::string, std::string> ast_contents = (**it).accept(a_visitor);
 
-      std::string evaluated = (**it).accept(fc_visitor);
-      output_stream << evaluated << " ";
+        output_stream << std::get<1>(ast_contents) << file_contents << " ";
+      }
     }
 
     output_stream << "\n";
