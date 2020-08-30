@@ -86,7 +86,9 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
     std::vector<std::shared_ptr<Frizz::BasicAst>>::const_iterator it = parser.get_trees().begin();
 
     for(; it != parser.get_trees().end(); ++it) {
-      std::tuple<std::string, std::filesystem::path> namespaced_context = (**it).accept(c_visitor);
+      std::shared_ptr<BasicAst> ast = *it;
+
+      std::tuple<std::string, std::filesystem::path> namespaced_context = ast->accept(c_visitor);
       std::string context_namespace = std::get<0>(namespaced_context);
       std::filesystem::path context_path = std::get<1>(namespaced_context);
 
@@ -94,15 +96,15 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
         std::unordered_map<std::string, std::string> context =
           this->process_partial_preamble(context_namespace, context_path, util);
 
-        std::tuple<std::string, std::string> template_info = (**it).accept(a_visitor);
+        std::tuple<std::string, std::string> template_info = ast->accept(a_visitor);
         std::string template_name = std::get<1>(template_info);
         std::filesystem::path template_file_path = util.get_partial_file_path(template_name);
         
         output_stream << this->process_with_context(template_file_path, context, util);
       }
       else {
-        std::string file_contents = (**it).accept(fc_visitor);
-        std::tuple<std::string, std::string> ast_contents = (**it).accept(a_visitor);
+        std::string file_contents = ast->accept(fc_visitor);
+        std::tuple<std::string, std::string> ast_contents = ast->accept(a_visitor);
 
         output_stream << std::get<1>(ast_contents) << file_contents << " ";
       }
