@@ -72,7 +72,7 @@ void Frizz::Parser::set_tokens(std::vector<Token> tokens) {
 
 void Frizz::Parser::next_token() {
   this->last_val = this->cur_tok.value;
-  
+
   if(!this->tokens.empty()) {
     this->cur_tok = *(this->tokens.begin());
 
@@ -104,19 +104,18 @@ bool Frizz::Parser::for_loop() {
 
   this->required_found(TokType::tok_nl);
   this->required_found(TokType::tok_block);
-  this->ident();
+  std::tuple<std::string, std::string> assign = this->find_ident();
 
   if(this->has_errors()) {
     return false;
   }
 
-  std::string template_name = this->last_val;
+  std::string template_name = std::get<1>(assign);
 
   std::vector<std::filesystem::path> paths = this->util.get_partial_file_paths(ident_val);
 
   for(auto it = paths.begin(); it != paths.end(); ++it) {
-    std::shared_ptr<AssignmentAst> assign =
-      std::make_shared<AssignmentAst>("src", template_name);
+    std::shared_ptr<AssignmentAst> assign = std::make_shared<AssignmentAst>("src", template_name);
     assign->set_parent(loop);
 
     assign->set_context_filepath(*it);
@@ -127,6 +126,19 @@ bool Frizz::Parser::for_loop() {
 }
 
 bool Frizz::Parser::ident() {
+  std::tuple<std::string, std::string> ident = this->find_ident();
+
+  if(this->has_errors())
+    return false;
+
+  std::shared_ptr<AssignmentAst> exp =
+    std::make_shared<AssignmentAst>(std::get<0>(ident), std::get<1>(ident));
+
+  this->trees.push_back(std::move(exp));
+  return true;
+}
+
+std::tuple<std::string, std::string> Frizz::Parser::find_ident() {
   this->required_found(TokType::tok_ident);
   std::string ident_name = this->last_val;
 
@@ -135,13 +147,7 @@ bool Frizz::Parser::ident() {
   this->required_found(TokType::tok_str);
   std::string ident_val = this->last_val;
 
-  if(this->has_errors())
-    return false;
-
-  std::shared_ptr<AssignmentAst> exp = std::make_shared<AssignmentAst>(ident_name, ident_val);
-
-  this->trees.push_back(std::move(exp));
-  return true;
+  return std::make_tuple(ident_name, ident_val);
 }
 
 bool Frizz::Parser::passthrough() {
@@ -150,7 +156,7 @@ bool Frizz::Parser::passthrough() {
   this->trees.push_back(std::move(exp));
 
   this->next_token();
-  
+
   return true;
 }
 

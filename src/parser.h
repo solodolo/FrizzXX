@@ -40,6 +40,8 @@ private:
   bool context();
   bool for_loop();
 
+  std::tuple<std::string, std::string> find_ident();
+
   bool peek_current(TokType id);
   bool optional_found(TokType id);
   bool optional_found(TokType id, std::string val);
