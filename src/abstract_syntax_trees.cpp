@@ -17,6 +17,10 @@ std::tuple<std::string, std::string> Frizz::BasicAst::accept(AstVisitor& visitor
   return std::make_tuple("", "");
 }
 
+std::string Frizz::BasicAst::accept(FileContentVisitor& visitor) {
+  return visitor.visit(*this);
+}
+
 std::tuple<std::string, std::filesystem::path> Frizz::BasicAst::accept(ContextVisitor& visitor) {
   return visitor.visit(*this);
 }
@@ -30,6 +34,10 @@ std::string Frizz::BasicAst::accept(ContextReplacementVisitor& visitor,
   ########## AssignmentAst ##########
 */
 std::tuple<std::string, std::string> Frizz::AssignmentAst::accept(Frizz::AstVisitor& visitor) {
+  return visitor.visit(*this);
+}
+
+std::string Frizz::AssignmentAst::accept(Frizz::FileContentVisitor& visitor) {
   return visitor.visit(*this);
 }
 
@@ -55,6 +63,10 @@ void Frizz::AssignmentAst::set_parent(std::shared_ptr<ForLoopAst> parent) {
 }
 
 std::string Frizz::AssignmentAst::get_parent_name() {
+  if(this->parent == nullptr) {
+    return "";
+  }
+
   return this->parent->get_key();
 }
 
@@ -115,18 +127,7 @@ std::string Frizz::CtxReplacementAst::accept(ContextReplacementVisitor& visitor,
   ########### AstVisitor ##########
 */
 std::tuple<std::string, std::string> Frizz::AstVisitor::visit(Frizz::AssignmentAst& ast) {
-  std::string contents;
-  std::string name;
-
-  if(ast.is_src()) {
-    std::string filename = ast.get_value();
-    contents = this->f_util.get_partial_contents(filename);
-  }
-  else {
-    contents = ast.get_value();
-  }
-
-  return std::make_tuple(ast.get_name(), contents);
+  return std::make_tuple(ast.get_name(), ast.get_value());
 }
 
 std::tuple<std::string, std::string> Frizz::AstVisitor::visit(Frizz::ForLoopAst& ast) {
@@ -136,6 +137,20 @@ std::tuple<std::string, std::string> Frizz::AstVisitor::visit(Frizz::ForLoopAst&
 std::tuple<std::string, std::string> Frizz::AstVisitor::visit(Frizz::PassthroughAst& ast) {
   // Return the value unmodified
   return std::make_tuple("", ast.get_value());
+}
+
+/*
+  ########### FileContentVisitor ##########
+*/
+std::string Frizz::FileContentVisitor::visit(Frizz::AssignmentAst& ast) {
+  std::string contents;
+
+  if(ast.is_src()) {
+    std::string filename = ast.get_value();
+    contents = this->f_util.get_partial_contents(filename);
+  }
+
+  return contents;
 }
 
 /*

@@ -17,11 +17,13 @@ namespace Frizz {
 class AstVisitor;
 class ContextVisitor;
 class ContextReplacementVisitor;
+class FileContentVisitor;
 
 // Add new ast for context replacement
 class BasicAst {
 public:
   virtual std::tuple<std::string, std::string> accept(AstVisitor& visitor);
+  virtual std::string accept(FileContentVisitor& visitor);
   virtual std::tuple<std::string, std::filesystem::path> accept(ContextVisitor& visitor);
   virtual std::string accept(ContextReplacementVisitor& visitor,
                              std::unordered_map<std::string, std::string> context);
@@ -60,6 +62,7 @@ public:
     , value(value) {};
 
   std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
+  std::string accept(FileContentVisitor& visitor) override;
   std::tuple<std::string, std::filesystem::path> accept(ContextVisitor& visitor) override;
 
   std::string get_value() const override;
@@ -111,12 +114,20 @@ private:
 
 class AstVisitor {
 public:
-  AstVisitor(Frizz::FileUtility& f_util)
-    : f_util(f_util) {}
-
   std::tuple<std::string, std::string> visit(AssignmentAst& ast);
   std::tuple<std::string, std::string> visit(ForLoopAst& ast);
   std::tuple<std::string, std::string> visit(PassthroughAst& ast);
+};
+
+class FileContentVisitor {
+public:
+  FileContentVisitor(Frizz::FileUtility& f_util)
+    : f_util(f_util) {}
+
+  std::string visit(AssignmentAst& ast);
+  std::string visit(BasicAst& ast) {
+    return "";
+  };
 
 private:
   Frizz::FileUtility& f_util;
