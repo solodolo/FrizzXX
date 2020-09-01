@@ -5,7 +5,6 @@
  *      Author: dmmettlach
  */
 #include <iostream>
-#include <regex>
 #include <fstream>
 
 #include "lexer.h"
@@ -40,24 +39,15 @@ bool Frizz::Lexer::tok_is_a(TokType type) {
 
 void Frizz::Lexer::next_tok() {
   std::string cur_line = this->line;
-
-  std::regex whitespace("^\\s+");
-  std::regex block_pattern("^@@");
-  std::regex preamble_pattern("^~~\n");
-  std::regex str_pattern("^\"[^\n]+?\"");
-  std::regex ident_pattern("^[a-zA-Z_-]+");
-  std::regex for_pattern("^for ");
-  std::regex in_pattern("^in ");
-  std::regex ctx_pattern("^\\{[a-zA-Z]+\\.[a-zA-Z]+}");
   std::smatch results;
-
-  // this->tokens.clear();
 
   while(!cur_line.empty()) {
     results = std::smatch();
 
     if(std::regex_search(cur_line, results, whitespace)) {
-      // check for whitespace
+      Token tok(tok_ws, results.str());
+      this->add_token(tok);
+
     }
     else if(std::regex_search(cur_line, results, block_pattern)) {
       Token tok(tok_block);

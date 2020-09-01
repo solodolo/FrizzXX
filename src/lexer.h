@@ -11,6 +11,7 @@
 #include <filesystem>
 #include <string>
 #include <vector>
+#include <regex>
 
 namespace Frizz {
 enum TokType {
@@ -25,7 +26,8 @@ enum TokType {
   tok_ctx_name = 9,
   tok_ctx_val = 10,
   tok_nl = 11,
-  tok_eof = 12
+  tok_ws = 12,
+  tok_eof = 13
 };
 
 struct Token {
@@ -52,7 +54,15 @@ public:
 
 public:
   Lexer()
-    : cur_tok(tok_none) {};
+    : cur_tok(tok_none)
+    , whitespace("^\\s+")
+    , block_pattern("^@@")
+    , preamble_pattern("^~~\n")
+    , str_pattern("^\"[^\n]+?\"")
+    , ident_pattern("^[a-zA-Z_-]+")
+    , for_pattern("^for ")
+    , in_pattern("^in ")
+    , ctx_pattern("^\\{[a-zA-Z]+\\.[a-zA-Z]+}") {}
 
   void lex(std::filesystem::path path);
   void next_tok();
@@ -65,6 +75,15 @@ public:
 private:
   std::string line;
   std::vector<Token> tokens;
+
+  std::regex whitespace;
+  std::regex block_pattern;
+  std::regex preamble_pattern;
+  std::regex str_pattern;
+  std::regex ident_pattern;
+  std::regex for_pattern;
+  std::regex in_pattern;
+  std::regex ctx_pattern;
 
 private:
   void print_tokens();
