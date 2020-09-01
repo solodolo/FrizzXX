@@ -21,10 +21,9 @@ public:
 };
 
 TEST_F(ParserTests, SingleLineSingleExp) {
-  std::vector<Token> tokens { Token(TokType::tok_block),
-                              Token(TokType::tok_ident, "src"),
-                              Token(TokType::tok_sym, "="),
-                              Token(TokType::tok_str, "test.md") };
+  std::vector<Token> tokens { Token(TokType::tok_block),          Token(TokType::tok_ws),
+                              Token(TokType::tok_ident, "src"),   Token(TokType::tok_sym, "="),
+                              Token(TokType::tok_str, "test.md"), Token(TokType::tok_nl) };
 
   parser.set_tokens(tokens);
 
@@ -35,13 +34,12 @@ TEST_F(ParserTests, SingleLineSingleExp) {
 }
 
 TEST_F(ParserTests, SingleLineMultiExp) {
-  std::vector<Token> tokens {
-    Token(TokType::tok_block),          Token(TokType::tok_ident, "src"),
-    Token(TokType::tok_sym, "="),       Token(TokType::tok_str, "test1.md"),
-    Token(TokType::tok_sym, ","),       Token(TokType::tok_block),
-    Token(TokType::tok_ident, "src"),   Token(TokType::tok_sym, "="),
-    Token(TokType::tok_str, "test2.md")
-  };
+  std::vector<Token> tokens { Token(TokType::tok_block),           Token(TokType::tok_ws),
+                              Token(TokType::tok_ident, "src"),    Token(TokType::tok_sym, "="),
+                              Token(TokType::tok_str, "test1.md"), Token(TokType::tok_sym, ","),
+                              Token(TokType::tok_block),           Token(TokType::tok_ws),
+                              Token(TokType::tok_ident, "src"),    Token(TokType::tok_sym, "="),
+                              Token(TokType::tok_str, "test2.md") };
 
   parser.set_tokens(tokens);
 
@@ -101,15 +99,28 @@ TEST_F(ParserTests, PreambleMultiAssignment) {
 TEST_F(ParserTests, ForLoopContext) {
   config.load_configuration("./tests/test_files/config/test2.json");
 
-  std::vector<Token> tokens { Token(TokType::tok_block),    Token(TokType::tok_for),
-                              Token(TokType::tok_ident),    Token(TokType::tok_in),
-                              Token(TokType::tok_str, "posts"),      Token(TokType::tok_nl),
-                              Token(TokType::tok_block),    Token(TokType::tok_ident),
-                              Token(TokType::tok_sym, "="), Token(TokType::tok_str, "test.md") };
+  std::vector<Token> tokens { Token(TokType::tok_block),
+                              Token(TokType::tok_ws),
+                              Token(TokType::tok_for),
+                              Token(TokType::tok_ws),
+                              Token(TokType::tok_ident),
+                              Token(TokType::tok_ws),
+                              Token(TokType::tok_in),
+                              Token(TokType::tok_ws),
+                              Token(TokType::tok_str, "posts"),
+                              Token(TokType::tok_nl),
+                              Token(TokType::tok_block),
+                              Token(TokType::tok_ws),
+                              Token(TokType::tok_ident),
+                              Token(TokType::tok_sym, "="),
+                              Token(TokType::tok_str, "test.md") };
 
   parser.set_tokens(tokens);
 
   parser.parse();
 
-  ASSERT_EQ(parser.get_trees().size(), 4);
+  ASSERT_EQ(parser.get_trees().size(), 3);
+  for(auto &t : parser.get_trees()) {
+    EXPECT_EQ(t->get_value(), "test.md");
+  }
 }
