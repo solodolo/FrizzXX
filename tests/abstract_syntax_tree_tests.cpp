@@ -10,8 +10,6 @@
 
 #include "abstract_syntax_trees.h"
 
-static const std::string TEST_FILE_DIR = "./tests/test_files/sources";
-
 std::string get_expected(std::filesystem::path path) {
   std::ifstream input(path);
   std::string expected;
@@ -29,17 +27,18 @@ protected:
   Frizz::FrizzConfig config;
   Frizz::FileUtility util;
   Frizz::AstVisitor visitor;
+  Frizz::FileContentVisitor fc_visitor;
 
   AstTests()
     : util(config)
-    , visitor(util) {
+    , fc_visitor(util) {
     config.load_configuration("./tests/test_files/config/test2.json");
   }
 };
 
-TEST_F(AstTests, AssignmentAstReadsFileContents) {
-  std::string expected = get_expected("./test_files/partials/test1.md");
-  Frizz::AssignmentAst ast("src", "test2.md");
+TEST_F(AstTests, AssignmentAstGetsFileName) {
+  std::string expected = "test2.md";
+  Frizz::AssignmentAst ast("src", expected);
   std::string result = std::get<1>(ast.accept(visitor));
 
   ASSERT_EQ(expected, result);
@@ -50,4 +49,12 @@ TEST_F(AstTests, PassthroughAstPassesValueThrough) {
   std::string val = std::get<1>(ast.accept(visitor));
 
   ASSERT_EQ(val, "foo");
+}
+
+TEST_F(AstTests, FileContentVisitorGetsFileContents) {
+  std::string expected = get_expected("./tests/test_files/partials/test1.md");
+  Frizz::AssignmentAst ast("src", "test1.md");
+  std::string result = ast.accept(fc_visitor);
+
+  ASSERT_EQ(expected, result);
 }
