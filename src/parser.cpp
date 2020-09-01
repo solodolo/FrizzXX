@@ -14,6 +14,7 @@ void Frizz::Parser::parse() {
     if(this->peek_current(TokType::tok_block)) {
       while(true) {
         this->required_found(TokType::tok_block);
+        this->required_found(TokType::tok_ws);
 
         if(!this->block()) {
           break;
@@ -23,6 +24,8 @@ void Frizz::Parser::parse() {
           break;
         }
       }
+
+      this->optional_found(TokType::tok_nl);
     }
     else if(this->peek_current(TokType::tok_preamble)) {
       this->required_found(TokType::tok_preamble);
@@ -32,6 +35,8 @@ void Frizz::Parser::parse() {
           break;
         }
       }
+
+      this->optional_found(TokType::tok_nl);
     }
     else if(this->peek_current(TokType::tok_ctx_name)) {
       this->context();
@@ -81,22 +86,28 @@ void Frizz::Parser::next_token() {
 }
 
 bool Frizz::Parser::block() {
+  bool result = false;
+
   if(this->peek_current(TokType::tok_ident)) {
-    return this->ident();
+    result = this->ident();
   }
   else if(this->peek_current(TokType::tok_for)) {
-    this->for_loop();
+    result = this->for_loop();
   }
-
-  return false;
+  
+  return result;
 }
 
 bool Frizz::Parser::for_loop() {
   this->required_found(TokType::tok_for);
+  this->required_found(TokType::tok_ws);
   this->required_found(TokType::tok_ident);
+  
   std::string ident_name = this->last_val;
 
+  this->required_found(TokType::tok_ws);
   this->required_found(TokType::tok_in);
+  this->required_found(TokType::tok_ws);
   this->required_found(TokType::tok_str);
   std::string ident_val = this->last_val;
 
@@ -104,6 +115,8 @@ bool Frizz::Parser::for_loop() {
 
   this->required_found(TokType::tok_nl);
   this->required_found(TokType::tok_block);
+  this->required_found(TokType::tok_ws);
+
   std::tuple<std::string, std::string> assign = this->find_ident();
 
   if(this->has_errors()) {
