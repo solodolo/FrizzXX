@@ -47,7 +47,6 @@ void Frizz::Lexer::next_tok() {
     if(std::regex_search(cur_line, results, whitespace)) {
       Token tok(tok_ws, results.str());
       this->add_token(tok);
-
     }
     else if(std::regex_search(cur_line, results, block_pattern)) {
       Token tok(tok_block);
@@ -58,11 +57,11 @@ void Frizz::Lexer::next_tok() {
       this->add_token(tok);
     }
     else if(std::regex_search(cur_line, results, for_pattern)) {
-      Token tok(tok_for);
+      Token tok(tok_for, "for");
       this->add_token(tok);
     }
     else if(std::regex_search(cur_line, results, in_pattern)) {
-      Token tok(tok_in);
+      Token tok(tok_in, "in");
       this->add_token(tok);
     }
     else if(std::regex_search(cur_line, results, ctx_pattern)) {

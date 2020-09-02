@@ -60,8 +60,8 @@ public:
     , preamble_pattern("^~~\n")
     , str_pattern("^\"[^\n]+?\"")
     , ident_pattern("^[a-zA-Z_-]+")
-    , for_pattern("^for ")
-    , in_pattern("^in ")
+    , for_pattern("^for")
+    , in_pattern("^in")
     , ctx_pattern("^\\{[a-zA-Z]+\\.[a-zA-Z]+}") {}
 
   void lex(std::filesystem::path path);
