@@ -1,5 +1,3 @@
 {
-  "base_templates_path": "/path/to/root",
-  "partial_templates_path": "/path/to/partials",
-  "build_path": "/path/to/build/dir"
+  "parent_dir": "/path/to/files"
 }

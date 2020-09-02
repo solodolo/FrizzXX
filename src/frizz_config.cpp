@@ -16,41 +16,29 @@ bool Frizz::FrizzConfig::load_configuration(std::string path_to_config) {
 
     input >> json_config;
 
-    if(json_config.contains(Frizz::FrizzConfig::BASE_TEMPLATES_PATH_KEY)) {
-        std::string p = json_config[Frizz::FrizzConfig::BASE_TEMPLATES_PATH_KEY];
-        this->source_root_path = std::filesystem::path(p);
+    if(json_config.contains(Frizz::FrizzConfig::PARENT_DIR)) {
+        std::string dir = json_config[Frizz::FrizzConfig::PARENT_DIR];
+        this->parent_dir = dir;
     }
     else {
         return false;
     }
 
-    if(json_config.contains(Frizz::FrizzConfig::PARTIAL_TEMPLATES_PATH_KEY)) {
-        std::string p = json_config[Frizz::FrizzConfig::PARTIAL_TEMPLATES_PATH_KEY];
-        this->partial_templates_path = std::filesystem::path(p);
-    }
-    else {
-        return false;
-    }
-
-    if(json_config.contains(Frizz::FrizzConfig::BUILD_PATH_KEY)) {
-        std::string p = json_config[Frizz::FrizzConfig::BUILD_PATH_KEY];
-        this->build_path = std::filesystem::path(p);
-    }
-    else {
-        return false;
-    }
+    this->source_dir = "sources";
+    this->partial_dir = "partials";
+    this->build_dir = "output";
 
     return true;
 }
 
 std::filesystem::path Frizz::FrizzConfig::get_source_root_path() {
-    return this->source_root_path;
+    return this->parent_dir /= this->source_dir;
 }
 
 std::filesystem::path Frizz::FrizzConfig::get_partial_templates_path() {
-    return this->partial_templates_path;
+    return this->parent_dir /= this->partial_dir;
 }
 
 std::filesystem::path Frizz::FrizzConfig::get_build_path() {
-    return this->build_path;
+    return this->parent_dir /= this->build_dir;
 }

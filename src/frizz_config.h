@@ -20,13 +20,15 @@ public:
   std::filesystem::path get_build_path();
 
 private:
+  inline const static std::string PARENT_DIR = "parent_dir";
   inline const static std::string BASE_TEMPLATES_PATH_KEY = "base_templates_path";
   inline const static std::string PARTIAL_TEMPLATES_PATH_KEY = "partial_templates_path";
   inline const static std::string BUILD_PATH_KEY = "build_path";
   
-  std::filesystem::path source_root_path;
-  std::filesystem::path partial_templates_path;
-  std::filesystem::path build_path;
+  std::filesystem::path parent_dir;
+  std::filesystem::path source_dir;
+  std::filesystem::path partial_dir;
+  std::filesystem::path build_dir;
 };
 }
 

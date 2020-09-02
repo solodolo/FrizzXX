@@ -22,13 +22,13 @@ protected:
 };
 
 TEST_F(ConfigTests, CorrectSourcePath) {
-  ASSERT_EQ(config.get_source_root_path().string(), "/path/to/root");
+  ASSERT_EQ(config.get_source_root_path().string(), "/path/to/files/sources");
 }
 
 TEST_F(ConfigTests, CorrectPartialPath) {
-  ASSERT_EQ(config.get_partial_templates_path().string(), "/path/to/partials");
+  ASSERT_EQ(config.get_partial_templates_path().string(), "/path/to/files/partials");
 }
 
 TEST_F(ConfigTests, CorrectBuildPath) {
-  ASSERT_EQ(config.get_build_path().string(), "/path/to/build/dir");
+  ASSERT_EQ(config.get_build_path().string(), "/path/to/files/output");
 }
