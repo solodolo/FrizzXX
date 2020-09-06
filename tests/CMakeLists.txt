@@ -12,13 +12,13 @@ set(SOURCES
 	runner_tests.cpp
 )
 
-find_package(GTest REQUIRED)
+#find_package(GTest REQUIRED)
 
-include_directories(${GTEST_BOTH_LIBRARIES} ${CMAKE_SOURCE_DIR}/src)
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 add_executable(${TNAME} ${SOURCES})
 
-target_link_libraries(${TNAME} PUBLIC ${GTEST_BOTH_LIBRARIES} ${LIBNAME} pthread)
+target_link_libraries(${TNAME} PUBLIC gtest gtest_main ${LIBNAME} pthread)
 
 add_test(
 	NAME ${TNAME}
