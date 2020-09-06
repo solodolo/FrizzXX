@@ -10,10 +10,18 @@
 
 #include <filesystem>
 #include <vector>
+#include <exception>
 
 #include "frizz_config.h"
 
 namespace Frizz {
+
+class InvalidFilePath : public std::exception {
+  const char* what() const noexcept override {
+    return "Tried to read an invalid path";
+  }
+};
+
 class FileUtility {
 public:
   FileUtility(Frizz::FrizzConfig& config)
@@ -26,6 +34,7 @@ public:
 
 private:
   bool is_valid_extension(std::string extension);
+  bool is_valid_path(std::filesystem::path);
 
 private:
   Frizz::FrizzConfig& config;

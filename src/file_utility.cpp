@@ -16,6 +16,16 @@ bool Frizz::FileUtility::is_valid_extension(std::string extension) {
   return extension == ".md";
 }
 
+bool Frizz::FileUtility::is_valid_path(std::filesystem::path path) {
+  for(const auto& piece : path) { 
+    if(piece == "..") {
+      return false;
+    }
+  }
+
+  return path.is_absolute();
+}
+
 std::vector<std::filesystem::path> Frizz::FileUtility::get_source_file_paths() {
   std::vector<std::filesystem::path> source_paths;
 
@@ -38,38 +48,49 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_source_file_paths() {
 std::vector<std::filesystem::path> Frizz::FileUtility::get_partial_file_paths(std::string subdir) {
   std::vector<std::filesystem::path> paths;
 
-  std::filesystem::path dir = this->config.get_partial_templates_path() /= subdir;
-
-  if(std::filesystem::exists(dir)) {
-    std::filesystem::directory_iterator it(dir);
-    
-    for(auto f : it) {
-      paths.push_back(f);
+  std::filesystem::path dir = this->config.get_partial_templates_path() / subdir;
+  
+  if(this->is_valid_path(dir)) {
+    if(std::filesystem::exists(dir)) {
+      std::filesystem::directory_iterator it(dir);
+      
+      for(auto f : it) {
+        paths.push_back(f);
+      }
     }
+
+    return paths;
   }
 
-  return paths;
+  throw Frizz::InvalidFilePath();
 }
 
 std::filesystem::path Frizz::FileUtility::get_partial_file_path(std::string filename) {
-  return this->config.get_partial_templates_path() /= filename;
+  std::filesystem::path p = this->config.get_partial_templates_path() / filename;
+
+  if(this->is_valid_path(p)) {
+    return p;
+  }
+  
+  throw Frizz::InvalidFilePath();
 }
 
 std::string Frizz::FileUtility::get_partial_contents(std::string filename) {
   std::string contents;
-  std::filesystem::path path = this->config.get_partial_templates_path() /= filename;
+  std::filesystem::path path = this->config.get_partial_templates_path() / filename;
 
-  if(!this->is_valid_extension(path.extension())) {
+  if(this->is_valid_path(path) && this->is_valid_extension(path.extension())) {
+
+    std::ifstream input(path);
+    char c;
+    while(input.get(c)) {
+      contents.push_back(c);
+    }
+
+    input.close();
+
     return contents;
   }
 
-  std::ifstream input(path);
-  char c;
-  while(input.get(c)) {
-    contents.push_back(c);
-  }
-
-  input.close();
-
-  return contents;
+  throw Frizz::InvalidFilePath();
 }
