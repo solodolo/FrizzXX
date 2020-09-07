@@ -23,7 +23,7 @@ bool Frizz::FileUtility::is_valid_path(std::filesystem::path path) {
     }
   }
 
-  return path.is_absolute();
+  return true;
 }
 
 std::vector<std::filesystem::path> Frizz::FileUtility::get_source_file_paths() {

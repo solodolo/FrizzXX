@@ -18,7 +18,7 @@ namespace Frizz {
 
 class InvalidFilePath : public std::exception {
   const char* what() const noexcept override {
-    return "Tried to read an invalid path";
+    return "Tried to access an invalid path";
   }
 };
 
