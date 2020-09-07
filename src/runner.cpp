@@ -114,7 +114,7 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
   }
   else {
     if(output_stream.fail()) {
-      std::cout << "Output stream could not be created: " << strerror(errno) << std::endl;
+      std::cout << "Output stream " << output_path << " could not be created: " << strerror(errno) << std::endl;
     }
   }
 
@@ -130,7 +130,7 @@ void Frizz::Runner::process_source_files(Frizz::FrizzConfig& config) {
   std::vector<std::filesystem::path> source_file_paths = util.get_source_file_paths();
 
   for(auto path : source_file_paths) {
-    std::filesystem::path output_path = config.get_build_path() /= path.filename();
+    std::filesystem::path output_path = config.get_build_path() / path.filename();
     process_source_file(lexer, parser, util, path, output_path);
   }
 }
