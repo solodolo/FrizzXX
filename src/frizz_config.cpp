@@ -32,13 +32,13 @@ bool Frizz::FrizzConfig::load_configuration(std::string path_to_config) {
 }
 
 std::filesystem::path Frizz::FrizzConfig::get_source_root_path() {
-    return this->parent_dir /= this->source_dir;
+    return this->parent_dir / this->source_dir;
 }
 
 std::filesystem::path Frizz::FrizzConfig::get_partial_templates_path() {
-    return this->parent_dir /= this->partial_dir;
+    return this->parent_dir / this->partial_dir;
 }
 
 std::filesystem::path Frizz::FrizzConfig::get_build_path() {
-    return this->parent_dir /= this->build_dir;
+    return this->parent_dir / this->build_dir;
 }
