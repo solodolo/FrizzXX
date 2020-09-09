@@ -47,12 +47,10 @@ public:
   std::string get_key() const;
   std::string get_value() const override;
 
-public:
-  std::vector<std::unordered_map<std::string, std::string>> context;
-
 private:
   std::string name;
   std::string value;
+  
 };
 
 class AssignmentAst : public BasicAst {
