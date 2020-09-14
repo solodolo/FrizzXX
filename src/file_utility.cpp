@@ -13,7 +13,7 @@
 
 bool Frizz::FileUtility::is_valid_extension(std::string extension) {
   // just md for now
-  return extension == ".md";
+  return extension == ".md" || extension == ".html";
 }
 
 bool Frizz::FileUtility::is_valid_path(std::filesystem::path path) {
