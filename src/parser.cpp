@@ -131,6 +131,7 @@ bool Frizz::Parser::for_loop() {
 
   for(auto it = paths.begin(); it != paths.end(); ++it) {
     std::shared_ptr<AssignmentAst> assign = std::make_shared<AssignmentAst>("src", template_name);
+    // TODO: Parent is set only to retreive namespace later. Instead of copying entire parent here, just set namespace directly
     assign->set_parent(loop);
 
     assign->set_context_filepath(*it);
