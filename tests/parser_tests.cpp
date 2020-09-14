@@ -119,8 +119,11 @@ TEST_F(ParserTests, ForLoopContext) {
 
   parser.parse();
 
-  ASSERT_EQ(parser.get_trees().size(), 3);
-  for(auto &t : parser.get_trees()) {
-    EXPECT_EQ(t->get_value(), "test.md");
-  }
+  auto trees = parser.get_trees();
+  ASSERT_EQ(trees.size(), 1);
+
+  Frizz::ContextChildrenVisitor visitor;
+  auto children = trees[0]->accept(visitor);
+
+  ASSERT_EQ(children.size(), 3);
 }

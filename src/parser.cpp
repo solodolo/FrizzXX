@@ -127,14 +127,19 @@ bool Frizz::Parser::for_loop() {
 
   std::vector<std::filesystem::path> paths = this->util.get_partial_file_paths(ident_val);
 
+  std::sort(paths.begin(), paths.end());
+
   for(auto it = paths.begin(); it != paths.end(); ++it) {
     std::shared_ptr<AssignmentAst> assign = std::make_shared<AssignmentAst>("src", template_name);
     assign->set_parent(loop);
 
     assign->set_context_filepath(*it);
-    this->trees.push_back(std::move(assign));
+
+    loop->add_child(assign);
   }
 
+  this->trees.push_back(std::move(loop));
+  
   return true;
 }
 
