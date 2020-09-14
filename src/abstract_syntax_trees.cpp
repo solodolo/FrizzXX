@@ -30,6 +30,11 @@ std::string Frizz::BasicAst::accept(ContextReplacementVisitor& visitor,
   return visitor.visit(*this, context);
 }
 
+std::vector<std::shared_ptr<Frizz::BasicAst>> Frizz::BasicAst::accept(
+  ContextChildrenVisitor& visitor) {
+  return visitor.visit(*this);
+}
+
 /*
   ########## AssignmentAst ##########
 */
@@ -95,6 +100,19 @@ std::string Frizz::ForLoopAst::get_key() const {
 
 std::string Frizz::ForLoopAst::get_value() const {
   return this->value;
+}
+
+std::vector<std::shared_ptr<Frizz::BasicAst>> Frizz::ForLoopAst::accept(
+  Frizz::ContextChildrenVisitor& visitor) {
+  return visitor.visit(*this);
+}
+
+std::vector<std::shared_ptr<Frizz::BasicAst>> Frizz::ForLoopAst::get_children() {
+  return this->children;
+}
+
+void Frizz::ForLoopAst::add_child(std::shared_ptr<Frizz::BasicAst> child) {
+  this->children.push_back(child);
 }
 
 /*
@@ -178,4 +196,18 @@ std::string Frizz::ContextReplacementVisitor::visit(
   }
 
   return got->second;
+}
+
+/*
+  ########## ContextChildrenVisitor ##########
+*/
+std::vector<std::shared_ptr<Frizz::BasicAst>> Frizz::ContextChildrenVisitor::visit(
+  Frizz::BasicAst& ast) {
+  return std::vector<std::shared_ptr<Frizz::BasicAst>>();
+}
+
+std::vector<std::shared_ptr<Frizz::BasicAst>> Frizz::ContextChildrenVisitor::visit(
+  Frizz::ForLoopAst& ast) {
+
+  return ast.get_children();
 }

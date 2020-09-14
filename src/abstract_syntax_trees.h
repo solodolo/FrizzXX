@@ -18,6 +18,7 @@ class AstVisitor;
 class ContextVisitor;
 class ContextReplacementVisitor;
 class FileContentVisitor;
+class ContextChildrenVisitor;
 
 // Add new ast for context replacement
 class BasicAst {
@@ -27,6 +28,7 @@ public:
   virtual std::tuple<std::string, std::filesystem::path> accept(ContextVisitor& visitor);
   virtual std::string accept(ContextReplacementVisitor& visitor,
                              std::unordered_map<std::string, std::string> context);
+  virtual std::vector<std::shared_ptr<BasicAst>> accept(ContextChildrenVisitor& visitor);
 
   virtual std::string get_value() const { return this->value; }
 
@@ -43,14 +45,18 @@ public:
     , value(value) {}
 
   std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
+  std::vector<std::shared_ptr<BasicAst>> accept(ContextChildrenVisitor& visitor) override;
 
   std::string get_key() const;
   std::string get_value() const override;
 
+  void add_child(std::shared_ptr<BasicAst>);
+  std::vector<std::shared_ptr<BasicAst>> get_children();
+
 private:
   std::string name;
   std::string value;
-  
+  std::vector<std::shared_ptr<BasicAst>> children;
 };
 
 class AssignmentAst : public BasicAst {
@@ -123,9 +129,7 @@ public:
     : f_util(f_util) {}
 
   std::string visit(AssignmentAst& ast);
-  std::string visit(BasicAst& ast) {
-    return "";
-  };
+  std::string visit(BasicAst& ast) { return ""; };
 
 private:
   Frizz::FileUtility& f_util;
@@ -147,6 +151,12 @@ public:
   std::string visit(BasicAst& ast, std::unordered_map<std::string, std::string> context) {
     return ast.get_value();
   }
+};
+
+class ContextChildrenVisitor {
+public:
+  std::vector<std::shared_ptr<BasicAst>> visit(BasicAst& ast);
+  std::vector<std::shared_ptr<BasicAst>> visit(ForLoopAst& ast);
 };
 
 }
