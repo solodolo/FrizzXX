@@ -75,6 +75,7 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
   Frizz::ContextVisitor c_visitor;
   Frizz::AstVisitor a_visitor;
   Frizz::FileContentVisitor fc_visitor(util);
+  Frizz::ContextChildrenVisitor children_visitor;
 
   std::ofstream output_stream(output_path);
 
@@ -88,19 +89,25 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
     for(; it != parser.get_trees().end(); ++it) {
       std::shared_ptr<BasicAst> ast = *it;
 
-      std::tuple<std::string, std::filesystem::path> namespaced_context = ast->accept(c_visitor);
-      std::string context_namespace = std::get<0>(namespaced_context);
-      std::filesystem::path context_path = std::get<1>(namespaced_context);
+      std::vector<std::shared_ptr<Frizz::BasicAst>> children = ast->accept(children_visitor);
 
-      if(!context_path.empty()) {
-        std::unordered_map<std::string, std::string> context =
-          this->process_partial_preamble(context_namespace, context_path, util);
+      if(!children.empty()) {
+        for(auto& child_ptr : children) {
+          std::tuple<std::string, std::filesystem::path> namespaced_context = child_ptr->accept(c_visitor);
+          std::string context_namespace = std::get<0>(namespaced_context);
+          std::filesystem::path context_path = std::get<1>(namespaced_context);
 
-        std::tuple<std::string, std::string> template_info = ast->accept(a_visitor);
-        std::string template_name = std::get<1>(template_info);
-        std::filesystem::path template_file_path = util.get_partial_file_path(template_name);
-        
-        output_stream << this->process_with_context(template_file_path, context, util);
+          if(!context_path.empty()) {
+            std::unordered_map<std::string, std::string> context =
+              this->process_partial_preamble(context_namespace, context_path, util);
+
+            std::tuple<std::string, std::string> template_info = child_ptr->accept(a_visitor);
+            std::string template_name = std::get<1>(template_info);
+            std::filesystem::path template_file_path = util.get_partial_file_path(template_name);
+            
+            output_stream << this->process_with_context(template_file_path, context, util);
+          }
+        }
       }
       else {
         std::string file_contents = ast->accept(fc_visitor);
