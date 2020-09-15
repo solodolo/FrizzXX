@@ -14,6 +14,12 @@
 #include "lexer.h"
 
 namespace Frizz {
+class ParseException : public std::runtime_error {
+public:
+  ParseException(std::string msg)
+    : std::runtime_error(msg) {};
+};
+
 class Parser {
 public:
   Parser(Frizz::FileUtility& util)
@@ -34,21 +40,20 @@ private:
   std::vector<std::shared_ptr<BasicAst>> trees;
 
 private:
-  bool block();
-  bool ident();
-  bool passthrough();
-  bool context();
-  bool for_loop();
+  void block();
+  void ident();
+  void passthrough();
+  void context();
+  void for_loop();
 
   std::tuple<std::string, std::string> find_ident();
 
   bool peek_current(TokType id);
   bool optional_found(TokType id);
   bool optional_found(TokType id, std::string val);
-  bool required_found(TokType id);
-  bool required_found(TokType id, std::string val);
-  void add_error(std::string message);
-  bool has_errors();
+  void required_found(TokType id);
+  void required_found(TokType id, std::string val);
+  void throw_error(std::string message);
   bool is_eof();
 };
 }
