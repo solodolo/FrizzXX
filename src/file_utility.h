@@ -9,17 +9,17 @@
 #define FILE_UTILITY_H_
 
 #include <filesystem>
+#include <stdexcept>
 #include <vector>
-#include <exception>
 
 #include "frizz_config.h"
 
 namespace Frizz {
 
-class InvalidFilePath : public std::exception {
-  const char* what() const noexcept override {
-    return "Tried to access an invalid path";
-  }
+class InvalidFilePath : public std::runtime_error {
+public:
+  InvalidFilePath()
+    : std::runtime_error("Tried to access an invalid path") {};
 };
 
 class FileUtility {
