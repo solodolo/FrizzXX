@@ -94,7 +94,7 @@ bool Frizz::Parser::block() {
   else if(this->peek_current(TokType::tok_for)) {
     result = this->for_loop();
   }
-  
+
   return result;
 }
 
@@ -102,7 +102,7 @@ bool Frizz::Parser::for_loop() {
   this->required_found(TokType::tok_for);
   this->required_found(TokType::tok_ws);
   this->required_found(TokType::tok_ident);
-  
+
   std::string ident_name = this->last_val;
 
   this->required_found(TokType::tok_ws);
@@ -123,6 +123,7 @@ bool Frizz::Parser::for_loop() {
     return false;
   }
 
+  std::string template_key = std::get<0>(assign);
   std::string template_name = std::get<1>(assign);
 
   std::vector<std::filesystem::path> paths = this->util.get_partial_file_paths(ident_val);
@@ -130,8 +131,10 @@ bool Frizz::Parser::for_loop() {
   std::sort(paths.begin(), paths.end());
 
   for(auto it = paths.begin(); it != paths.end(); ++it) {
-    std::shared_ptr<AssignmentAst> assign = std::make_shared<AssignmentAst>("src", template_name);
-    // TODO: Parent is set only to retreive namespace later. Instead of copying entire parent here, just set namespace directly
+    std::shared_ptr<AssignmentAst> assign =
+      std::make_shared<AssignmentAst>(template_key, template_name);
+    // TODO: Parent is set only to retreive namespace later. Instead of copying entire parent here,
+    // just set namespace directly
     assign->set_parent(loop);
 
     assign->set_context_filepath(*it);
@@ -140,7 +143,7 @@ bool Frizz::Parser::for_loop() {
   }
 
   this->trees.push_back(std::move(loop));
-  
+
   return true;
 }
 

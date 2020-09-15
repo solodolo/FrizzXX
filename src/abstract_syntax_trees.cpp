@@ -145,6 +145,10 @@ std::string Frizz::CtxReplacementAst::accept(ContextReplacementVisitor& visitor,
   ########### AstVisitor ##########
 */
 std::tuple<std::string, std::string> Frizz::AstVisitor::visit(Frizz::AssignmentAst& ast) {
+  if(ast.is_src()) {
+    return std::make_tuple("", "");
+  }
+  
   return std::make_tuple(ast.get_name(), ast.get_value());
 }
 
