@@ -38,7 +38,7 @@ protected:
 
 TEST_F(AstTests, AssignmentAstGetsFileName) {
   std::string expected = "test2.md";
-  Frizz::AssignmentAst ast("src", expected);
+  Frizz::AssignmentAst ast("use", expected);
   std::string result = std::get<1>(ast.accept(visitor));
 
   ASSERT_EQ(expected, result);
@@ -57,4 +57,12 @@ TEST_F(AstTests, FileContentVisitorGetsFileContents) {
   std::string result = ast.accept(fc_visitor);
 
   ASSERT_EQ(expected, result);
+}
+
+TEST_F(AstTests, AstVisitorDoesNotReturnSrcLiteral) {
+  Frizz::AssignmentAst ast("src", "blah.md");
+  std::tuple<std::string, std::string> results = ast.accept(visitor);
+
+  EXPECT_EQ(std::get<0>(results), "");
+  EXPECT_EQ(std::get<1>(results), "");
 }
