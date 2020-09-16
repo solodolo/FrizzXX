@@ -15,19 +15,35 @@
 
 namespace Frizz {
 enum TokType {
-  tok_none = -1,
-  tok_block = 1,
-  tok_preamble = 2,
-  tok_ident = 3,
-  tok_str = 4,
-  tok_for = 6,
-  tok_in = 7,
-  tok_sym = 8,
-  tok_ctx_name = 9,
-  tok_ctx_val = 10,
-  tok_nl = 11,
-  tok_ws = 12,
-  tok_eof = 13
+  tok_none,
+  tok_block,
+  tok_preamble,
+  tok_ident,
+  tok_str,
+  tok_for,
+  tok_in,
+  tok_sym,
+  tok_ctx_name,
+  tok_ctx_val,
+  tok_nl,
+  tok_ws,
+  tok_eof
+};
+
+const std::string TokNames[] = {
+  "None",
+  "Block",
+  "Preamble",
+  "Identifier",
+  "String",
+  "For",
+  "In",
+  "Symbol",
+  "Context Name",
+  "Context Value",
+  "New Line",
+  "Whitespace",
+  "End of File"
 };
 
 struct Token {
