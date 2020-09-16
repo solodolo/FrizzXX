@@ -44,11 +44,8 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_source_file_paths() {
   return source_paths;
 }
 
-//TODO: this and get_partial_contents and get_partial_file_path are unsafe
-std::vector<std::filesystem::path> Frizz::FileUtility::get_partial_file_paths(std::string subdir) {
+std::vector<std::filesystem::path> Frizz::FileUtility::get_file_paths(std::filesystem::path dir) {
   std::vector<std::filesystem::path> paths;
-
-  std::filesystem::path dir = this->config.get_partial_templates_path() / subdir;
   
   if(this->is_valid_path(dir)) {
     if(std::filesystem::exists(dir)) {
@@ -65,8 +62,23 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_partial_file_paths(st
   throw Frizz::InvalidFilePath();
 }
 
+std::vector<std::filesystem::path> Frizz::FileUtility::get_content_file_paths(std::string subdir) {
+  std::filesystem::path dir = this->config.get_content_path() / subdir;
+  return this->get_file_paths(dir);
+}
+
 std::filesystem::path Frizz::FileUtility::get_partial_file_path(std::string filename) {
   std::filesystem::path p = this->config.get_partial_templates_path() / filename;
+
+  if(this->is_valid_path(p)) {
+    return p;
+  }
+  
+  throw Frizz::InvalidFilePath();
+}
+
+std::filesystem::path Frizz::FileUtility::get_content_file_path(std::string filename) {
+  std::filesystem::path p = this->config.get_content_path() / filename;
 
   if(this->is_valid_path(p)) {
     return p;
