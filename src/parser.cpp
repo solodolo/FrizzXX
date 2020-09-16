@@ -32,6 +32,7 @@ void Frizz::Parser::parse() {
         this->ident();
 
         if(this->peek_current(TokType::tok_preamble)) {
+          this->next_token();
           break;
         }
       }
@@ -112,7 +113,7 @@ void Frizz::Parser::for_loop() {
   std::string template_key = std::get<0>(assign);
   std::string template_name = std::get<1>(assign);
 
-  std::vector<std::filesystem::path> paths = this->util.get_partial_file_paths(ident_val);
+  std::vector<std::filesystem::path> paths = this->util.get_content_file_paths(ident_val);
 
   std::sort(paths.begin(), paths.end());
 
@@ -184,15 +185,15 @@ bool Frizz::Parser::optional_found(TokType id, std::string val) {
 
 void Frizz::Parser::required_found(TokType id) {
   if(!this->optional_found(id)) {
-    std::string msg = "Expected " + std::to_string(id) + ", Got: " + std::to_string(this->cur_tok.id);
+    std::string msg = "Expected: " + Frizz::TokNames[id] + ", Got: " + Frizz::TokNames[this->cur_tok.id];
     this->throw_error(msg);
   }
 }
 
 void Frizz::Parser::required_found(TokType id, std::string val) {
   if(!this->optional_found(id, val)) {
-    std::string msg = "Expected " + std::to_string(id) + " with val " + val +
-                    ", Got: " + std::to_string(this->cur_tok.id) + " with val " +
+    std::string msg = "Expected " + Frizz::TokNames[id] + " with val " + val +
+                    ", Got: " + Frizz::TokNames[this->cur_tok.id] + " with val " +
                     this->cur_tok.value;
     this->throw_error(msg);
   }
