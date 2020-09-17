@@ -10,6 +10,7 @@ set(SOURCES
 	abstract_syntax_tree_tests.cpp
 	config_tests.cpp
 	runner_tests.cpp
+	file_util_tests.cpp
 )
 
 #find_package(GTest REQUIRED)
