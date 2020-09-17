@@ -33,6 +33,7 @@ public:
 
   std::filesystem::path get_partial_file_path(std::string filename);
   std::filesystem::path get_content_file_path(std::string filename);
+  std::filesystem::path get_relative_source_path(std::filesystem::path path);
   std::string get_partial_contents(std::string filename);
 
 private:

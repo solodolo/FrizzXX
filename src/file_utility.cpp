@@ -8,6 +8,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <algorithm>
 
 #include "file_utility.h"
 
@@ -16,6 +17,9 @@ bool Frizz::FileUtility::is_valid_extension(std::string extension) {
   return extension == ".md" || extension == ".html";
 }
 
+/*
+TODO: Check the root of path up to parent dir length to see if it equals parent dir
+*/
 bool Frizz::FileUtility::is_valid_path(std::filesystem::path path) {
   for(const auto& piece : path) { 
     if(piece == "..") {
@@ -42,6 +46,22 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_source_file_paths() {
   }
 
   return source_paths;
+}
+
+/*
+  gets the part of path relative to the source path 
+  allows the directory structure can be maintained in the output
+*/
+std::filesystem::path Frizz::FileUtility::get_relative_source_path(std::filesystem::path path) {
+  std::filesystem::path base = this->config.get_source_root_path();
+  std::filesystem::path rel_path = std::filesystem::relative(path, base);
+
+  std::cout << "Relative path: " << rel_path.string() << std::endl;
+  if(this->is_valid_path(rel_path)) {
+    return rel_path;
+  }
+
+  throw Frizz::InvalidFilePath();
 }
 
 std::vector<std::filesystem::path> Frizz::FileUtility::get_file_paths(std::filesystem::path dir) {
