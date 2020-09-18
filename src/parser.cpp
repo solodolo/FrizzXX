@@ -40,6 +40,8 @@ void Frizz::Parser::parse() {
       this->optional_found(TokType::tok_nl);
     }
     else if(this->peek_current(TokType::tok_ctx_name)) {
+      // using a context variable
+      // i.e. **{post.title}**
       this->context();
     }
     else {
@@ -120,6 +122,10 @@ void Frizz::Parser::for_loop() {
   for(auto it = paths.begin(); it != paths.end(); ++it) {
     std::shared_ptr<AssignmentAst> assign =
       std::make_shared<AssignmentAst>(template_key, template_name);
+
+    if(assign->is_src()) {
+      this->throw_error("Cannot use a src assignment in a for loop context. Try 'use' instead.");
+    }
     // TODO: Parent is set only to retreive namespace later. Instead of copying entire parent here,
     // just set namespace directly
     assign->set_parent(loop);
