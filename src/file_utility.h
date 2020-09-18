@@ -28,6 +28,7 @@ public:
     : config(config) {};
 
   std::vector<std::filesystem::path> get_source_file_paths();
+  std::vector<std::filesystem::path> get_content_source_paths();
   std::vector<std::filesystem::path> get_partial_file_paths(std::string subdir);
   std::vector<std::filesystem::path> get_content_file_paths(std::string subdir);
 

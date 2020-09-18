@@ -34,7 +34,7 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_source_file_paths() {
   std::vector<std::filesystem::path> source_paths;
 
   std::filesystem::path source_root = this->config.get_source_root_path();
-  std::filesystem::directory_iterator source_it(source_root);
+  std::filesystem::recursive_directory_iterator source_it(source_root);
 
   for(auto& entry : source_it) {
     std::filesystem::path path = entry.path();
@@ -42,10 +42,35 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_source_file_paths() {
       continue;
     }
 
+    // the source content dir is processed seperately so skip it here
+    std::string source_parent_dir = *(std::filesystem::relative(path, source_root).begin());
+
+    if(source_parent_dir == "content") { 
+      continue;
+    }
+
     source_paths.push_back(path);
   }
 
   return source_paths;
+}
+
+std::vector<std::filesystem::path> Frizz::FileUtility::get_content_source_paths() {
+  std::vector<std::filesystem::path> paths;
+
+  std::filesystem::path source_root = this->config.get_source_root_path() / "content";
+  std::filesystem::recursive_directory_iterator source_it(source_root);
+
+  for(auto& entry : source_it) {
+    std::filesystem::path path = entry.path();
+    if(!this->is_valid_extension(path.extension())) {
+      continue;
+    }
+
+    paths.push_back(path);
+  }
+
+  return paths;
 }
 
 /*
