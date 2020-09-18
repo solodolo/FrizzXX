@@ -145,10 +145,13 @@ std::string Frizz::CtxReplacementAst::accept(ContextReplacementVisitor& visitor,
   ########### AstVisitor ##########
 */
 std::tuple<std::string, std::string> Frizz::AstVisitor::visit(Frizz::AssignmentAst& ast) {
+  // src="blah.md" should be used to place a partial as-is inline
+  // therefore src assignments should only return info when accessed by FileContentVisitor
   if(ast.is_src()) {
     return std::make_tuple("", "");
   }
   
+  // not a source so return key and value as-is
   return std::make_tuple(ast.get_name(), ast.get_value());
 }
 
