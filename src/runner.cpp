@@ -135,9 +135,16 @@ void Frizz::Runner::process_source_files(Frizz::FrizzConfig& config) {
   Frizz::Parser parser(util);
 
   std::vector<std::filesystem::path> source_file_paths = util.get_source_file_paths();
+  std::vector<std::filesystem::path> content_source_paths = util.get_content_source_paths();
 
   for(auto path : source_file_paths) {
-    std::filesystem::path output_path = config.get_build_path() / path.filename();
+    std::filesystem::path rel_source_path = util.get_relative_source_path(path);
+    std::filesystem::path output_path = config.get_build_path() / rel_source_path;
+
+    std::cout << "Processing " << output_path << std::endl;
+
+    std::filesystem::create_directories(output_path.parent_path());
+
     process_source_file(lexer, parser, util, path, output_path);
 
     lexer.clear_tokens();
