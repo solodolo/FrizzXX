@@ -56,8 +56,7 @@ std::filesystem::path Frizz::FileUtility::get_relative_source_path(std::filesyst
   std::filesystem::path base = this->config.get_source_root_path();
   std::filesystem::path rel_path = std::filesystem::relative(path, base);
 
-  std::cout << "Relative path: " << rel_path.string() << std::endl;
-  if(this->is_valid_path(rel_path)) {
+  if(this->is_valid_path(rel_path) && rel_path != ".") {
     return rel_path;
   }
 

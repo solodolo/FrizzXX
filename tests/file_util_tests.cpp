@@ -37,9 +37,7 @@ TEST_F(FileUtilityTests, InvalidPathToSourceSubdirThrowsError) {
   ASSERT_THROW(util.get_relative_source_path(p), Frizz::InvalidFilePath);
 }
 
-TEST_F(FileUtilityTests, BaseSourcePathReturnsDot) {
+TEST_F(FileUtilityTests, BaseSourcePathThrowsError) {
   std::filesystem::path p("/path/to/files/sources");
-  std::filesystem::path result = util.get_relative_source_path(p);
-
-  EXPECT_EQ(result.string(), ".");
+  ASSERT_THROW(util.get_relative_source_path(p), Frizz::InvalidFilePath);
 }
