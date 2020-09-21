@@ -35,6 +35,7 @@ public:
   std::filesystem::path get_partial_file_path(std::string filename);
   std::filesystem::path get_content_file_path(std::string filename);
   std::filesystem::path get_relative_source_path(std::filesystem::path path);
+  std::filesystem::path get_relative_content_path(std::filesystem::path path);
   std::string get_partial_contents(std::string filename);
 
 private:
@@ -42,6 +43,7 @@ private:
   bool is_valid_path(std::filesystem::path);
 
   std::vector<std::filesystem::path> get_file_paths(std::filesystem::path dir);
+  std::filesystem::path get_relative_path(std::filesystem::path path, std::filesystem::path base);
 
 private:
   Frizz::FrizzConfig& config;

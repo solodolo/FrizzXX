@@ -5,10 +5,10 @@
  *      Author: dmmettlach
  */
 
+#include <algorithm>
 #include <cstring>
 #include <fstream>
 #include <iostream>
-#include <algorithm>
 
 #include "file_utility.h"
 
@@ -21,7 +21,7 @@ bool Frizz::FileUtility::is_valid_extension(std::string extension) {
 TODO: Check the root of path up to parent dir length to see if it equals parent dir
 */
 bool Frizz::FileUtility::is_valid_path(std::filesystem::path path) {
-  for(const auto& piece : path) { 
+  for(const auto& piece : path) {
     if(piece == "..") {
       return false;
     }
@@ -45,7 +45,7 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_source_file_paths() {
     // the source content dir is processed seperately so skip it here
     std::string source_parent_dir = *(std::filesystem::relative(path, source_root).begin());
 
-    if(source_parent_dir == "content") { 
+    if(source_parent_dir == "content") {
       continue;
     }
 
@@ -74,11 +74,19 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_content_source_paths(
 }
 
 /*
-  gets the part of path relative to the source path 
+  gets the part of path relative to the source path
   allows the directory structure can be maintained in the output
 */
 std::filesystem::path Frizz::FileUtility::get_relative_source_path(std::filesystem::path path) {
-  std::filesystem::path base = this->config.get_source_root_path();
+  return this->get_relative_path(path, this->config.get_source_root_path());
+}
+
+std::filesystem::path Frizz::FileUtility::get_relative_content_path(std::filesystem::path path) {
+  return this->get_relative_path(path, this->config.get_content_path());
+}
+
+std::filesystem::path Frizz::FileUtility::get_relative_path(std::filesystem::path path,
+                                                            std::filesystem::path base) {
   std::filesystem::path rel_path = std::filesystem::relative(path, base);
 
   if(this->is_valid_path(rel_path) && rel_path != ".") {
@@ -90,11 +98,11 @@ std::filesystem::path Frizz::FileUtility::get_relative_source_path(std::filesyst
 
 std::vector<std::filesystem::path> Frizz::FileUtility::get_file_paths(std::filesystem::path dir) {
   std::vector<std::filesystem::path> paths;
-  
+
   if(this->is_valid_path(dir)) {
     if(std::filesystem::exists(dir)) {
       std::filesystem::directory_iterator it(dir);
-      
+
       for(auto f : it) {
         paths.push_back(f);
       }
@@ -117,7 +125,7 @@ std::filesystem::path Frizz::FileUtility::get_partial_file_path(std::string file
   if(this->is_valid_path(p)) {
     return p;
   }
-  
+
   throw Frizz::InvalidFilePath();
 }
 
@@ -127,7 +135,7 @@ std::filesystem::path Frizz::FileUtility::get_content_file_path(std::string file
   if(this->is_valid_path(p)) {
     return p;
   }
-  
+
   throw Frizz::InvalidFilePath();
 }
 
