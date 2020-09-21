@@ -11,13 +11,18 @@ set(SOURCES
 	config_tests.cpp
 	runner_tests.cpp
 	file_util_tests.cpp
+	test_helpers.cpp
+)
+
+set(HEADERS
+	test_helpers.h
 )
 
 #find_package(GTest REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
-add_executable(${TNAME} ${SOURCES})
+add_executable(${TNAME} ${SOURCES} ${HEADERS})
 
 target_link_libraries(${TNAME} PUBLIC gtest gtest_main ${LIBNAME} pthread)
 
