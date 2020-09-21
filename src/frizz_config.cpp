@@ -18,18 +18,17 @@ bool Frizz::FrizzConfig::load_configuration(std::string path_to_config) {
 
   if(json_config.contains(Frizz::FrizzConfig::PARENT_DIR)) {
     std::string dir = json_config[Frizz::FrizzConfig::PARENT_DIR];
-    this->parent_dir = dir;
+    this->set_parent_dir(dir);
   }
   else {
     return false;
   }
 
-  this->source_dir = "sources";
-  this->partial_dir = "partials";
-  this->build_dir = "output";
-  this->content_dir = "content";
-
   return true;
+}
+
+void Frizz::FrizzConfig::set_parent_dir(std::string path) {
+  this->parent_dir = std::filesystem::canonical(path);
 }
 
 std::filesystem::path Frizz::FrizzConfig::get_source_root_path() {
