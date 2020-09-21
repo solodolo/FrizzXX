@@ -7,19 +7,22 @@
 #include <gtest/gtest.h>
 
 #include "runner.h"
-
-static const std::string TEST_DIR = "./tests/test_files/partials/posts";
+#include "test_helpers.h"
 
 class RunnerTests : public ::testing::Test {
-public:
+protected:
   RunnerTests()
-    : util(config) {
-    config.load_configuration("./tests/test_files/config/test2.json");
-  }
+    : util(config) {}
 
+  std::filesystem::path parent_dir;
   Frizz::Runner runner;
   Frizz::FrizzConfig config;
   Frizz::FileUtility util;
+
+  void SetUp() override {
+    this->parent_dir = Frizz::find_path("tests/test_files");
+    config.set_parent_dir(this->parent_dir);
+  }
 };
 
 TEST_F(RunnerTests, ProcessPreamble) {
@@ -49,8 +52,8 @@ TEST_F(RunnerTests, ProcessPreambleMultiple) {
 }
 
 TEST_F(RunnerTests, ProcessPreambleIgnoresNonIdents) {
-  std::unordered_map<std::string, std::string> map = runner.process_partial_preamble(
-    "", util.get_content_file_path("posts/post3.md"), util);
+  std::unordered_map<std::string, std::string> map =
+    runner.process_partial_preamble("", util.get_content_file_path("posts/post3.md"), util);
 
   ASSERT_EQ(map.size(), 1);
 

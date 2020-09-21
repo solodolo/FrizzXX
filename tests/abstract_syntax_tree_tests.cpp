@@ -9,9 +9,10 @@
 #include <gtest/gtest.h>
 
 #include "abstract_syntax_trees.h"
+#include "test_helpers.h"
 
 std::string get_expected(std::filesystem::path path) {
-  std::ifstream input(path);
+  std::ifstream input(Frizz::find_path(path));
   std::string expected;
 
   char c;
@@ -32,7 +33,7 @@ protected:
   AstTests()
     : util(config)
     , fc_visitor(util) {
-    config.load_configuration("./tests/test_files/config/test2.json");
+    config.set_parent_dir(Frizz::find_path("tests/test_files"));
   }
 };
 
@@ -52,7 +53,7 @@ TEST_F(AstTests, PassthroughAstPassesValueThrough) {
 }
 
 TEST_F(AstTests, FileContentVisitorGetsFileContents) {
-  std::string expected = get_expected("./tests/test_files/partials/test1.md");
+  std::string expected = get_expected("tests/test_files/partials/test1.md");
   Frizz::AssignmentAst ast("src", "test1.md");
   std::string result = ast.accept(fc_visitor);
 

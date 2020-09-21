@@ -8,8 +8,7 @@
 #include <gtest/gtest.h>
 
 #include "file_utility.h"
-
-static const std::string TEST_FILE_DIR = "./tests/test_files/config";
+#include "test_helpers.h"
 
 class FileUtilityTests : public ::testing::Test {
 public:
@@ -18,15 +17,16 @@ public:
 protected:
   Frizz::FrizzConfig config;
   Frizz::FileUtility util;
+  std::filesystem::path parent_dir;
 
   void SetUp() override {
-    std::string config_path = TEST_FILE_DIR + "/test1.json";
-    this->config.load_configuration(config_path);
+    this->parent_dir = Frizz::find_path("tests/test_files");
+    this->config.set_parent_dir(this->parent_dir);
   }
 };
 
 TEST_F(FileUtilityTests, ValidPathToSourceSubdirReturnsRelativePath) {
-  std::filesystem::path p("/path/to/files/sources/a/b/c");
+  std::filesystem::path p = this->parent_dir / "sources/a/b/c";
   std::filesystem::path result = util.get_relative_source_path(p);
 
   EXPECT_EQ(result.string(), "a/b/c");

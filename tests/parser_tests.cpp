@@ -7,6 +7,7 @@
 #include <gtest/gtest.h>
 
 #include "parser.h"
+#include "test_helpers.h"
 
 using namespace Frizz;
 
@@ -97,7 +98,7 @@ TEST_F(ParserTests, PreambleMultiAssignment) {
 }
 
 TEST_F(ParserTests, ForLoopContext) {
-  config.load_configuration("./tests/test_files/config/test2.json");
+  config.set_parent_dir(Frizz::find_path("tests/test_files"));
 
   std::vector<Token> tokens { Token(TokType::tok_block),
                               Token(TokType::tok_ws),

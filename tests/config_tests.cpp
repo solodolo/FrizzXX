@@ -8,27 +8,27 @@
 #include <gtest/gtest.h>
 
 #include "frizz_config.h"
-
-static const std::string TEST_FILE_DIR = "./tests/test_files/config";
+#include "test_helpers.h"
 
 class ConfigTests : public ::testing::Test {
 protected:
   Frizz::FrizzConfig config;
+  std::filesystem::path parent_path;
 
   void SetUp() override {
-    std::string config_path = TEST_FILE_DIR + "/test1.json";
-    this->config.load_configuration(config_path);
+    parent_path = Frizz::find_path("tests/test_files");
+    this->config.set_parent_dir(parent_path);
   }
 };
 
 TEST_F(ConfigTests, CorrectSourcePath) {
-  ASSERT_EQ(config.get_source_root_path().string(), "/path/to/files/sources");
+  ASSERT_EQ(config.get_source_root_path(), parent_path / "sources");
 }
 
 TEST_F(ConfigTests, CorrectPartialPath) {
-  ASSERT_EQ(config.get_partial_templates_path().string(), "/path/to/files/partials");
+  ASSERT_EQ(config.get_partial_templates_path(), parent_path / "partials");
 }
 
 TEST_F(ConfigTests, CorrectBuildPath) {
-  ASSERT_EQ(config.get_build_path().string(), "/path/to/files/output");
+  ASSERT_EQ(config.get_build_path().string(), parent_path / "output");
 }
