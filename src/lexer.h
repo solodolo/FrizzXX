@@ -78,7 +78,7 @@ public:
     , ident_pattern("^[a-zA-Z_-]+")
     , for_pattern("^for")
     , in_pattern("^in")
-    , ctx_pattern("^\\{[a-zA-Z]+\\.[a-zA-Z]+}") {}
+    , ctx_pattern("^\\{[a-zA-Z]*\\.[a-zA-Z]+}") {}
 
   void lex(std::filesystem::path path);
   void next_tok();
