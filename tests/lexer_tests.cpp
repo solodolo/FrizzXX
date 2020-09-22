@@ -90,6 +90,15 @@ TEST_F(LexerTests, ContextTok) {
   EXPECT_EQ(lexer.get_tokens()[1].value, "title");
 }
 
+TEST_F(LexerTests, ContextNoNamespaceTok) {
+  lexer.set_line("{.foo}");
+  lexer.next_tok();
+
+  ASSERT_EQ(lexer.get_tokens().size(), 2);
+  EXPECT_EQ(lexer.get_tokens()[0].value, "");
+  EXPECT_EQ(lexer.get_tokens()[1].value, "foo");
+}
+
 // STRING "blah"
 TEST_F(LexerTests, StrTok) {
   lexer.set_line("\"a\"");
