@@ -27,6 +27,7 @@ int main(int argc, char** argv) {
       ret_val = -1;
     }
     else {
+      runner.process_content_source_files(config);
       runner.process_source_files(config);
     }
   }

@@ -46,13 +46,15 @@ std::unordered_map<std::string, std::string> Frizz::Runner::process_partial_prea
   parser.set_tokens(lexer.get_tokens());
   parser.parse();
 
+  std::string content;
+
   for(auto const& s : parser.get_trees()) {
     std::tuple<std::string, std::string> key_val = s->accept(a_visitor);
 
     std::string key = std::get<0>(key_val);
     std::string val = std::get<1>(key_val);
 
-    if(!key.empty() && !val.empty()) {
+    if(!key.empty()) {
       if(context_namespace.empty()) {
         context.emplace(key, val);
       }
@@ -61,7 +63,12 @@ std::unordered_map<std::string, std::string> Frizz::Runner::process_partial_prea
         context.emplace(namespaced_key, val);
       }
     }
+    else {
+      content += val;
+    }
   }
+
+  context.emplace(":content", content);
 
   return context;
 }
@@ -93,7 +100,8 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
 
       if(!children.empty()) {
         for(auto& child_ptr : children) {
-          std::tuple<std::string, std::filesystem::path> namespaced_context = child_ptr->accept(c_visitor);
+          std::tuple<std::string, std::filesystem::path> namespaced_context =
+            child_ptr->accept(c_visitor);
           std::string context_namespace = std::get<0>(namespaced_context);
           std::filesystem::path context_path = std::get<1>(namespaced_context);
 
@@ -104,7 +112,7 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
             std::tuple<std::string, std::string> template_info = child_ptr->accept(a_visitor);
             std::string template_name = std::get<1>(template_info);
             std::filesystem::path template_file_path = util.get_partial_file_path(template_name);
-            
+
             output_stream << this->process_with_context(template_file_path, context, util);
           }
         }
@@ -121,11 +129,62 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
   }
   else {
     if(output_stream.fail()) {
-      std::cout << "Output stream " << output_path << " could not be created: " << strerror(errno) << std::endl;
+      std::cout << "Output stream " << output_path << " could not be created: " << strerror(errno)
+                << std::endl;
     }
   }
 
   output_stream.close();
+}
+
+void Frizz::Runner::process_content_source_files(Frizz::FrizzConfig& config) {
+  Frizz::FileUtility util(config);
+
+  Frizz::Lexer lexer;
+  Frizz::Parser parser(util);
+
+  std::vector<std::filesystem::path> content_source_paths = util.get_content_source_paths();
+  std::filesystem::path output_root = config.get_build_path();
+
+  for(const auto& path : content_source_paths) {
+    if(path.filename() == "_index.md") {
+      // TODO: create a better method for this
+      std::filesystem::path content_subpath =
+        std::filesystem::relative(path, config.get_source_root_path() / "content");
+
+      std::vector<std::filesystem::path> content_paths =
+        util.get_content_file_paths(content_subpath.parent_path());
+
+      for(const auto& content_path : content_paths) {
+        std::filesystem::path output_path =
+          output_root / util.get_relative_content_path(content_path);
+
+        std::filesystem::create_directories(output_path.parent_path());
+
+        std::ofstream output_stream(output_path);
+
+        if(output_stream) {
+          std::unordered_map<std::string, std::string> context =
+            this->process_partial_preamble("", content_path, util);
+
+          output_stream << this->process_with_context(path, context, util);
+          output_stream.close();
+        }
+        else {
+          std::cout << "Output stream " << output_path
+                    << " could not be created: " << strerror(errno) << std::endl;
+        }
+      }
+    }
+  }
+
+  // Check for _index.md file
+  // If found
+  //    Lookup the corresponding content in the content subfolder
+  //    for each content
+  //        add the content of the preamble to the context
+  //        add the rest of the file's contents - preamble to context
+  //        output a file with the same name as the content file using the _index.md template
 }
 
 void Frizz::Runner::process_source_files(Frizz::FrizzConfig& config) {
@@ -135,7 +194,6 @@ void Frizz::Runner::process_source_files(Frizz::FrizzConfig& config) {
   Frizz::Parser parser(util);
 
   std::vector<std::filesystem::path> source_file_paths = util.get_source_file_paths();
-  std::vector<std::filesystem::path> content_source_paths = util.get_content_source_paths();
 
   for(auto path : source_file_paths) {
     std::filesystem::path rel_source_path = util.get_relative_source_path(path);
