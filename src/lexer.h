@@ -73,7 +73,7 @@ public:
     : cur_tok(tok_none)
     , whitespace("^\\s+")
     , block_pattern("^@@")
-    , preamble_pattern("^~~\n")
+    , preamble_pattern("^~~$")
     , str_pattern("^\"[^\n]+?\"")
     , ident_pattern("^[a-zA-Z_-]+")
     , for_pattern("^for")

@@ -16,7 +16,7 @@ void Frizz::Lexer::lex(std::filesystem::path filepath) {
     while(!input.eof()) {
       std::getline(input, this->line);
       this->next_tok();
-      this->add_token(Token(TokType::tok_nl, "\n"));
+      this->add_token(Token(TokType::tok_ws, "\n"));
     }
 
     this->add_token(Token(TokType::tok_eof));
