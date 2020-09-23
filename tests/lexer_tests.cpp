@@ -57,18 +57,19 @@ TEST_F(LexerTests, MultiSequenceBlockTok) {
 
 // PREAMBLE ~~
 TEST_F(LexerTests, PreambleTok) {
-  lexer.set_line("~~\n");
+  lexer.set_line("~~");
   lexer.next_tok();
   ASSERT_EQ(lexer.get_tokens().size(), 1);
   EXPECT_EQ(lexer.get_tokens()[0].id, Frizz::TokType::tok_preamble);
 }
 
 TEST_F(LexerTests, SingleLinePreambleTok) {
-  lexer.set_line("~~");
+  lexer.set_line("~~\n");
   lexer.next_tok();
-  ASSERT_EQ(lexer.get_tokens().size(), 2);
+  ASSERT_EQ(lexer.get_tokens().size(), 3);
   EXPECT_EQ(lexer.get_tokens()[0].id, Frizz::TokType::tok_sym);
   EXPECT_EQ(lexer.get_tokens()[1].id, Frizz::TokType::tok_sym);
+  EXPECT_EQ(lexer.get_tokens()[2].id, Frizz::TokType::tok_ws);
 }
 
 TEST_F(LexerTests, SpacePreambleTok) {
@@ -340,7 +341,7 @@ TEST_F(LexerTests, ContextReplacementFromFile) {
   EXPECT_EQ(tokens[6].id, Frizz::TokType::tok_sym);
 
   EXPECT_EQ(tokens[7].value, "\n");
-  EXPECT_EQ(tokens[7].id, Frizz::TokType::tok_nl);
+  EXPECT_EQ(tokens[7].id, Frizz::TokType::tok_ws);
 
   EXPECT_EQ(tokens[8].value, "");
   EXPECT_EQ(tokens[8].id, Frizz::TokType::tok_eof);
@@ -349,9 +350,9 @@ TEST_F(LexerTests, ContextReplacementFromFile) {
 TEST_F(LexerTests, Complete) {
   std::vector<std::string> lines;
   lines.push_back("# Title");
-  lines.push_back("~~\n");
+  lines.push_back("~~");
   lines.push_back("@@ foo=\"bar\"");
-  lines.push_back("~~\n");
+  lines.push_back("~~");
   lines.push_back("");
   lines.push_back("@@ src=\"path/to/file.md\"");
   lines.push_back("");
@@ -441,9 +442,9 @@ TEST_F(LexerTests, ForLoopTest) {
     Frizz::TokType::tok_block, Frizz::TokType::tok_ws,    Frizz::TokType::tok_for,
     Frizz::TokType::tok_ws,    Frizz::TokType::tok_ident, Frizz::TokType::tok_ws,
     Frizz::TokType::tok_in,    Frizz::TokType::tok_ws,    Frizz::TokType::tok_str,
-    Frizz::TokType::tok_nl,    Frizz::TokType::tok_block, Frizz::TokType::tok_ws,
+    Frizz::TokType::tok_ws,    Frizz::TokType::tok_block, Frizz::TokType::tok_ws,
     Frizz::TokType::tok_ident, Frizz::TokType::tok_sym,   Frizz::TokType::tok_str,
-    Frizz::TokType::tok_nl,    Frizz::TokType::tok_eof
+    Frizz::TokType::tok_ws,    Frizz::TokType::tok_eof
   };
 
   ASSERT_EQ(tokens.size(), expected.size());
