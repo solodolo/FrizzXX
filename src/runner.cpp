@@ -68,7 +68,7 @@ std::unordered_map<std::string, std::string> Frizz::Runner::process_partial_prea
     }
   }
 
-  context.emplace(":content", content);
+  context.emplace("content", content);
 
   return context;
 }

@@ -132,6 +132,10 @@ std::string Frizz::PassthroughAst::get_value() const {
 */
 
 std::string Frizz::CtxReplacementAst::get_namespaced_key() {
+  if(this->key.empty()) {
+    return this->value;
+  }
+  
   return this->key + ":" + this->value;
 }
 
