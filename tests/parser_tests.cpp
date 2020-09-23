@@ -24,7 +24,7 @@ public:
 TEST_F(ParserTests, SingleLineSingleExp) {
   std::vector<Token> tokens { Token(TokType::tok_block),          Token(TokType::tok_ws),
                               Token(TokType::tok_ident, "src"),   Token(TokType::tok_sym, "="),
-                              Token(TokType::tok_str, "test.md"), Token(TokType::tok_nl) };
+                              Token(TokType::tok_str, "test.md"), Token(TokType::tok_ws, "\n") };
 
   parser.set_tokens(tokens);
 
@@ -65,11 +65,11 @@ TEST_F(ParserTests, SinglePassthroughLine) {
 }
 
 TEST_F(ParserTests, PreambleSingleAssignment) {
-  std::vector<Token> tokens { Token(TokType::tok_preamble),
-                              Token(TokType::tok_ident),
-                              Token(TokType::tok_sym, "="),
-                              Token(TokType::tok_str, "foo"),
-                              Token(TokType::tok_preamble) };
+  std::vector<Token> tokens {
+    Token(TokType::tok_preamble), Token(TokType::tok_ws, "\n"),   Token(TokType::tok_ident),
+    Token(TokType::tok_sym, "="), Token(TokType::tok_str, "foo"), Token(TokType::tok_ws, "\n"),
+    Token(TokType::tok_preamble), Token(TokType::tok_ws, "\n"),
+  };
 
   parser.set_tokens(tokens);
 
@@ -80,12 +80,14 @@ TEST_F(ParserTests, PreambleSingleAssignment) {
 }
 
 TEST_F(ParserTests, PreambleMultiAssignment) {
-  std::vector<Token> tokens { Token(TokType::tok_preamble),   Token(TokType::tok_ident, "a"),
-                              Token(TokType::tok_sym, "="),   Token(TokType::tok_str, "foo"),
+  std::vector<Token> tokens { Token(TokType::tok_preamble),   Token(TokType::tok_ws, "\n"),
+                              Token(TokType::tok_ident, "a"), Token(TokType::tok_sym, "="),
+                              Token(TokType::tok_str, "foo"), Token(TokType::tok_ws, "\n"),
                               Token(TokType::tok_ident, "b"), Token(TokType::tok_sym, "="),
-                              Token(TokType::tok_str, "bar"), Token(TokType::tok_ident, "c"),
-                              Token(TokType::tok_sym, "="),   Token(TokType::tok_str, "baz"),
-                              Token(TokType::tok_preamble) };
+                              Token(TokType::tok_str, "bar"), Token(TokType::tok_ws, "\n"),
+                              Token(TokType::tok_ident, "c"), Token(TokType::tok_sym, "="),
+                              Token(TokType::tok_str, "baz"), Token(TokType::tok_ws, "\n"),
+                              Token(TokType::tok_preamble),   Token(TokType::tok_ws, "\n") };
 
   parser.set_tokens(tokens);
 
@@ -100,21 +102,13 @@ TEST_F(ParserTests, PreambleMultiAssignment) {
 TEST_F(ParserTests, ForLoopContext) {
   config.set_parent_dir(Frizz::find_path("tests/test_files"));
 
-  std::vector<Token> tokens { Token(TokType::tok_block),
-                              Token(TokType::tok_ws),
-                              Token(TokType::tok_for),
-                              Token(TokType::tok_ws),
-                              Token(TokType::tok_ident),
-                              Token(TokType::tok_ws),
-                              Token(TokType::tok_in),
-                              Token(TokType::tok_ws),
-                              Token(TokType::tok_str, "posts"),
-                              Token(TokType::tok_nl),
-                              Token(TokType::tok_block),
-                              Token(TokType::tok_ws),
-                              Token(TokType::tok_ident),
-                              Token(TokType::tok_sym, "="),
-                              Token(TokType::tok_str, "test.md") };
+  std::vector<Token> tokens {
+    Token(TokType::tok_block),    Token(TokType::tok_ws),       Token(TokType::tok_for),
+    Token(TokType::tok_ws),       Token(TokType::tok_ident),    Token(TokType::tok_ws),
+    Token(TokType::tok_in),       Token(TokType::tok_ws),       Token(TokType::tok_str, "posts"),
+    Token(TokType::tok_ws, "\n"), Token(TokType::tok_block),    Token(TokType::tok_ws),
+    Token(TokType::tok_ident),    Token(TokType::tok_sym, "="), Token(TokType::tok_str, "test.md")
+  };
 
   parser.set_tokens(tokens);
 

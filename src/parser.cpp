@@ -23,21 +23,24 @@ void Frizz::Parser::parse() {
         }
       }
 
-      this->optional_found(TokType::tok_nl);
+      this->optional_found(TokType::tok_ws, "\n");
     }
     else if(this->peek_current(TokType::tok_preamble)) {
       this->required_found(TokType::tok_preamble);
+      this->required_found(TokType::tok_ws);
 
       while(true) {
         this->ident();
+        this->required_found(TokType::tok_ws);
 
         if(this->peek_current(TokType::tok_preamble)) {
-          this->next_token();
+          this->required_found(TokType::tok_preamble);
+          this->required_found(TokType::tok_ws);
           break;
         }
       }
 
-      this->optional_found(TokType::tok_nl);
+      this->optional_found(TokType::tok_ws, "\n");
     }
     else if(this->peek_current(TokType::tok_ctx_name)) {
       // using a context variable
@@ -106,7 +109,7 @@ void Frizz::Parser::for_loop() {
 
   std::shared_ptr<ForLoopAst> loop = std::make_shared<ForLoopAst>(ident_name, ident_val);
 
-  this->required_found(TokType::tok_nl);
+  this->required_found(TokType::tok_ws, "\n");
   this->required_found(TokType::tok_block);
   this->required_found(TokType::tok_ws);
 
