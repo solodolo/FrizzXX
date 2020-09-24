@@ -29,17 +29,20 @@ TEST_F(RunnerTests, ProcessPreamble) {
   std::unordered_map<std::string, std::string> map =
     runner.process_partial_preamble("", util.get_content_file_path("posts/post1.md"), util);
 
-  ASSERT_EQ(map.size(), 1);
+  ASSERT_EQ(map.size(), 2);
 
   auto found = map.find("test");
   EXPECT_EQ(found->second, "this is a test");
+
+  found = map.find("content");
+  EXPECT_NE(found, map.end());
 }
 
 TEST_F(RunnerTests, ProcessPreambleMultiple) {
   std::unordered_map<std::string, std::string> map =
     runner.process_partial_preamble("", util.get_content_file_path("posts/post2.md"), util);
 
-  ASSERT_EQ(map.size(), 3);
+  ASSERT_EQ(map.size(), 4);
 
   auto found = map.find("foo");
   EXPECT_EQ(found->second, "bar");
@@ -49,16 +52,15 @@ TEST_F(RunnerTests, ProcessPreambleMultiple) {
 
   found = map.find("baz");
   EXPECT_EQ(found->second, "foo");
+
+  found = map.find("content");
+  EXPECT_NE(found, map.end());
 }
 
-TEST_F(RunnerTests, ProcessPreambleIgnoresNonIdents) {
-  std::unordered_map<std::string, std::string> map =
-    runner.process_partial_preamble("", util.get_content_file_path("posts/post3.md"), util);
-
-  ASSERT_EQ(map.size(), 1);
-
-  auto found = map.find("is");
-  EXPECT_EQ(found->second, "a block");
+TEST_F(RunnerTests, ProcessPreambleThrowsErrorOnNonIdents) {
+  ASSERT_THROW(
+    runner.process_partial_preamble("", util.get_content_file_path("posts/post3.md"), util),
+    Frizz::ParseException);
 }
 
 TEST_F(RunnerTests, ProcessWithContext) {
