@@ -34,6 +34,7 @@ public:
 private:
   Frizz::FileUtility& util;
   Token cur_tok;
+  int cur_line;
   std::string last_val;
   std::vector<Token> tokens;
   std::vector<std::string> errors;

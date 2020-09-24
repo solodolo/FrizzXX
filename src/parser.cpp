@@ -9,6 +9,7 @@
 #include "parser.h"
 
 void Frizz::Parser::parse() {
+  this->cur_line = 1;
   this->next_token();
   while(!this->is_eof()) {
     if(this->peek_current(TokType::tok_block)) {
@@ -35,7 +36,7 @@ void Frizz::Parser::parse() {
 
         if(this->peek_current(TokType::tok_preamble)) {
           this->required_found(TokType::tok_preamble);
-          this->required_found(TokType::tok_ws);
+          this->optional_found(TokType::tok_ws, "\n");
           break;
         }
       }
@@ -76,6 +77,10 @@ void Frizz::Parser::set_tokens(std::vector<Token> tokens) {
 }
 
 void Frizz::Parser::next_token() {
+  if(this->cur_tok.id == TokType::tok_ws && this->cur_tok.value == "\n") {
+    ++this->cur_line;
+  }
+
   this->last_val = this->cur_tok.value;
 
   if(!this->tokens.empty()) {
@@ -194,7 +199,8 @@ bool Frizz::Parser::optional_found(TokType id, std::string val) {
 
 void Frizz::Parser::required_found(TokType id) {
   if(!this->optional_found(id)) {
-    std::string msg = "Expected: " + Frizz::TokNames[id] + ", Got: " + Frizz::TokNames[this->cur_tok.id];
+    std::string msg =
+      "Expected: " + Frizz::TokNames[id] + ", Got: " + Frizz::TokNames[this->cur_tok.id];
     this->throw_error(msg);
   }
 }
@@ -202,13 +208,14 @@ void Frizz::Parser::required_found(TokType id) {
 void Frizz::Parser::required_found(TokType id, std::string val) {
   if(!this->optional_found(id, val)) {
     std::string msg = "Expected " + Frizz::TokNames[id] + " with val " + val +
-                    ", Got: " + Frizz::TokNames[this->cur_tok.id] + " with val " +
-                    this->cur_tok.value;
+                      ", Got: " + Frizz::TokNames[this->cur_tok.id] + " with val " +
+                      this->cur_tok.value;
     this->throw_error(msg);
   }
 }
 
 void Frizz::Parser::throw_error(std::string message) {
+  message = "Parse error on line " + std::to_string(this->cur_line) + ". " + message;
   throw Frizz::ParseException(message);
 }
 
