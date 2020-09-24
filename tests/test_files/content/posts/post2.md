@@ -1,7 +1,7 @@
 ~~
-@@ foo="bar"
-@@ bar="baz"
-@@ baz="foo"
+foo="bar"
+bar="baz"
+baz="foo"
 ~~
 
 And some more markdown

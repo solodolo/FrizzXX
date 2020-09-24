@@ -1,4 +1,4 @@
 ~~
 # not a block
-@@ is="a block"
+is="a block"
 ~~
