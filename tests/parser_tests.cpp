@@ -79,6 +79,21 @@ TEST_F(ParserTests, PreambleSingleAssignment) {
   EXPECT_EQ(parser.get_trees()[0]->get_value(), "foo");
 }
 
+TEST_F(ParserTests, PreambleNoEndingNewline) {
+  std::vector<Token> tokens {
+    Token(TokType::tok_preamble), Token(TokType::tok_ws, "\n"),   Token(TokType::tok_ident),
+    Token(TokType::tok_sym, "="), Token(TokType::tok_str, "foo"), Token(TokType::tok_ws, "\n"),
+    Token(TokType::tok_preamble)
+  };
+
+  parser.set_tokens(tokens);
+
+  parser.parse();
+
+  ASSERT_EQ(parser.get_trees().size(), 1);
+  EXPECT_EQ(parser.get_trees()[0]->get_value(), "foo");
+}
+
 TEST_F(ParserTests, PreambleMultiAssignment) {
   std::vector<Token> tokens { Token(TokType::tok_preamble),   Token(TokType::tok_ws, "\n"),
                               Token(TokType::tok_ident, "a"), Token(TokType::tok_sym, "="),
