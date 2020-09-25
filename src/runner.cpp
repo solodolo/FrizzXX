@@ -69,6 +69,7 @@ std::unordered_map<std::string, std::string> Frizz::Runner::process_partial_prea
   }
 
   context.emplace("content", content);
+  context.emplace("link", util.get_relative_content_path(file_path, true));
 
   return context;
 }
@@ -148,16 +149,14 @@ void Frizz::Runner::process_content_source_files(Frizz::FrizzConfig& config) {
 
   for(const auto& path : content_source_paths) {
     if(path.filename() == "_index.md") {
-      // TODO: create a better method for this
-      std::filesystem::path content_subpath =
-        std::filesystem::relative(path, config.get_source_root_path() / "content");
+      std::filesystem::path content_subpath = util.get_relative_source_path(path);
 
       std::vector<std::filesystem::path> content_paths =
-        util.get_content_file_paths(content_subpath.parent_path());
+        util.get_content_file_paths(content_subpath.parent_path(), true);
 
       for(const auto& content_path : content_paths) {
         std::filesystem::path output_path =
-          output_root / util.get_relative_content_path(content_path);
+          output_root / util.get_relative_content_path(content_path, true);
 
         std::filesystem::create_directories(output_path.parent_path());
 
