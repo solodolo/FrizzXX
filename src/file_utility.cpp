@@ -81,8 +81,14 @@ std::filesystem::path Frizz::FileUtility::get_relative_source_path(std::filesyst
   return this->get_relative_path(path, this->config.get_source_root_path());
 }
 
-std::filesystem::path Frizz::FileUtility::get_relative_content_path(std::filesystem::path path) {
-  return this->get_relative_path(path, this->config.get_content_path());
+std::filesystem::path Frizz::FileUtility::get_relative_content_path(std::filesystem::path path, bool include_root) {
+  std::filesystem::path base = this->config.get_content_path();
+
+  if(include_root) {
+    base = base.parent_path();
+  }
+
+  return this->get_relative_path(path, base);
 }
 
 std::filesystem::path Frizz::FileUtility::get_relative_path(std::filesystem::path path,
@@ -114,8 +120,14 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_file_paths(std::files
   throw Frizz::InvalidFilePath();
 }
 
-std::vector<std::filesystem::path> Frizz::FileUtility::get_content_file_paths(std::string subdir) {
-  std::filesystem::path dir = this->config.get_content_path() / subdir;
+std::vector<std::filesystem::path> Frizz::FileUtility::get_content_file_paths(std::string subdir, bool include_root) {
+  std::filesystem::path root = this->config.get_content_path();
+
+  if(include_root) {
+    root = root.parent_path();
+  }
+
+  std::filesystem::path dir = root / subdir;
   return this->get_file_paths(dir);
 }
 
