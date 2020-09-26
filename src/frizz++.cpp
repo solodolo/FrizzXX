@@ -10,7 +10,6 @@
 
 #include "runner.h"
 #include "frizz_config.h"
-#include "maddy/parser.h"
 
 int main(int argc, char** argv) {
   int ret_val = 0;
@@ -29,6 +28,7 @@ int main(int argc, char** argv) {
     else {
       runner.process_content_source_files(config);
       runner.process_source_files(config);
+      runner.convert_to_html(config);
     }
   }
   else {

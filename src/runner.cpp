@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "runner.h"
+#include "maddy/parser.h"
 
 std::string Frizz::Runner::process_with_context(
   std::filesystem::path file_path,
@@ -69,7 +70,10 @@ std::unordered_map<std::string, std::string> Frizz::Runner::process_partial_prea
   }
 
   context.emplace("content", content);
-  context.emplace("link", util.get_relative_content_path(file_path, true));
+  std::filesystem::path link = util.get_relative_content_path(file_path, true);
+  link.replace_extension(".html");
+
+  context.emplace("link", link);
 
   return context;
 }
@@ -206,5 +210,42 @@ void Frizz::Runner::process_source_files(Frizz::FrizzConfig& config) {
 
     lexer.clear_tokens();
     parser.clear_trees();
+  }
+}
+
+void Frizz::Runner::convert_to_html(Frizz::FrizzConfig& config) {
+  std::filesystem::path build_path = config.get_build_path();
+  std::filesystem::recursive_directory_iterator it(build_path);
+  maddy::Parser parser = maddy::Parser();
+
+  for(auto& file : it) {
+    std::filesystem::path md_path = file.path();
+    if(md_path.extension() == ".md") {
+      std::ifstream input_stream(md_path);
+
+      if(!input_stream) {
+        std::cout << "Input stream " << md_path << " could not be created: " << strerror(errno) << std::endl;
+        return;
+      }
+
+      std::filesystem::path html_path = md_path;
+      html_path.replace_extension(".html");
+      std::ofstream output_stream(html_path);
+
+      if(!input_stream) {
+        std::cout << "Output stream " << html_path << " could not be created: " << strerror(errno) << std::endl;
+        return;
+      }
+
+      std::stringstream markdown;
+      markdown << input_stream.rdbuf();
+      
+      input_stream.close();
+
+      output_stream << parser.Parse(markdown);
+      output_stream.close();
+
+      std::filesystem::remove(md_path);
+    }
   }
 }
