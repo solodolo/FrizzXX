@@ -27,7 +27,7 @@ protected:
 
 TEST_F(RunnerTests, ProcessPreamble) {
   std::unordered_map<std::string, std::string> map =
-    runner.process_partial_preamble("", util.get_content_file_path("posts/post1.md"), util);
+    runner.process_file_preamble("", util.get_content_file_path("posts/post1.md"), util);
 
   auto found = map.find("test");
   EXPECT_EQ(found->second, "this is a test");
@@ -35,7 +35,7 @@ TEST_F(RunnerTests, ProcessPreamble) {
 
 TEST_F(RunnerTests, ProcessPreambleMultiple) {
   std::unordered_map<std::string, std::string> map =
-    runner.process_partial_preamble("", util.get_content_file_path("posts/post2.md"), util);
+    runner.process_file_preamble("", util.get_content_file_path("posts/post2.md"), util);
 
   auto found = map.find("foo");
   EXPECT_EQ(found->second, "bar");
@@ -49,14 +49,14 @@ TEST_F(RunnerTests, ProcessPreambleMultiple) {
 
 TEST_F(RunnerTests, ProcessPreambleThrowsErrorOnNonIdents) {
   ASSERT_THROW(
-    runner.process_partial_preamble("", util.get_content_file_path("posts/post3.md"), util),
+    runner.process_file_preamble("", util.get_content_file_path("posts/post3.md"), util),
     Frizz::ParseException);
 }
 
 
 TEST_F(RunnerTests, ProcessPreambleIncludesContent) {
   std::unordered_map<std::string, std::string> map =
-    runner.process_partial_preamble("", util.get_content_file_path("posts/post1.md"), util);
+    runner.process_file_preamble("", util.get_content_file_path("posts/post1.md"), util);
 
   auto found = map.find("content");
   ASSERT_NE(found, map.end());
@@ -65,7 +65,7 @@ TEST_F(RunnerTests, ProcessPreambleIncludesContent) {
 
 TEST_F(RunnerTests, ProcessPreambleIncludesLink) {
   std::unordered_map<std::string, std::string> map =
-    runner.process_partial_preamble("", util.get_content_file_path("posts/post1.md"), util);
+    runner.process_file_preamble("", util.get_content_file_path("posts/post1.md"), util);
 
   auto found = map.find("link");
   ASSERT_NE(found, map.end());
