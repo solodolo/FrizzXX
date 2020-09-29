@@ -21,6 +21,7 @@ set(HEADERS
   src/frizz_config.h
   src/file_utility.h
   src/runner.h
+  src/context_parser.h
 )
 
 set(SOURCES
@@ -32,6 +33,7 @@ set(SOURCES
   src/frizz_config.cpp
   src/file_utility.cpp
   src/runner.cpp
+  src/context_parser.cpp
 )
 
 include_directories(${CMAKE_CURRENT_DIRECTORY}/src)
