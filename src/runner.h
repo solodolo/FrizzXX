@@ -18,7 +18,7 @@
 namespace Frizz {
 class Runner {
 public:
-  std::unordered_map<std::string, std::string> process_partial_preamble(
+  std::unordered_map<std::string, std::string> process_file_preamble(
     std::string context_namespace, std::filesystem::path file_path, Frizz::FileUtility& util);
 
   void process_source_file(Frizz::Lexer& lexer,
