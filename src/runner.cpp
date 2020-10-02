@@ -120,7 +120,7 @@ void Frizz::Runner::process_content_source_files(Frizz::FrizzConfig& config) {
   std::filesystem::path output_root = config.get_build_path();
 
   for(const auto& path : content_source_paths) {
-    if(path.filename() == "_index.md") {
+    if(path.filename() == "_index.html") {
       std::filesystem::path content_subpath = util.get_relative_source_path(path);
 
       std::vector<std::filesystem::path> content_paths =
@@ -129,6 +129,8 @@ void Frizz::Runner::process_content_source_files(Frizz::FrizzConfig& config) {
       for(const auto& content_path : content_paths) {
         std::filesystem::path output_path =
           output_root / util.get_relative_content_path(content_path, true);
+
+        output_path.replace_extension(".html");
 
         std::filesystem::create_directories(output_path.parent_path());
 
