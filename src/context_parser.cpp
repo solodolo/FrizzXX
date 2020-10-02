@@ -38,6 +38,7 @@ std::unordered_map<std::string, std::string> Frizz::ContextParser::get_main_cont
   Frizz::AstVisitor a_visitor;
   Frizz::Parser parser(this->util);
 
+  parser.set_tokens(this->tokens);
   parser.parse();
 
   std::string content;
