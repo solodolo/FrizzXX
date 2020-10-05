@@ -81,15 +81,13 @@ public:
     , ctx_pattern("^\\{[a-zA-Z]*\\.[a-zA-Z]+}") {}
 
   void lex(std::filesystem::path path);
-  void next_tok();
-  void set_line(std::string line);
+  void lex_line(std::string line);
   bool tok_is_a(TokType type);
   std::vector<Token> get_tokens();
   void add_token(Token tok);
   void clear_tokens();
 
 private:
-  std::string line;
   std::vector<Token> tokens;
 
   std::regex whitespace;

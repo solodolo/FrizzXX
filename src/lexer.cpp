@@ -14,8 +14,10 @@ void Frizz::Lexer::lex(std::filesystem::path filepath) {
 
   if(input) {
     while(!input.eof()) {
-      std::getline(input, this->line);
-      this->next_tok();
+      std::string line;
+      std::getline(input, line);
+
+      this->lex_line(line);
       this->add_token(Token(TokType::tok_ws, "\n"));
     }
 
@@ -37,34 +39,33 @@ bool Frizz::Lexer::tok_is_a(TokType type) {
   return this->cur_tok.id == type;
 }
 
-void Frizz::Lexer::next_tok() {
-  std::string cur_line = this->line;
+void Frizz::Lexer::lex_line(std::string line) {
   std::smatch results;
 
-  while(!cur_line.empty()) {
+  while(!line.empty()) {
     results = std::smatch();
 
-    if(std::regex_search(cur_line, results, whitespace)) {
+    if(std::regex_search(line, results, whitespace)) {
       Token tok(tok_ws, results.str());
       this->add_token(tok);
     }
-    else if(std::regex_search(cur_line, results, block_pattern)) {
+    else if(std::regex_search(line, results, block_pattern)) {
       Token tok(tok_block);
       this->add_token(tok);
     }
-    else if(std::regex_search(cur_line, results, preamble_pattern)) {
+    else if(std::regex_search(line, results, preamble_pattern)) {
       Token tok(tok_preamble);
       this->add_token(tok);
     }
-    else if(std::regex_search(cur_line, results, for_pattern)) {
+    else if(std::regex_search(line, results, for_pattern)) {
       Token tok(tok_for, "for");
       this->add_token(tok);
     }
-    else if(std::regex_search(cur_line, results, in_pattern)) {
+    else if(std::regex_search(line, results, in_pattern)) {
       Token tok(tok_in, "in");
       this->add_token(tok);
     }
-    else if(std::regex_search(cur_line, results, ctx_pattern)) {
+    else if(std::regex_search(line, results, ctx_pattern)) {
       Token name(tok_ctx_name);
       Token val(tok_ctx_val);
 
@@ -80,7 +81,7 @@ void Frizz::Lexer::next_tok() {
       this->add_token(name);
       this->add_token(val);
     }
-    else if(std::regex_search(cur_line, results, str_pattern)) {
+    else if(std::regex_search(line, results, str_pattern)) {
       Token tok(tok_str);
 
       // get the contents of the string witout the dbl quotes
@@ -89,7 +90,7 @@ void Frizz::Lexer::next_tok() {
 
       this->add_token(tok);
     }
-    else if(std::regex_search(cur_line, results, ident_pattern)) {
+    else if(std::regex_search(line, results, ident_pattern)) {
       Token tok(tok_ident);
 
       std::string result_str = results.str();
@@ -100,20 +101,16 @@ void Frizz::Lexer::next_tok() {
     else {
       // no match so discard the first character and try again
       Token tok(tok_sym);
-      tok.value = cur_line[0];
+      tok.value = line[0];
       this->add_token(tok);
 
-      cur_line = cur_line.substr(1);
+      line = line.substr(1);
     }
 
     if(!results.empty()) {
-      cur_line.erase(results.position(0), results.length(0));
+      line.erase(results.position(0), results.length(0));
     }
   }
-}
-
-void Frizz::Lexer::set_line(std::string line) {
-  this->line = line;
 }
 
 void Frizz::Lexer::print_tokens() {
