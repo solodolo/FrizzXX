@@ -34,6 +34,7 @@ set(SOURCES
   src/file_utility.cpp
   src/runner.cpp
   src/context_parser.cpp
+  src/syntax_tree_visitors.cpp
 )
 
 include_directories(${CMAKE_CURRENT_DIRECTORY}/src)
