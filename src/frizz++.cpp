@@ -28,7 +28,6 @@ int main(int argc, char** argv) {
     else {
       runner.process_content_source_files(config);
       runner.process_source_files(config);
-      runner.convert_to_html(config);
     }
   }
   else {

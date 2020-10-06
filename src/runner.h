@@ -34,8 +34,6 @@ public:
   std::string process_with_context(std::filesystem::path file_path,
                                    std::unordered_map<std::string, std::string> context,
                                    Frizz::FileUtility& util);
-
-  void convert_to_html(Frizz::FrizzConfig& config);
 };
 }
 

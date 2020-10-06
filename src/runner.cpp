@@ -182,7 +182,3 @@ void Frizz::Runner::process_source_files(Frizz::FrizzConfig& config) {
     parser.clear_trees();
   }
 }
-
-void Frizz::Runner::convert_to_html(Frizz::FrizzConfig& config) {
-  
-}
