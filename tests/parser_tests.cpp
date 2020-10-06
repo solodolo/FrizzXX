@@ -115,7 +115,7 @@ TEST_F(ParserTests, PreambleMultiAssignment) {
 }
 
 TEST_F(ParserTests, ForLoopContext) {
-  config.set_parent_dir(Frizz::find_path("tests/test_files"));
+  config.set_parent_dir(FrizzTesting::find_path("tests/test_files"));
 
   std::vector<Token> tokens {
     Token(TokType::tok_block),    Token(TokType::tok_ws),       Token(TokType::tok_for),

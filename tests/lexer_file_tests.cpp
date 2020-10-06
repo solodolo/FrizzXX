@@ -17,7 +17,7 @@ protected:
 
 // context replacement
 TEST_F(LexerFileTests, ContextReplacementFromFile) {
-  std::filesystem::path filepath = Frizz::find_path("tests/test_files/partials/contextual_partial.md");
+  std::filesystem::path filepath = FrizzTesting::find_path("tests/test_files/partials/contextual_partial.md");
   // std::filesystem::path filepath("./tests/test_files/partials/contextual_partial.md");
   lexer.lex(filepath);
 
@@ -54,7 +54,7 @@ TEST_F(LexerFileTests, ContextReplacementFromFile) {
 }
 
 TEST_F(LexerFileTests, FromFileTest) {
-  std::filesystem::path input_path = Frizz::find_path("tests/test_files/partials/test1.md");
+  std::filesystem::path input_path = FrizzTesting::find_path("tests/test_files/partials/test1.md");
   lexer.lex(input_path);
 
   auto tokens = lexer.get_tokens();
@@ -64,7 +64,7 @@ TEST_F(LexerFileTests, FromFileTest) {
 };
 
 TEST_F(LexerFileTests, ForLoopTest) {
-  std::filesystem::path input_path = Frizz::find_path("tests/test_files/sources/for_loop.md");
+  std::filesystem::path input_path = FrizzTesting::find_path("tests/test_files/sources/for_loop.md");
   lexer.lex(input_path);
 
   auto tokens = lexer.get_tokens();

@@ -16,7 +16,7 @@ protected:
   std::filesystem::path parent_path;
 
   void SetUp() override {
-    parent_path = Frizz::find_path("tests/test_files");
+    parent_path = FrizzTesting::find_path("tests/test_files");
     this->config.set_parent_dir(parent_path);
   }
 };
