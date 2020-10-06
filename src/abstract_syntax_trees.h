@@ -118,6 +118,7 @@ private:
 
 class AstVisitor {
 public:
+  std::tuple<std::string, std::string> visit(BasicAst& ast);
   std::tuple<std::string, std::string> visit(AssignmentAst& ast);
   std::tuple<std::string, std::string> visit(ForLoopAst& ast);
   std::tuple<std::string, std::string> visit(PassthroughAst& ast);

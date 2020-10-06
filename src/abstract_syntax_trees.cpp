@@ -14,7 +14,7 @@
   ########## BasicAst ##########
 */
 std::tuple<std::string, std::string> Frizz::BasicAst::accept(AstVisitor& visitor) {
-  return std::make_tuple("", "");
+  return visitor.visit(*this);
 }
 
 std::string Frizz::BasicAst::accept(FileContentVisitor& visitor) {
