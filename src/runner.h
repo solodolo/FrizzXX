@@ -18,6 +18,10 @@
 namespace Frizz {
 class Runner {
 public:
+  void process_source_files(Frizz::FrizzConfig& config);
+  void process_content_source_files(Frizz::FrizzConfig& config);
+
+private:
   std::unordered_map<std::string, std::string> process_file_preamble(
     std::string context_namespace, std::filesystem::path file_path, Frizz::FileUtility& util);
 
@@ -27,13 +31,11 @@ public:
                            std::filesystem::path input_path,
                            std::filesystem::path output_path);
 
-  void process_source_files(Frizz::FrizzConfig& config);
-
-  void process_content_source_files(Frizz::FrizzConfig& config);
-
   std::string process_with_context(std::filesystem::path file_path,
                                    std::unordered_map<std::string, std::string> context,
                                    Frizz::FileUtility& util);
+
+  std::string process_ast_children(std::vector<std::shared_ptr<Frizz::BasicAst>> children);
 };
 }
 

@@ -46,13 +46,38 @@ std::unordered_map<std::string, std::string> Frizz::Runner::process_file_preambl
   return parser.parse(context_namespace, file_path);
 }
 
+std::string Frizz::Runner::process_ast_children(std::vector<std::shared_ptr<Frizz::BasicAst>> children) {
+  Frizz::ContextVisitor c_visitor;
+  Frizz::AstVisitor a_visitor;
+  std::stringstream ss;
+
+  for(auto& child_ptr : children) {
+    std::tuple<std::string, std::filesystem::path> namespaced_context =
+      child_ptr->accept(c_visitor);
+    std::string context_namespace = std::get<0>(namespaced_context);
+    std::filesystem::path context_path = std::get<1>(namespaced_context);
+
+    if(!context_path.empty()) {
+      std::unordered_map<std::string, std::string> context =
+        this->process_file_preamble(context_namespace, context_path, util);
+
+      std::tuple<std::string, std::string> template_info = child_ptr->accept(a_visitor);
+      std::string template_name = std::get<1>(template_info);
+      std::filesystem::path template_file_path = util.get_partial_file_path(template_name);
+
+      ss << this->process_with_context(template_file_path, context, util);
+    }
+  }
+
+  return ss.str();
+}
+
 void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
                                         Frizz::Parser& parser,
                                         Frizz::FileUtility& util,
                                         std::filesystem::path input_path,
                                         std::filesystem::path output_path) {
 
-  Frizz::ContextVisitor c_visitor;
   Frizz::AstVisitor a_visitor;
   Frizz::FileContentVisitor fc_visitor(util);
   Frizz::ContextChildrenVisitor children_visitor;
@@ -68,27 +93,10 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
 
     for(; it != parser.get_trees().end(); ++it) {
       std::shared_ptr<BasicAst> ast = *it;
-
       std::vector<std::shared_ptr<Frizz::BasicAst>> children = ast->accept(children_visitor);
 
       if(!children.empty()) {
-        for(auto& child_ptr : children) {
-          std::tuple<std::string, std::filesystem::path> namespaced_context =
-            child_ptr->accept(c_visitor);
-          std::string context_namespace = std::get<0>(namespaced_context);
-          std::filesystem::path context_path = std::get<1>(namespaced_context);
-
-          if(!context_path.empty()) {
-            std::unordered_map<std::string, std::string> context =
-              this->process_file_preamble(context_namespace, context_path, util);
-
-            std::tuple<std::string, std::string> template_info = child_ptr->accept(a_visitor);
-            std::string template_name = std::get<1>(template_info);
-            std::filesystem::path template_file_path = util.get_partial_file_path(template_name);
-
-            output_stream << this->process_with_context(template_file_path, context, util);
-          }
-        }
+        output_stream << this->process_ast_children(children);
       }
       else {
         std::string file_contents = ast->accept(fc_visitor);
@@ -150,14 +158,6 @@ void Frizz::Runner::process_content_source_files(Frizz::FrizzConfig& config) {
       }
     }
   }
-
-  // Check for _index.md file
-  // If found
-  //    Lookup the corresponding content in the content subfolder
-  //    for each content
-  //        add the content of the preamble to the context
-  //        add the rest of the file's contents - preamble to context
-  //        output a file with the same name as the content file using the _index.md template
 }
 
 void Frizz::Runner::process_source_files(Frizz::FrizzConfig& config) {
