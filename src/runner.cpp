@@ -46,7 +46,8 @@ std::unordered_map<std::string, std::string> Frizz::Runner::process_file_preambl
   return parser.parse(context_namespace, file_path);
 }
 
-std::string Frizz::Runner::process_ast_children(std::vector<std::shared_ptr<Frizz::BasicAst>> children) {
+std::string Frizz::Runner::process_ast_children(
+  std::vector<std::shared_ptr<Frizz::BasicAst>> children, Frizz::FileUtility& util) {
   Frizz::ContextVisitor c_visitor;
   Frizz::AstVisitor a_visitor;
   std::stringstream ss;
@@ -96,7 +97,7 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
       std::vector<std::shared_ptr<Frizz::BasicAst>> children = ast->accept(children_visitor);
 
       if(!children.empty()) {
-        output_stream << this->process_ast_children(children);
+        output_stream << this->process_ast_children(children, util);
       }
       else {
         std::string file_contents = ast->accept(fc_visitor);
