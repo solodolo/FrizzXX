@@ -61,8 +61,8 @@ void Frizz::Parser::context() {
   this->required_found(TokType::tok_ctx_val);
   std::string ctx_var_val = this->last_val;
 
-  std::shared_ptr<CtxReplacementAst> ast =
-    std::make_shared<CtxReplacementAst>(ctx_var_name, ctx_var_val);
+  std::unique_ptr<CtxReplacementAst> ast =
+    std::make_unique<CtxReplacementAst>(ctx_var_name, ctx_var_val);
 
   this->trees.push_back(std::move(ast));
 }
@@ -112,7 +112,7 @@ void Frizz::Parser::for_loop() {
   this->required_found(TokType::tok_str);
   std::string ident_val = this->last_val;
 
-  std::shared_ptr<ForLoopAst> loop = std::make_shared<ForLoopAst>(ident_name, ident_val);
+  std::unique_ptr<ForLoopAst> loop = std::make_unique<ForLoopAst>(ident_name, ident_val);
 
   this->required_found(TokType::tok_ws, "\n");
   this->required_found(TokType::tok_block);
@@ -128,19 +128,17 @@ void Frizz::Parser::for_loop() {
   std::sort(paths.begin(), paths.end());
 
   for(auto it = paths.begin(); it != paths.end(); ++it) {
-    std::shared_ptr<AssignmentAst> assign =
-      std::make_shared<AssignmentAst>(template_key, template_name);
+    std::unique_ptr<AssignmentAst> assign =
+      std::make_unique<AssignmentAst>(template_key, template_name);
 
     if(assign->is_src()) {
       this->throw_error("Cannot use a src assignment in a for loop context. Try 'use' instead.");
     }
-    // TODO: Parent is set only to retreive namespace later. Instead of copying entire parent here,
-    // just set namespace directly
-    assign->set_parent(loop);
 
+    assign->set_namespace(loop->get_key());
     assign->set_context_filepath(*it);
 
-    loop->add_child(assign);
+    loop->add_child(std::move(assign));
   }
 
   this->trees.push_back(std::move(loop));
@@ -149,8 +147,8 @@ void Frizz::Parser::for_loop() {
 void Frizz::Parser::ident() {
   std::tuple<std::string, std::string> ident = this->find_ident();
 
-  std::shared_ptr<AssignmentAst> exp =
-    std::make_shared<AssignmentAst>(std::get<0>(ident), std::get<1>(ident));
+  std::unique_ptr<AssignmentAst> exp =
+    std::make_unique<AssignmentAst>(std::get<0>(ident), std::get<1>(ident));
 
   this->trees.push_back(std::move(exp));
 }
@@ -168,7 +166,7 @@ std::tuple<std::string, std::string> Frizz::Parser::find_ident() {
 }
 
 void Frizz::Parser::passthrough() {
-  std::shared_ptr<BasicAst> exp = std::make_shared<PassthroughAst>(this->cur_tok.value);
+  std::unique_ptr<BasicAst> exp = std::make_unique<PassthroughAst>(this->cur_tok.value);
 
   this->trees.push_back(std::move(exp));
 
@@ -219,8 +217,15 @@ void Frizz::Parser::throw_error(std::string message) {
   throw Frizz::ParseException(message);
 }
 
-const std::vector<std::shared_ptr<Frizz::BasicAst>>& Frizz::Parser::get_trees() {
-  return this->trees;
+std::vector<std::reference_wrapper<const Frizz::BasicAst>> Frizz::Parser::get_trees() {
+  std::vector<std::reference_wrapper<const Frizz::BasicAst>> references;
+  references.reserve(this->trees.size());
+
+  for(auto it = this->trees.begin(); it != this->trees.end(); ++it) {
+    references.push_back(std::cref(*it->get()));
+  }
+
+  return references;
 }
 
 void Frizz::Parser::clear_trees() {
