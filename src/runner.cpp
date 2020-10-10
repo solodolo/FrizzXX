@@ -27,8 +27,8 @@ std::string Frizz::Runner::process_with_context(
 
   std::string replaced;
 
-  for(auto const& s : parser.get_trees()) {
-    replaced += s->accept(visitor, context);
+  for(const auto& s : parser.get_trees()) {
+    replaced += s.get().accept(visitor, context);
   }
 
   return replaced;
@@ -47,14 +47,16 @@ std::unordered_map<std::string, std::string> Frizz::Runner::process_file_preambl
 }
 
 std::string Frizz::Runner::process_ast_children(
-  std::vector<std::shared_ptr<Frizz::BasicAst>> children, Frizz::FileUtility& util) {
+  std::vector<std::reference_wrapper<const Frizz::BasicAst>> children, Frizz::FileUtility& util) {
   Frizz::ContextVisitor c_visitor;
   Frizz::AstVisitor a_visitor;
   std::stringstream ss;
 
-  for(auto& child_ptr : children) {
+  for(auto& ref : children) {
+    const Frizz::BasicAst& child = ref.get();
+
     std::tuple<std::string, std::filesystem::path> namespaced_context =
-      child_ptr->accept(c_visitor);
+      child.accept(c_visitor);
     std::string context_namespace = std::get<0>(namespaced_context);
     std::filesystem::path context_path = std::get<1>(namespaced_context);
 
@@ -62,7 +64,7 @@ std::string Frizz::Runner::process_ast_children(
       std::unordered_map<std::string, std::string> context =
         this->process_file_preamble(context_namespace, context_path, util);
 
-      std::tuple<std::string, std::string> template_info = child_ptr->accept(a_visitor);
+      std::tuple<std::string, std::string> template_info = child.accept(a_visitor);
       std::string template_name = std::get<1>(template_info);
       std::filesystem::path template_file_path = util.get_partial_file_path(template_name);
 
@@ -90,18 +92,18 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
   parser.parse();
 
   if(output_stream) {
-    std::vector<std::shared_ptr<Frizz::BasicAst>>::const_iterator it = parser.get_trees().begin();
+    for(const auto& ref : parser.get_trees()) {
+      const Frizz::BasicAst& ast = ref.get();
 
-    for(; it != parser.get_trees().end(); ++it) {
-      std::shared_ptr<BasicAst> ast = *it;
-      std::vector<std::shared_ptr<Frizz::BasicAst>> children = ast->accept(children_visitor);
+      std::vector<std::reference_wrapper<const Frizz::BasicAst>> children =
+        ast.accept(children_visitor);
 
       if(!children.empty()) {
         output_stream << this->process_ast_children(children, util);
       }
       else {
-        std::string file_contents = ast->accept(fc_visitor);
-        std::tuple<std::string, std::string> ast_contents = ast->accept(a_visitor);
+        std::string file_contents = ast.accept(fc_visitor);
+        std::tuple<std::string, std::string> ast_contents = ast.accept(a_visitor);
 
         output_stream << std::get<1>(ast_contents) << file_contents;
       }

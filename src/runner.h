@@ -35,7 +35,7 @@ public:
                                    Frizz::FileUtility& util);
 
 private:
-  std::string process_ast_children(std::vector<std::shared_ptr<Frizz::BasicAst>> children,
+  std::string process_ast_children(std::vector<std::reference_wrapper<const Frizz::BasicAst>> children,
                                    Frizz::FileUtility& util);
 };
 }
