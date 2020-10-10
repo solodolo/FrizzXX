@@ -31,7 +31,7 @@ TEST_F(ParserTests, SingleLineSingleExp) {
   parser.parse();
 
   ASSERT_EQ(parser.get_trees().size(), 1);
-  EXPECT_EQ(parser.get_trees()[0]->get_value(), "test.md");
+  EXPECT_EQ(parser.get_trees()[0].get().get_value(), "test.md");
 }
 
 TEST_F(ParserTests, SingleLineMultiExp) {
@@ -47,8 +47,8 @@ TEST_F(ParserTests, SingleLineMultiExp) {
   parser.parse();
 
   ASSERT_EQ(parser.get_trees().size(), 2);
-  EXPECT_EQ(parser.get_trees()[0]->get_value(), "test1.md");
-  EXPECT_EQ(parser.get_trees()[1]->get_value(), "test2.md");
+  EXPECT_EQ(parser.get_trees()[0].get().get_value(), "test1.md");
+  EXPECT_EQ(parser.get_trees()[1].get().get_value(), "test2.md");
 }
 
 TEST_F(ParserTests, SinglePassthroughLine) {
@@ -60,8 +60,8 @@ TEST_F(ParserTests, SinglePassthroughLine) {
   parser.parse();
 
   ASSERT_EQ(parser.get_trees().size(), 2);
-  EXPECT_EQ(parser.get_trees()[0]->get_value(), "#");
-  EXPECT_EQ(parser.get_trees()[1]->get_value(), "this is a header");
+  EXPECT_EQ(parser.get_trees()[0].get().get_value(), "#");
+  EXPECT_EQ(parser.get_trees()[1].get().get_value(), "this is a header");
 }
 
 TEST_F(ParserTests, PreambleSingleAssignment) {
@@ -76,7 +76,7 @@ TEST_F(ParserTests, PreambleSingleAssignment) {
   parser.parse();
 
   ASSERT_EQ(parser.get_trees().size(), 1);
-  EXPECT_EQ(parser.get_trees()[0]->get_value(), "foo");
+  EXPECT_EQ(parser.get_trees()[0].get().get_value(), "foo");
 }
 
 TEST_F(ParserTests, PreambleNoEndingNewline) {
@@ -91,7 +91,7 @@ TEST_F(ParserTests, PreambleNoEndingNewline) {
   parser.parse();
 
   ASSERT_EQ(parser.get_trees().size(), 1);
-  EXPECT_EQ(parser.get_trees()[0]->get_value(), "foo");
+  EXPECT_EQ(parser.get_trees()[0].get().get_value(), "foo");
 }
 
 TEST_F(ParserTests, PreambleMultiAssignment) {
@@ -109,9 +109,9 @@ TEST_F(ParserTests, PreambleMultiAssignment) {
   parser.parse();
 
   ASSERT_EQ(parser.get_trees().size(), 3);
-  EXPECT_EQ(parser.get_trees()[0]->get_value(), "foo");
-  EXPECT_EQ(parser.get_trees()[1]->get_value(), "bar");
-  EXPECT_EQ(parser.get_trees()[2]->get_value(), "baz");
+  EXPECT_EQ(parser.get_trees()[0].get().get_value(), "foo");
+  EXPECT_EQ(parser.get_trees()[1].get().get_value(), "bar");
+  EXPECT_EQ(parser.get_trees()[2].get().get_value(), "baz");
 }
 
 TEST_F(ParserTests, ForLoopContext) {
@@ -133,7 +133,7 @@ TEST_F(ParserTests, ForLoopContext) {
   ASSERT_EQ(trees.size(), 1);
 
   Frizz::ContextChildrenVisitor visitor;
-  auto children = trees[0]->accept(visitor);
+  auto children = trees[0].get().accept(visitor);
 
   ASSERT_EQ(children.size(), 3);
 }
