@@ -42,8 +42,8 @@ std::unordered_map<std::string, std::string> Frizz::ContextParser::get_main_cont
   parser.parse();
 
   std::string content;
-  for(auto const& s : parser.get_trees()) {
-    std::tuple<std::string, std::string> key_val = s->accept(a_visitor);
+  for(const auto& s : parser.get_trees()) {
+    std::tuple<std::string, std::string> key_val = s.get().accept(a_visitor);
 
     std::string key = std::get<0>(key_val);
     std::string val = std::get<1>(key_val);
