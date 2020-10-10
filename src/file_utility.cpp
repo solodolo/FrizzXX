@@ -45,7 +45,7 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_source_file_paths() {
     // the source content dir is processed seperately so skip it here
     std::string source_parent_dir = *(std::filesystem::relative(path, source_root).begin());
 
-    if(source_parent_dir == "content") {
+    if(source_parent_dir == "content" && path.filename() == "_index.html") {
       continue;
     }
 
@@ -63,7 +63,7 @@ std::vector<std::filesystem::path> Frizz::FileUtility::get_content_source_paths(
 
   for(auto& entry : source_it) {
     std::filesystem::path path = entry.path();
-    if(!this->is_valid_extension(path.extension())) {
+    if(path.filename() != "_index.html") {
       continue;
     }
 
