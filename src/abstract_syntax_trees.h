@@ -23,12 +23,13 @@ class ContextChildrenVisitor;
 // Add new ast for context replacement
 class BasicAst {
 public:
-  virtual std::tuple<std::string, std::string> accept(AstVisitor& visitor);
-  virtual std::string accept(FileContentVisitor& visitor);
-  virtual std::tuple<std::string, std::filesystem::path> accept(ContextVisitor& visitor);
+  virtual std::tuple<std::string, std::string> accept(AstVisitor& visitor) const;
+  virtual std::string accept(FileContentVisitor& visitor) const;
+  virtual std::tuple<std::string, std::filesystem::path> accept(ContextVisitor& visitor) const;
   virtual std::string accept(ContextReplacementVisitor& visitor,
-                             std::unordered_map<std::string, std::string> context);
-  virtual std::vector<std::shared_ptr<BasicAst>> accept(ContextChildrenVisitor& visitor);
+                             std::unordered_map<std::string, std::string> context) const;
+  virtual std::vector<std::reference_wrapper<const BasicAst>> accept(
+    ContextChildrenVisitor& visitor) const;
 
   virtual std::string get_value() const { return this->value; }
 
@@ -44,19 +45,20 @@ public:
     : name(name)
     , value(value) {}
 
-  std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
-  std::vector<std::shared_ptr<BasicAst>> accept(ContextChildrenVisitor& visitor) override;
+  std::tuple<std::string, std::string> accept(AstVisitor& visitor) const override;
+  std::vector<std::reference_wrapper<const BasicAst>> accept(
+    ContextChildrenVisitor& visitor) const override;
 
   std::string get_key() const;
   std::string get_value() const override;
 
-  void add_child(std::shared_ptr<BasicAst>);
-  std::vector<std::shared_ptr<BasicAst>> get_children();
+  void add_child(std::unique_ptr<BasicAst>);
+  std::vector<std::reference_wrapper<const BasicAst>> get_children() const;
 
 private:
   std::string name;
   std::string value;
-  std::vector<std::shared_ptr<BasicAst>> children;
+  std::vector<std::unique_ptr<BasicAst>> children;
 };
 
 class AssignmentAst : public BasicAst {
@@ -65,26 +67,26 @@ public:
     : name(name)
     , value(value) {};
 
-  std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
-  std::string accept(FileContentVisitor& visitor) override;
-  std::tuple<std::string, std::filesystem::path> accept(ContextVisitor& visitor) override;
+  std::tuple<std::string, std::string> accept(AstVisitor& visitor) const override;
+  std::string accept(FileContentVisitor& visitor) const override;
+  std::tuple<std::string, std::filesystem::path> accept(ContextVisitor& visitor) const override;
 
   std::string get_value() const override;
   std::string get_name() const;
   bool is_src() const;
 
-  void set_parent(std::shared_ptr<ForLoopAst> parent);
-  std::string get_parent_name();
+  void set_namespace(std::string);
+  std::string get_namespace() const;
 
   void set_context_filepath(std::filesystem::path path);
-  std::filesystem::path get_context_filepath();
+  std::filesystem::path get_context_filepath() const;
 
   void set_context(std::unordered_map<std::string, std::string> context);
 
 private:
+  std::string name_space;
   std::string name;
   std::string value;
-  std::shared_ptr<ForLoopAst> parent;
   std::filesystem::path context_filepath;
   std::unordered_map<std::string, std::string> context;
 };
@@ -94,7 +96,7 @@ public:
   PassthroughAst(std::string value)
     : value(value) {};
 
-  std::tuple<std::string, std::string> accept(AstVisitor& visitor) override;
+  std::tuple<std::string, std::string> accept(AstVisitor& visitor) const override;
   std::string get_value() const override;
 
 private:
@@ -107,9 +109,9 @@ public:
     : key(key)
     , value(value) {};
 
-  std::string get_namespaced_key();
+  std::string get_namespaced_key() const;
   std::string accept(ContextReplacementVisitor& visitor,
-                     std::unordered_map<std::string, std::string> context) override;
+                     std::unordered_map<std::string, std::string> context) const override;
 
 private:
   std::string key;
@@ -118,10 +120,10 @@ private:
 
 class AstVisitor {
 public:
-  std::tuple<std::string, std::string> visit(BasicAst& ast);
-  std::tuple<std::string, std::string> visit(AssignmentAst& ast);
-  std::tuple<std::string, std::string> visit(ForLoopAst& ast);
-  std::tuple<std::string, std::string> visit(PassthroughAst& ast);
+  std::tuple<std::string, std::string> visit(const BasicAst& ast);
+  std::tuple<std::string, std::string> visit(const AssignmentAst& ast);
+  std::tuple<std::string, std::string> visit(const ForLoopAst& ast);
+  std::tuple<std::string, std::string> visit(const PassthroughAst& ast);
 };
 
 class FileContentVisitor {
@@ -129,8 +131,8 @@ public:
   FileContentVisitor(Frizz::FileUtility& f_util)
     : f_util(f_util) {}
 
-  std::string visit(AssignmentAst& ast);
-  std::string visit(BasicAst& ast) { return ""; };
+  std::string visit(const AssignmentAst& ast);
+  std::string visit(const BasicAst& ast) { return ""; };
 
 private:
   Frizz::FileUtility& f_util;
@@ -138,9 +140,9 @@ private:
 
 class ContextVisitor {
 public:
-  std::tuple<std::string, std::filesystem::path> visit(AssignmentAst& ast);
+  std::tuple<std::string, std::filesystem::path> visit(const AssignmentAst& ast);
 
-  std::tuple<std::string, std::filesystem::path> visit(BasicAst& ast) {
+  std::tuple<std::string, std::filesystem::path> visit(const BasicAst& ast) {
     std::filesystem::path empty;
     return std::make_tuple("", empty);
   };
@@ -148,16 +150,16 @@ public:
 
 class ContextReplacementVisitor {
 public:
-  std::string visit(CtxReplacementAst& ast, std::unordered_map<std::string, std::string> context);
-  std::string visit(BasicAst& ast, std::unordered_map<std::string, std::string> context) {
+  std::string visit(const CtxReplacementAst& ast, std::unordered_map<std::string, std::string> context);
+  std::string visit(const BasicAst& ast, std::unordered_map<std::string, std::string> context) {
     return ast.get_value();
   }
 };
 
 class ContextChildrenVisitor {
 public:
-  std::vector<std::shared_ptr<BasicAst>> visit(BasicAst& ast);
-  std::vector<std::shared_ptr<BasicAst>> visit(ForLoopAst& ast);
+  std::vector<std::reference_wrapper<const BasicAst>> visit(const BasicAst& ast);
+  std::vector<std::reference_wrapper<const BasicAst>> visit(const ForLoopAst& ast);
 };
 
 }
