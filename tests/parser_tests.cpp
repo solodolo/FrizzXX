@@ -64,6 +64,23 @@ TEST_F(ParserTests, SinglePassthroughLine) {
   EXPECT_EQ(parser.get_trees()[1].get().get_value(), "this is a header");
 }
 
+TEST_F(ParserTests, ContextInsideString) {
+  std::vector<Token> tokens {
+    Token(TokType::tok_ident, "id"),          Token(TokType::tok_sym, "="),
+    Token(TokType::tok_sym, "\""),      Token(TokType::tok_ctx_name, "foo"),
+    Token(TokType::tok_ctx_val, "bar"), Token(TokType::tok_sym, "\"")
+  };
+
+  parser.set_tokens(tokens);
+  parser.parse();
+
+  auto trees = parser.get_trees();
+
+  ASSERT_EQ(trees.size(), 5);
+
+  EXPECT_EQ(trees[3].get().get_value(), "bar");
+}
+
 TEST_F(ParserTests, PreambleSingleAssignment) {
   std::vector<Token> tokens {
     Token(TokType::tok_preamble), Token(TokType::tok_ws, "\n"),   Token(TokType::tok_ident),
@@ -80,11 +97,10 @@ TEST_F(ParserTests, PreambleSingleAssignment) {
 }
 
 TEST_F(ParserTests, PreambleNoEndingNewline) {
-  std::vector<Token> tokens {
-    Token(TokType::tok_preamble), Token(TokType::tok_ws, "\n"),   Token(TokType::tok_ident),
-    Token(TokType::tok_sym, "="), Token(TokType::tok_str, "foo"), Token(TokType::tok_ws, "\n"),
-    Token(TokType::tok_preamble)
-  };
+  std::vector<Token> tokens { Token(TokType::tok_preamble),   Token(TokType::tok_ws, "\n"),
+                              Token(TokType::tok_ident),      Token(TokType::tok_sym, "="),
+                              Token(TokType::tok_str, "foo"), Token(TokType::tok_ws, "\n"),
+                              Token(TokType::tok_preamble) };
 
   parser.set_tokens(tokens);
 

@@ -237,6 +237,26 @@ TEST_F(LexerTests, NoMatchAtStart) {
   EXPECT_EQ(lexer.get_tokens()[4].id, Frizz::TokType::tok_ident);
 }
 
+TEST_F(LexerTests, ShouldAddCtxTokensWhenInsideString) {
+  lexer.lex_line("\"{foo.bar}\"");
+
+  auto tokens = lexer.get_tokens();
+
+  ASSERT_EQ(tokens.size(), 4);
+  
+  EXPECT_EQ(tokens[0].id, Frizz::TokType::tok_sym);
+  EXPECT_EQ(tokens[0].value, "\"");
+
+  EXPECT_EQ(tokens[1].id, Frizz::TokType::tok_ctx_name);
+  EXPECT_EQ(tokens[1].value, "foo");
+
+  EXPECT_EQ(tokens[2].id, Frizz::TokType::tok_ctx_val);
+  EXPECT_EQ(tokens[2].value, "bar");
+
+  EXPECT_EQ(tokens[3].id, Frizz::TokType::tok_sym);
+  EXPECT_EQ(tokens[3].value, "\"");
+}
+
 // Complete example
 
 // helper for complete test
