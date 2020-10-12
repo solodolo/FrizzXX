@@ -9,9 +9,10 @@
 #define LEXER_H_
 
 #include <filesystem>
+#include <regex>
 #include <string>
 #include <vector>
-#include <regex>
+#include <memory>
 
 namespace Frizz {
 enum TokType {
@@ -30,21 +31,10 @@ enum TokType {
   tok_eof
 };
 
-const std::string TokNames[] = {
-  "None",
-  "Block",
-  "Preamble",
-  "Identifier",
-  "String",
-  "For",
-  "In",
-  "Symbol",
-  "Context Name",
-  "Context Value",
-  "New Line",
-  "Whitespace",
-  "End of File"
-};
+const std::string TokNames[] = { "None",         "Block",         "Preamble", "Identifier",
+                                 "String",       "For",           "In",       "Symbol",
+                                 "Context Name", "Context Value", "New Line", "Whitespace",
+                                 "End of File" };
 
 struct Token {
   TokType id;
@@ -57,10 +47,9 @@ struct Token {
 
   Token(TokType id, std::string value)
     : id(id)
-    , value(value) {};
+    , value(value)  {};
 
   std::string value;
-
   std::string to_string() { return std::to_string(id); }
 };
 
@@ -78,7 +67,8 @@ public:
     , ident_pattern("^[a-zA-Z_-]+")
     , for_pattern("^for")
     , in_pattern("^in")
-    , ctx_pattern("^\\{[a-zA-Z]*\\.[a-zA-Z]+}") {}
+    , ctx_pattern("^\\{[a-zA-Z]*\\.[a-zA-Z]+}")
+    , ctx_str_pattern("^\"\\{[a-zA-Z]*\\.[a-zA-Z]+}\"") {}
 
   void lex(std::filesystem::path path);
   void lex_line(std::string line);
@@ -98,6 +88,11 @@ private:
   std::regex for_pattern;
   std::regex in_pattern;
   std::regex ctx_pattern;
+  std::regex ctx_str_pattern;
+
+  void str(std::string results);
+  void ctx_str(std::string results);
+  void ctx(std::string results);
 
 private:
   void print_tokens();
