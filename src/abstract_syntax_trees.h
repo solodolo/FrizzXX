@@ -35,7 +35,9 @@ public:
 
   virtual ~BasicAst() {};
 
-private:
+protected:
+  BasicAst(std::string value)
+    : value(value) {};
   std::string value;
 };
 
@@ -43,7 +45,7 @@ class ForLoopAst : public BasicAst {
 public:
   ForLoopAst(std::string name, std::string value)
     : name(name)
-    , value(value) {}
+    , BasicAst(value) {}
 
   std::tuple<std::string, std::string> accept(AstVisitor& visitor) const override;
   std::vector<std::reference_wrapper<const BasicAst>> accept(
@@ -57,7 +59,6 @@ public:
 
 private:
   std::string name;
-  std::string value;
   std::vector<std::unique_ptr<BasicAst>> children;
 };
 
@@ -65,7 +66,7 @@ class AssignmentAst : public BasicAst {
 public:
   AssignmentAst(std::string name, std::string value)
     : name(name)
-    , value(value) {};
+    , BasicAst(value) {};
 
   std::tuple<std::string, std::string> accept(AstVisitor& visitor) const override;
   std::string accept(FileContentVisitor& visitor) const override;
@@ -86,7 +87,6 @@ public:
 private:
   std::string name_space;
   std::string name;
-  std::string value;
   std::filesystem::path context_filepath;
   std::unordered_map<std::string, std::string> context;
 };
@@ -94,20 +94,17 @@ private:
 class PassthroughAst : public BasicAst {
 public:
   PassthroughAst(std::string value)
-    : value(value) {};
+    : BasicAst(value) {};
 
   std::tuple<std::string, std::string> accept(AstVisitor& visitor) const override;
   std::string get_value() const override;
-
-private:
-  std::string value;
 };
 
 class CtxReplacementAst : public BasicAst {
 public:
   CtxReplacementAst(std::string key, std::string value)
     : key(key)
-    , value(value) {};
+    , BasicAst(value) {};
 
   std::string get_namespaced_key() const;
   std::string accept(ContextReplacementVisitor& visitor,
@@ -115,7 +112,6 @@ public:
 
 private:
   std::string key;
-  std::string value;
 };
 
 class AstVisitor {
@@ -150,7 +146,8 @@ public:
 
 class ContextReplacementVisitor {
 public:
-  std::string visit(const CtxReplacementAst& ast, std::unordered_map<std::string, std::string> context);
+  std::string visit(const CtxReplacementAst& ast,
+                    std::unordered_map<std::string, std::string> context);
   std::string visit(const BasicAst& ast, std::unordered_map<std::string, std::string> context) {
     return ast.get_value();
   }
