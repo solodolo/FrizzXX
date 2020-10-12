@@ -11,8 +11,8 @@ void Frizz::ContextParser::set_tokens(std::vector<Frizz::Token> tokens) {
 }
 
 std::unordered_map<std::string, std::string> Frizz::ContextParser::parse(
-  // check cache
   std::string ctx_namespace, std::filesystem::path file_path) {
+  // check cache
   auto found = this->contexts.find(file_path);
   if(found != this->contexts.end()) {
     return found->second;
