@@ -24,6 +24,7 @@ public:
 private:
   std::unordered_map<std::string, std::string> get_main_context(std::string ctx_namespace);
   std::string convert_to_html(std::string markdown);
+  std::string get_namespaced_key(std::string name_space, std::string key);
 
 private:
   Frizz::FileUtility util;

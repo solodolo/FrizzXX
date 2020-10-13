@@ -10,6 +10,14 @@ void Frizz::ContextParser::set_tokens(std::vector<Frizz::Token> tokens) {
   }
 }
 
+std::string Frizz::ContextParser::get_namespaced_key(std::string name_space, std::string key) {
+  if(name_space.empty()) {
+    return key;
+  }
+
+  return name_space + ":" + key;
+}
+
 std::unordered_map<std::string, std::string> Frizz::ContextParser::parse(
   std::string ctx_namespace, std::filesystem::path file_path) {
   // check cache
@@ -23,7 +31,7 @@ std::unordered_map<std::string, std::string> Frizz::ContextParser::parse(
   std::filesystem::path link = util.get_relative_content_path(file_path, true);
   link.replace_extension(".html");
 
-  context.emplace("link", link);
+  context.emplace(this->get_namespaced_key(ctx_namespace, "link"), link);
 
   // add to cache
   this->contexts.emplace(file_path, context);
@@ -49,20 +57,16 @@ std::unordered_map<std::string, std::string> Frizz::ContextParser::get_main_cont
     std::string val = std::get<1>(key_val);
 
     if(!key.empty()) {
-      if(ctx_namespace.empty()) {
-        context.emplace(key, val);
-      }
-      else {
-        std::string namespaced_key = ctx_namespace + ":" + key;
-        context.emplace(namespaced_key, val);
-      }
+      std::string namespaced_key = this->get_namespaced_key(ctx_namespace, key);
+      context.emplace(namespaced_key, val);
     }
     else {
       content += val;
     }
   }
 
-  context.emplace("content", this->convert_to_html(content));
+  context.emplace(this->get_namespaced_key(ctx_namespace, "content"),
+                  this->convert_to_html(content));
 
   return context;
 }
