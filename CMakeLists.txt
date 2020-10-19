@@ -21,7 +21,7 @@ set(HEADERS
   src/frizz_config.h
   src/file_utility.h
   src/runner.h
-  src/context_parser.h
+  src/context_runner.h
 )
 
 set(SOURCES
@@ -33,7 +33,7 @@ set(SOURCES
   src/frizz_config.cpp
   src/file_utility.cpp
   src/runner.cpp
-  src/context_parser.cpp
+  src/context_runner.cpp
   src/syntax_tree_visitors.cpp
 )
 

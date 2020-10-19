@@ -9,7 +9,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "context_parser.h"
+#include "context_runner.h"
 #include "runner.h"
 
 std::string Frizz::Runner::process_with_context(
@@ -37,13 +37,8 @@ std::string Frizz::Runner::process_with_context(
 std::unordered_map<std::string, std::string> Frizz::Runner::process_file_preamble(
   std::string context_namespace, std::filesystem::path file_path, Frizz::FileUtility& util) {
 
-  Frizz::Lexer lexer;
-  Frizz::ContextParser parser(util);
-
-  lexer.lex(file_path);
-  parser.set_tokens(lexer.get_tokens());
-
-  return parser.parse(context_namespace, file_path);
+  Frizz::ContextRunner runner;
+  return runner.process(context_namespace, file_path, util);
 }
 
 std::string Frizz::Runner::process_ast_children(

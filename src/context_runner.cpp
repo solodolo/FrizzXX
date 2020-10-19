@@ -1,16 +1,7 @@
-#include "context_parser.h"
+#include "context_runner.h"
 #include "parser.h"
 
-void Frizz::ContextParser::set_tokens(std::vector<Frizz::Token> tokens) {
-  this->tokens = tokens;
-
-  if(this->tokens.back().id != TokType::tok_eof) {
-    Token eof(TokType::tok_eof);
-    this->tokens.push_back(eof);
-  }
-}
-
-std::string Frizz::ContextParser::get_namespaced_key(std::string name_space, std::string key) {
+std::string Frizz::ContextRunner::get_namespaced_key(std::string name_space, std::string key) {
   if(name_space.empty()) {
     return key;
   }
@@ -18,15 +9,21 @@ std::string Frizz::ContextParser::get_namespaced_key(std::string name_space, std
   return name_space + ":" + key;
 }
 
-std::unordered_map<std::string, std::string> Frizz::ContextParser::parse(
-  std::string ctx_namespace, std::filesystem::path file_path) {
+std::unordered_map<std::string, std::string> Frizz::ContextRunner::process(
+  const std::string ctx_namespace,
+  const std::filesystem::path file_path,
+  Frizz::FileUtility& util) {
   // check cache
   auto found = this->contexts.find(file_path);
   if(found != this->contexts.end()) {
     return found->second;
   }
 
-  std::unordered_map<std::string, std::string> context = this->get_main_context(ctx_namespace);
+  Frizz::Lexer lexer;
+  lexer.lex(file_path);
+
+  std::unordered_map<std::string, std::string> context =
+    this->get_main_context(ctx_namespace, lexer.get_tokens(), util);
 
   std::filesystem::path link = util.get_relative_content_path(file_path, true);
   link.replace_extension(".html");
@@ -40,13 +37,13 @@ std::unordered_map<std::string, std::string> Frizz::ContextParser::parse(
 }
 
 // add context from preamble and add special entry (content) for the rest of the body
-std::unordered_map<std::string, std::string> Frizz::ContextParser::get_main_context(
-  std::string ctx_namespace) {
+std::unordered_map<std::string, std::string> Frizz::ContextRunner::get_main_context(
+  std::string ctx_namespace, std::vector<Frizz::Token> tokens, Frizz::FileUtility& util) {
   std::unordered_map<std::string, std::string> context;
   Frizz::AstVisitor a_visitor;
-  Frizz::Parser parser(this->util);
+  Frizz::Parser parser(util);
 
-  parser.set_tokens(this->tokens);
+  parser.set_tokens(tokens);
   parser.parse();
 
   std::string content;
@@ -71,7 +68,7 @@ std::unordered_map<std::string, std::string> Frizz::ContextParser::get_main_cont
   return context;
 }
 
-std::string Frizz::ContextParser::convert_to_html(std::string markdown) {
+std::string Frizz::ContextRunner::convert_to_html(std::string markdown) {
   std::stringstream ss(markdown);
   return this->html_parser.Parse(ss);
 }

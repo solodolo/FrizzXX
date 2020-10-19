@@ -48,9 +48,8 @@ TEST_F(RunnerTests, ProcessPreambleMultiple) {
 }
 
 TEST_F(RunnerTests, ProcessPreambleThrowsErrorOnNonIdents) {
-  ASSERT_THROW(
-    runner.process_file_preamble("", util.get_content_file_path("posts/post3.md"), util),
-    Frizz::ParseException);
+  ASSERT_THROW(runner.process_file_preamble("", util.get_content_file_path("posts/post3.md"), util),
+               Frizz::ParseException);
 }
 
 TEST_F(RunnerTests, ProcessPreambleIncludesContent) {
