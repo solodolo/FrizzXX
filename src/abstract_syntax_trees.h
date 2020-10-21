@@ -62,6 +62,20 @@ private:
   std::vector<std::unique_ptr<BasicAst>> children;
 };
 
+class PageAst : public BasicAst {
+public:
+  PageAst(int page, int total_pages, int items_per_page)
+    : BasicAst("")
+    , page(page)
+    , total_pages(total_pages)
+    , items_per_page(items_per_page) {}
+
+private:
+  int page;
+  int total_pages;
+  int items_per_page;
+};
+
 class AssignmentAst : public BasicAst {
 public:
   AssignmentAst(std::string name, std::string value)
