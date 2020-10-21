@@ -65,6 +65,9 @@ void Frizz::Lexer::lex_line(std::string line) {
       Token tok(tok_in, "in");
       this->add_token(tok);
     }
+    else if(std::regex_search(line, match, paginate_pattern)) {
+      this->paginate(match.str());
+    }
     else if(std::regex_search(line, match, ctx_pattern)) {
       this->ctx(match.str());
     }
@@ -145,5 +148,12 @@ void Frizz::Lexer::str(std::string results) {
   // get the contents of the string witout the dbl quotes
   std::string val = results.substr(1, results.length() - 2);
   tok.value = val;
+  this->add_token(tok);
+}
+
+void Frizz::Lexer::paginate(std::string results) {
+  std::string per_page_str = results.substr(9); // number after `paginate=`
+
+  Token tok(tok_paginate, per_page_str);
   this->add_token(tok);
 }
