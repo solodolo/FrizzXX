@@ -4,6 +4,7 @@
  *  Created on: Aug 11, 2020
  *      Author: dmmettlach
  */
+#include <cmath>
 #include <iostream>
 
 #include "parser.h"
@@ -112,7 +113,30 @@ void Frizz::Parser::for_loop() {
   this->required_found(TokType::tok_str);
   std::string ident_val = this->last_val;
 
+  std::vector<std::filesystem::path> paths = this->util.get_content_file_paths(ident_val);
+  std::sort(paths.begin(), paths.end());
+
   std::unique_ptr<ForLoopAst> loop = std::make_unique<ForLoopAst>(ident_name, ident_val);
+
+  float num_items = paths.size();
+  int items_per_page = num_items;
+  int num_pages = 1;
+
+  if(this->optional_found(TokType::tok_paginate)) {
+    std::string per_page_str = this->last_val;
+    items_per_page = std::stoi(per_page_str);
+    num_pages = std::ceil(num_items / items_per_page);
+  }
+
+  this->for_loop_children(loop.get(), paths, items_per_page, num_pages);
+
+  this->trees.push_back(std::move(loop));
+}
+
+void Frizz::Parser::for_loop_children(Frizz::ForLoopAst* const loop,
+                                      const std::vector<std::filesystem::path>& paths,
+                                      const int items_per_page,
+                                      const int num_pages) {
 
   this->required_found(TokType::tok_ws, "\n");
   this->required_found(TokType::tok_block);
@@ -123,11 +147,18 @@ void Frizz::Parser::for_loop() {
   std::string template_key = std::get<0>(assign);
   std::string template_name = std::get<1>(assign);
 
-  std::vector<std::filesystem::path> paths = this->util.get_content_file_paths(ident_val);
+  bool paginate = num_pages > 1;
+  int cur_page = 1;
+  for(std::size_t i = 0; i < paths.size(); ++i) {
+    if(paginate && (i % items_per_page == 0)) {
+      std::unique_ptr<PageAst> page =
+        std::make_unique<PageAst>(cur_page, num_pages, items_per_page);
+      
+      // add children to page
+      // insert page ast into trees
 
-  std::sort(paths.begin(), paths.end());
-
-  for(auto it = paths.begin(); it != paths.end(); ++it) {
+      ++cur_page;
+    }
     std::unique_ptr<AssignmentAst> assign =
       std::make_unique<AssignmentAst>(template_key, template_name);
 
@@ -136,12 +167,10 @@ void Frizz::Parser::for_loop() {
     }
 
     assign->set_namespace(loop->get_key());
-    assign->set_context_filepath(*it);
+    assign->set_context_filepath(paths.at(i));
 
     loop->add_child(std::move(assign));
   }
-
-  this->trees.push_back(std::move(loop));
 }
 
 void Frizz::Parser::ident() {
