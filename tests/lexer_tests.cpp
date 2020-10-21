@@ -225,6 +225,25 @@ TEST_F(LexerTests, InTok) {
   EXPECT_EQ(lexer.get_tokens()[1].id, Frizz::TokType::tok_ws);
 }
 
+TEST_F(LexerTests, PaginationTokHasTheCorrectValue) {
+  lexer.lex_line("paginate=5");
+  auto tokens = lexer.get_tokens();
+
+  ASSERT_EQ(tokens.size(), 1);
+  EXPECT_EQ(tokens[0].id, Frizz::TokType::tok_paginate);
+  EXPECT_EQ(tokens[0].value, "5");
+}
+
+TEST_F(LexerTests, LexerDoesNotFindPaginationWithoutNumPages) {
+  lexer.lex_line("paginate=apple");
+  auto tokens = lexer.get_tokens();
+
+  ASSERT_EQ(tokens.size(), 3);
+  EXPECT_EQ(tokens[0].id, Frizz::TokType::tok_ident);
+  EXPECT_EQ(tokens[1].id, Frizz::TokType::tok_sym);
+  EXPECT_EQ(tokens[2].id, Frizz::TokType::tok_ident);
+}
+
 // DEFAULT when there is no match
 TEST_F(LexerTests, NoMatchAtStart) {
   lexer.lex_line("# markdown header");
