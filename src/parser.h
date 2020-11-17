@@ -39,6 +39,7 @@ private:
   std::vector<Token> tokens;
   std::vector<std::string> errors;
   std::vector<std::unique_ptr<BasicAst>> trees;
+  std::unordered_map<std::string, std::string> parse_context;
 
 private:
   void block();
@@ -46,8 +47,10 @@ private:
   void passthrough();
   void context();
   void for_loop();
-  void for_loop_children(ForLoopAst* const loop,
-                         const std::vector<std::filesystem::path>& paths);
+  void add_content_children(ForLoopAst* const loop,
+                            const std::string namespace_name,
+                            const std::vector<std::filesystem::path>& paths);
+  int get_loop_iterations();
 
   std::tuple<std::string, std::string> find_ident();
 

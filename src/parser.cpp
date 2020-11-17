@@ -111,22 +111,27 @@ void Frizz::Parser::for_loop() {
   this->required_found(TokType::tok_in);
   this->required_found(TokType::tok_ws);
 
-  // like "content/posts"
-  this->required_found(TokType::tok_str);
-  std::string ident_val = this->last_val;
-
-  // get the file system paths to each post in "content/posts"
-  std::vector<std::filesystem::path> paths = this->util.get_content_file_paths(ident_val);
-  std::sort(paths.begin(), paths.end());
-
-  std::unique_ptr<ForLoopAst> loop = std::make_unique<ForLoopAst>(ident_name, ident_val);
-
-  this->for_loop_children(loop.get(), paths);
+  std::unique_ptr<ForLoopAst> loop = std::make_unique<ForLoopAst>();
   this->trees.push_back(std::move(loop));
+
+  if(this->optional_found(TokType::tok_str)) {
+    // like "content/posts"
+    std::string ident_val = this->last_val;
+
+    // get the file system paths to each post in "content/posts"
+    std::vector<std::filesystem::path> paths = this->util.get_content_file_paths(ident_val);
+    std::sort(paths.begin(), paths.end());
+
+    this->add_content_children(loop.get(), ident_name, paths);
+  }
+  else {
+    int loop_iterations = this->get_loop_iterations();
+  }
 }
 
-void Frizz::Parser::for_loop_children(Frizz::ForLoopAst* const loop,
-                                      const std::vector<std::filesystem::path>& paths) {
+void Frizz::Parser::add_content_children(Frizz::ForLoopAst* const loop,
+                                         const std::string namespace_name,
+                                         const std::vector<std::filesystem::path>& paths) {
 
   this->required_found(TokType::tok_ws, "\n");
   this->required_found(TokType::tok_block);
@@ -145,10 +150,33 @@ void Frizz::Parser::for_loop_children(Frizz::ForLoopAst* const loop,
       this->throw_error("Cannot use a src assignment in a for loop context. Try 'use' instead.");
     }
 
-    assign->set_namespace(loop->get_key());
+    assign->set_namespace(namespace_name);
     assign->set_context_filepath(paths.at(i));
 
     loop->add_child(std::move(assign));
+  }
+}
+
+int Frizz::Parser::get_loop_iterations() {
+  if(this->optional_found(TokType::tok_ctx_name)) {
+    std::string lookup_namespace = this->last_val;
+    
+    this->required_found(TokType::tok_ctx_val);
+    std::string lookup_key = this->last_val;
+
+    CtxReplacementAst ast(lookup_namespace, lookup_key);
+    std::string full_key = ast.get_namespaced_key();
+
+    auto found = this->parse_context.find(full_key);
+    if(found != this->parse_context.end()) {
+      return std::stoi(found->second);
+    }
+
+    return 0;
+  }
+  else {
+    this->required_found(TokType::tok_sym);
+    return std::stoi(this->last_val);
   }
 }
 
