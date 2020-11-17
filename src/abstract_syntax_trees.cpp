@@ -93,14 +93,6 @@ std::tuple<std::string, std::string> Frizz::ForLoopAst::accept(Frizz::AstVisitor
   return visitor.visit(*this);
 }
 
-std::string Frizz::ForLoopAst::get_key() const {
-  return this->name;
-}
-
-std::string Frizz::ForLoopAst::get_value() const {
-  return this->value;
-}
-
 std::vector<std::reference_wrapper<const Frizz::BasicAst>> Frizz::ForLoopAst::accept(
   Frizz::ContextChildrenVisitor& visitor) const {
   return visitor.visit(*this);

@@ -43,22 +43,17 @@ protected:
 
 class ForLoopAst : public BasicAst {
 public:
-  ForLoopAst(std::string name, std::string value)
-    : name(name)
-    , BasicAst(value) {}
+  ForLoopAst()
+    : BasicAst("") {}
 
   std::tuple<std::string, std::string> accept(AstVisitor& visitor) const override;
   std::vector<std::reference_wrapper<const BasicAst>> accept(
     ContextChildrenVisitor& visitor) const override;
 
-  std::string get_key() const;
-  std::string get_value() const override;
-
   void add_child(std::unique_ptr<BasicAst>);
   std::vector<std::reference_wrapper<const BasicAst>> get_children() const;
 
 private:
-  std::string name;
   std::vector<std::unique_ptr<BasicAst>> children;
 };
 
