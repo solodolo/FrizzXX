@@ -110,33 +110,23 @@ void Frizz::Parser::for_loop() {
   this->required_found(TokType::tok_ws);
   this->required_found(TokType::tok_in);
   this->required_found(TokType::tok_ws);
+
+  // like "content/posts"
   this->required_found(TokType::tok_str);
   std::string ident_val = this->last_val;
 
+  // get the file system paths to each post in "content/posts"
   std::vector<std::filesystem::path> paths = this->util.get_content_file_paths(ident_val);
   std::sort(paths.begin(), paths.end());
 
   std::unique_ptr<ForLoopAst> loop = std::make_unique<ForLoopAst>(ident_name, ident_val);
 
-  float num_items = paths.size();
-  int items_per_page = num_items;
-  int num_pages = 1;
-
-  if(this->optional_found(TokType::tok_paginate)) {
-    std::string per_page_str = this->last_val;
-    items_per_page = std::stoi(per_page_str);
-    num_pages = std::ceil(num_items / items_per_page);
-  }
-
-  this->for_loop_children(loop.get(), paths, items_per_page, num_pages);
-
+  this->for_loop_children(loop.get(), paths);
   this->trees.push_back(std::move(loop));
 }
 
 void Frizz::Parser::for_loop_children(Frizz::ForLoopAst* const loop,
-                                      const std::vector<std::filesystem::path>& paths,
-                                      const int items_per_page,
-                                      const int num_pages) {
+                                      const std::vector<std::filesystem::path>& paths) {
 
   this->required_found(TokType::tok_ws, "\n");
   this->required_found(TokType::tok_block);
@@ -147,18 +137,7 @@ void Frizz::Parser::for_loop_children(Frizz::ForLoopAst* const loop,
   std::string template_key = std::get<0>(assign);
   std::string template_name = std::get<1>(assign);
 
-  bool paginate = num_pages > 1;
-  int cur_page = 1;
   for(std::size_t i = 0; i < paths.size(); ++i) {
-    if(paginate && (i % items_per_page == 0)) {
-      std::unique_ptr<PageAst> page =
-        std::make_unique<PageAst>(cur_page, num_pages, items_per_page);
-      
-      // add children to page
-      // insert page ast into trees
-
-      ++cur_page;
-    }
     std::unique_ptr<AssignmentAst> assign =
       std::make_unique<AssignmentAst>(template_key, template_name);
 

@@ -47,9 +47,7 @@ private:
   void context();
   void for_loop();
   void for_loop_children(ForLoopAst* const loop,
-                         const std::vector<std::filesystem::path>& paths,
-                         const int items_per_page,
-                         const int num_pages);
+                         const std::vector<std::filesystem::path>& paths);
 
   std::tuple<std::string, std::string> find_ident();
 
