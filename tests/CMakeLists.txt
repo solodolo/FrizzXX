@@ -10,7 +10,7 @@ set(SOURCES
 	parser_tests.cpp
 	abstract_syntax_tree_tests.cpp
 	config_tests.cpp
-	runner_tests.cpp
+	processor_tests.cpp
 	file_util_tests.cpp
 	test_helpers.cpp
 	syntax_tree_visitor_tests.cpp
