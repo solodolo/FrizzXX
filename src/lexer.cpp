@@ -65,8 +65,19 @@ void Frizz::Lexer::lex_line(std::string line) {
       Token tok(tok_in, "in");
       this->add_token(tok);
     }
+    else if(std::regex_search(line, match, do_pattern)) {
+      Token tok(tok_do, "do");
+      this->add_token(tok);
+    }
+    else if(std::regex_search(line, match, done_pattern)) {
+      Token tok(tok_done, "done");
+      this->add_token(tok);
+    }
     else if(std::regex_search(line, match, paginate_pattern)) {
       this->paginate(match.str());
+    }
+    else if(std::regex_search(line, match, paginator_pattern)) {
+      this->paginator(match.str());
     }
     else if(std::regex_search(line, match, ctx_pattern)) {
       this->ctx(match.str());
@@ -129,6 +140,19 @@ void Frizz::Lexer::ctx(std::string results) {
 
   this->add_token(name);
   this->add_token(val);
+}
+
+void Frizz::Lexer::paginator(std::string results) {
+  Token paginator(tok_paginator);
+
+  results = results.substr(1, results.length() - 2); // consume open and close curly braces
+
+  std::size_t split_idx = results.find(".");
+
+  // name of the paginator template to use
+  paginator.value = results.substr(split_idx + 1, std::string::npos);
+
+  this->add_token(paginator);
 }
 
 void Frizz::Lexer::ctx_str(std::string results) {

@@ -23,7 +23,10 @@ enum TokType {
   tok_str,
   tok_for,
   tok_in,
+  tok_do,
+  tok_done,
   tok_paginate,
+  tok_paginator,
   tok_sym,
   tok_ctx_name,
   tok_ctx_val,
@@ -32,10 +35,11 @@ enum TokType {
   tok_eof
 };
 
-const std::string TokNames[] = {
-  "None",     "Block",  "Preamble",     "Identifier",    "String",   "For",        "In",
-  "Paginate", "Symbol", "Context Name", "Context Value", "New Line", "Whitespace", "End of File"
-};
+const std::string TokNames[] = { "None",         "Block",         "Preamble",  "Identifier",
+                                 "String",       "For",           "In",        "Do",
+                                 "Done",         "Paginate",      "Paginator", "Symbol",
+                                 "Context Name", "Context Value", "New Line",  "Whitespace",
+                                 "End of File" };
 
 struct Token {
   TokType id;
@@ -68,7 +72,10 @@ public:
     , ident_pattern("^[a-zA-Z_-]+")
     , for_pattern("^for")
     , in_pattern("^in")
+    , do_pattern("^do")
+    , done_pattern("^done")
     , paginate_pattern("^paginate=[0-9]+")
+    , paginator_pattern("^\\{_paginator\\.[a-zA-Z]+}")
     , ctx_pattern("^\\{[a-zA-Z]*\\.[a-zA-Z]+}")
     , ctx_str_pattern("^\"\\{[a-zA-Z]*\\.[a-zA-Z]+}\"") {}
 
@@ -89,7 +96,10 @@ private:
   std::regex ident_pattern;
   std::regex for_pattern;
   std::regex in_pattern;
+  std::regex do_pattern;
+  std::regex done_pattern;
   std::regex paginate_pattern;
+  std::regex paginator_pattern;
   std::regex ctx_pattern;
   std::regex ctx_str_pattern;
 
@@ -97,6 +107,7 @@ private:
   void ctx_str(std::string results);
   void ctx(std::string results);
   void paginate(std::string results);
+  void paginator(std::string results);
 
 private:
   void print_tokens();
