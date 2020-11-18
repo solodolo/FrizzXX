@@ -20,8 +20,8 @@ set(HEADERS
   src/md_preprocessor.h
   src/frizz_config.h
   src/file_utility.h
-  src/runner.h
   src/context_runner.h
+  src/processor.hpp
 )
 
 set(SOURCES
@@ -32,7 +32,6 @@ set(SOURCES
   src/md_preprocessor.cpp
   src/frizz_config.cpp
   src/file_utility.cpp
-  src/runner.cpp
   src/context_runner.cpp
   src/syntax_tree_visitors.cpp
 )

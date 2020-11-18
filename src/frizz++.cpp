@@ -8,7 +8,7 @@
 
 #include <iostream>
 
-#include "runner.h"
+#include "processor.hpp"
 #include "frizz_config.h"
 
 int main(int argc, char** argv) {
@@ -19,15 +19,13 @@ int main(int argc, char** argv) {
 
     Frizz::FrizzConfig config;
 
-    Frizz::Runner runner;
-
     if(!config.load_configuration(config_file_path)) {
       std::cout << "Invalid config file" << std::endl;
       ret_val = -1;
     }
     else {
-      runner.process_content_source_files(config);
-      runner.process_source_files(config);
+      process_content_source_files(config);
+      process_source_files(config);
     }
   }
   else {

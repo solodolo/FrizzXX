@@ -6,16 +6,15 @@
  */
 #include <gtest/gtest.h>
 
-#include "runner.h"
+#include "processor.hpp"
 #include "test_helpers.h"
 
-class RunnerTests : public ::testing::Test {
+class ParserTests : public ::testing::Test {
 protected:
-  RunnerTests()
+  ParserTests()
     : util(config) {}
 
   std::filesystem::path parent_dir;
-  Frizz::Runner runner;
   Frizz::FrizzConfig config;
   Frizz::FileUtility util;
 
@@ -25,17 +24,17 @@ protected:
   }
 };
 
-TEST_F(RunnerTests, ProcessPreamble) {
+TEST_F(ParserTests, ProcessPreamble) {
   std::unordered_map<std::string, std::string> map =
-    runner.process_file_preamble("", util.get_content_file_path("posts/post1.md"), util);
+    process_file_preamble("", util.get_content_file_path("posts/post1.md"), util);
 
   auto found = map.find("test");
   EXPECT_EQ(found->second, "this is a test");
 }
 
-TEST_F(RunnerTests, ProcessPreambleMultiple) {
+TEST_F(ParserTests, ProcessPreambleMultiple) {
   std::unordered_map<std::string, std::string> map =
-    runner.process_file_preamble("", util.get_content_file_path("posts/post2.md"), util);
+    process_file_preamble("", util.get_content_file_path("posts/post2.md"), util);
 
   auto found = map.find("foo");
   EXPECT_EQ(found->second, "bar");
@@ -47,54 +46,54 @@ TEST_F(RunnerTests, ProcessPreambleMultiple) {
   EXPECT_EQ(found->second, "foo");
 }
 
-TEST_F(RunnerTests, ProcessPreambleThrowsErrorOnNonIdents) {
-  ASSERT_THROW(runner.process_file_preamble("", util.get_content_file_path("posts/post3.md"), util),
+TEST_F(ParserTests, ProcessPreambleThrowsErrorOnNonIdents) {
+  ASSERT_THROW(process_file_preamble("", util.get_content_file_path("posts/post3.md"), util),
                Frizz::ParseException);
 }
 
-TEST_F(RunnerTests, ProcessPreambleIncludesContent) {
+TEST_F(ParserTests, ProcessPreambleIncludesContent) {
   std::unordered_map<std::string, std::string> map =
-    runner.process_file_preamble("", util.get_content_file_path("posts/post1.md"), util);
+    process_file_preamble("", util.get_content_file_path("posts/post1.md"), util);
 
   auto found = map.find("content");
   ASSERT_NE(found, map.end());
   EXPECT_NE(map["content"], "");
 }
 
-TEST_F(RunnerTests, ProcessPreambleNamespacesContent) {
+TEST_F(ParserTests, ProcessPreambleNamespacesContent) {
   std::unordered_map<std::string, std::string> map =
-    runner.process_file_preamble("foo", util.get_content_file_path("posts/post1.md"), util);
+    process_file_preamble("foo", util.get_content_file_path("posts/post1.md"), util);
 
   auto found = map.find("foo:content");
   ASSERT_NE(found, map.end());
   EXPECT_NE(map["foo:content"], "");
 }
 
-TEST_F(RunnerTests, ProcessPreambleIncludesLink) {
+TEST_F(ParserTests, ProcessPreambleIncludesLink) {
   std::unordered_map<std::string, std::string> map =
-    runner.process_file_preamble("", util.get_content_file_path("posts/post1.md"), util);
+    process_file_preamble("", util.get_content_file_path("posts/post1.md"), util);
 
   auto found = map.find("link");
   ASSERT_NE(found, map.end());
   EXPECT_EQ(map["link"], "content/posts/post1.html");
 }
 
-TEST_F(RunnerTests, ProcessPreambleNamespacesLink) {
+TEST_F(ParserTests, ProcessPreambleNamespacesLink) {
   std::unordered_map<std::string, std::string> map =
-    runner.process_file_preamble("bar", util.get_content_file_path("posts/post1.md"), util);
+    process_file_preamble("bar", util.get_content_file_path("posts/post1.md"), util);
 
   auto found = map.find("bar:link");
   ASSERT_NE(found, map.end());
   EXPECT_EQ(map["bar:link"], "content/posts/post1.html");
 }
 
-TEST_F(RunnerTests, ProcessWithContext) {
+TEST_F(ParserTests, ProcessWithContext) {
   std::string title = "This is the title of the post";
 
   std::unordered_map<std::string, std::string> context;
   context.emplace("post:title", title);
 
-  std::string result = runner.process_with_context(
+  std::string result = process_with_context(
     config.get_partial_templates_path() /= "contextual_partial.md", context, util);
 
   std::string expected = "[" + title + "](test_link)\n";

@@ -1,21 +1,17 @@
-/*
- * runner.cpp
- *
- *  Created on: Aug 22, 2020
- *      Author: dmmettlach
- */
+#ifndef _SRC_PROCESSOR_H_
+#define _SRC_PROCESSOR_H_
 
-#include <cstring>
 #include <fstream>
 #include <iostream>
 
+#include "lexer.h"
+#include "parser.h"
 #include "context_runner.h"
-#include "runner.h"
 
-std::string Frizz::Runner::process_with_context(
-  std::filesystem::path file_path,
-  std::unordered_map<std::string, std::string> context,
-  Frizz::FileUtility& util) {
+namespace Frizz {
+std::string process_with_context(std::filesystem::path file_path,
+                                 std::unordered_map<std::string, std::string> context,
+                                 Frizz::FileUtility& util) {
 
   Frizz::Lexer lexer;
   Frizz::Parser parser(util);
@@ -34,14 +30,14 @@ std::string Frizz::Runner::process_with_context(
   return replaced;
 }
 
-std::unordered_map<std::string, std::string> Frizz::Runner::process_file_preamble(
+std::unordered_map<std::string, std::string> process_file_preamble(
   std::string context_namespace, std::filesystem::path file_path, Frizz::FileUtility& util) {
 
   Frizz::ContextRunner runner;
   return runner.process(context_namespace, file_path, util);
 }
 
-std::string Frizz::Runner::process_ast_children(
+std::string process_ast_children(
   std::vector<std::reference_wrapper<const Frizz::BasicAst>> children, Frizz::FileUtility& util) {
   Frizz::ContextVisitor c_visitor;
   Frizz::AstVisitor a_visitor;
@@ -50,27 +46,26 @@ std::string Frizz::Runner::process_ast_children(
   for(auto& ref : children) {
     const Frizz::BasicAst& child = ref.get();
 
-    std::tuple<std::string, std::filesystem::path> namespaced_context =
-      child.accept(c_visitor);
+    std::tuple<std::string, std::filesystem::path> namespaced_context = child.accept(c_visitor);
     std::string context_namespace = std::get<0>(namespaced_context);
     std::filesystem::path context_path = std::get<1>(namespaced_context);
 
     if(!context_path.empty()) {
       std::unordered_map<std::string, std::string> context =
-        this->process_file_preamble(context_namespace, context_path, util);
+        process_file_preamble(context_namespace, context_path, util);
 
       std::tuple<std::string, std::string> template_info = child.accept(a_visitor);
       std::string template_name = std::get<1>(template_info);
       std::filesystem::path template_file_path = util.get_partial_file_path(template_name);
 
-      ss << this->process_with_context(template_file_path, context, util);
+      ss << process_with_context(template_file_path, context, util);
     }
   }
 
   return ss.str();
 }
 
-void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
+void process_source_file(Frizz::Lexer& lexer,
                                         Frizz::Parser& parser,
                                         Frizz::FileUtility& util,
                                         std::filesystem::path input_path,
@@ -78,6 +73,7 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
 
   Frizz::AstVisitor a_visitor;
   Frizz::FileContentVisitor fc_visitor(util);
+  Frizz::NumPagesVisitor num_pages_visitor;
   Frizz::ContextChildrenVisitor children_visitor;
 
   std::ofstream output_stream(output_path);
@@ -86,21 +82,25 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
   parser.set_tokens(lexer.get_tokens());
   parser.parse();
 
+  //TODO: Change output stream based on page
   if(output_stream) {
     for(const auto& ref : parser.get_trees()) {
       const Frizz::BasicAst& ast = ref.get();
 
-      std::vector<std::reference_wrapper<const Frizz::BasicAst>> children =
-        ast.accept(children_visitor);
+      int num_pages = ast.accept(num_pages_visitor);
+      for(int p = 1; p <= num_pages; ++p) {
+        std::vector<std::reference_wrapper<const Frizz::BasicAst>> children =
+          ast.accept(children_visitor, p);
 
-      if(!children.empty()) {
-        output_stream << this->process_ast_children(children, util);
-      }
-      else {
-        std::string file_contents = ast.accept(fc_visitor);
-        std::tuple<std::string, std::string> ast_contents = ast.accept(a_visitor);
+        if(!children.empty()) {
+          output_stream << process_ast_children(children, util);
+        }
+        else {
+          std::string file_contents = ast.accept(fc_visitor);
+          std::tuple<std::string, std::string> ast_contents = ast.accept(a_visitor);
 
-        output_stream << std::get<1>(ast_contents) << file_contents;
+          output_stream << std::get<1>(ast_contents) << file_contents;
+        }
       }
     }
 
@@ -116,7 +116,7 @@ void Frizz::Runner::process_source_file(Frizz::Lexer& lexer,
   output_stream.close();
 }
 
-void Frizz::Runner::process_content_source_files(Frizz::FrizzConfig& config) {
+void process_content_source_files(Frizz::FrizzConfig& config) {
   Frizz::FileUtility util(config);
 
   Frizz::Lexer lexer;
@@ -144,9 +144,9 @@ void Frizz::Runner::process_content_source_files(Frizz::FrizzConfig& config) {
 
         if(output_stream) {
           std::unordered_map<std::string, std::string> context =
-            this->process_file_preamble("", content_path, util);
+            process_file_preamble("", content_path, util);
 
-          output_stream << this->process_with_context(path, context, util);
+          output_stream << process_with_context(path, context, util);
           output_stream.close();
         }
         else {
@@ -158,7 +158,7 @@ void Frizz::Runner::process_content_source_files(Frizz::FrizzConfig& config) {
   }
 }
 
-void Frizz::Runner::process_source_files(Frizz::FrizzConfig& config) {
+void process_source_files(Frizz::FrizzConfig& config) {
   Frizz::FileUtility util(config);
 
   Frizz::Lexer lexer;
@@ -180,3 +180,7 @@ void Frizz::Runner::process_source_files(Frizz::FrizzConfig& config) {
     parser.clear_trees();
   }
 }
+
+}
+
+#endif
