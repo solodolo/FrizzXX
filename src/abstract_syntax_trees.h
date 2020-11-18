@@ -19,6 +19,7 @@ class ContextVisitor;
 class ContextReplacementVisitor;
 class FileContentVisitor;
 class ContextChildrenVisitor;
+class NumPagesVisitor;
 
 // Add new ast for context replacement
 class BasicAst {
@@ -29,7 +30,9 @@ public:
   virtual std::string accept(ContextReplacementVisitor& visitor,
                              std::unordered_map<std::string, std::string> context) const;
   virtual std::vector<std::reference_wrapper<const BasicAst>> accept(
-    ContextChildrenVisitor& visitor) const;
+    ContextChildrenVisitor& visitor, int page) const;
+
+  virtual int accept(const NumPagesVisitor&) const;
 
   virtual std::string get_value() const { return this->value; }
 
@@ -48,12 +51,18 @@ public:
 
   std::tuple<std::string, std::string> accept(AstVisitor& visitor) const override;
   std::vector<std::reference_wrapper<const BasicAst>> accept(
-    ContextChildrenVisitor& visitor) const override;
+    ContextChildrenVisitor& visitor, int page) const override;
+  int accept(const NumPagesVisitor& visitor) const override;
 
   void add_child(std::unique_ptr<BasicAst>);
   std::vector<std::reference_wrapper<const BasicAst>> get_children() const;
+  std::vector<std::reference_wrapper<const BasicAst>> slice_children(uint32_t start, uint32_t len) const;
+  void set_num_pages(int num_pages);
+  int get_num_pages() const;
+  int get_items_per_page() const;
 
 private:
+  int num_pages;
   std::vector<std::unique_ptr<BasicAst>> children;
 };
 
@@ -69,6 +78,12 @@ private:
   int page;
   int total_pages;
   int items_per_page;
+};
+
+class PaginatorAst : public BasicAst {
+public:
+  PaginatorAst(std::string template_name)
+    : BasicAst(template_name) {};
 };
 
 class AssignmentAst : public BasicAst {
@@ -164,8 +179,14 @@ public:
 
 class ContextChildrenVisitor {
 public:
-  std::vector<std::reference_wrapper<const BasicAst>> visit(const BasicAst& ast);
-  std::vector<std::reference_wrapper<const BasicAst>> visit(const ForLoopAst& ast);
+  std::vector<std::reference_wrapper<const BasicAst>> visit(const BasicAst& ast, int page);
+  std::vector<std::reference_wrapper<const BasicAst>> visit(const ForLoopAst& ast, int page);
+};
+
+class NumPagesVisitor {
+  public:
+  int visit(const BasicAst& ast) const;
+  int visit(const ForLoopAst& ast) const;
 };
 
 }

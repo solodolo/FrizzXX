@@ -4,7 +4,7 @@
  *  Created on: Aug 12, 2020
  *      Author: dmmettlach
  */
-
+#include <cmath>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -33,7 +33,11 @@ std::string Frizz::BasicAst::accept(ContextReplacementVisitor& visitor,
 }
 
 std::vector<std::reference_wrapper<const Frizz::BasicAst>> Frizz::BasicAst::accept(
-  ContextChildrenVisitor& visitor) const {
+  ContextChildrenVisitor& visitor, int page) const {
+  return visitor.visit(*this, page);
+}
+
+int Frizz::BasicAst::accept(const NumPagesVisitor& visitor) const {
   return visitor.visit(*this);
 }
 
@@ -94,8 +98,8 @@ std::tuple<std::string, std::string> Frizz::ForLoopAst::accept(Frizz::AstVisitor
 }
 
 std::vector<std::reference_wrapper<const Frizz::BasicAst>> Frizz::ForLoopAst::accept(
-  Frizz::ContextChildrenVisitor& visitor) const {
-  return visitor.visit(*this);
+  Frizz::ContextChildrenVisitor& visitor, int page) const {
+  return visitor.visit(*this, page);
 }
 
 std::vector<std::reference_wrapper<const Frizz::BasicAst>> Frizz::ForLoopAst::get_children() const {
@@ -109,10 +113,45 @@ std::vector<std::reference_wrapper<const Frizz::BasicAst>> Frizz::ForLoopAst::ge
   return refs;
 }
 
+std::vector<std::reference_wrapper<const Frizz::BasicAst>> Frizz::ForLoopAst::slice_children(
+  uint32_t start, uint32_t len) const {
+  auto begin = children.begin() + start;
+  auto end = children.begin() + start + len;
+
+  if(begin > children.end()) {
+    begin = children.end();
+  }
+  if(end > children.end()) {
+    end = children.end();
+  }
+
+  std::vector<std::reference_wrapper<const Frizz::BasicAst>> sliced(begin, end);
+
+  return sliced;
+}
+
+int Frizz::ForLoopAst::accept(const NumPagesVisitor& visitor) const {
+  return visitor.visit(*this);
+}
+
 void Frizz::ForLoopAst::add_child(std::unique_ptr<Frizz::BasicAst> child) {
   this->children.push_back(std::move(child));
 }
 
+void Frizz::ForLoopAst::set_num_pages(int num_pages) {
+  this->num_pages = num_pages;
+}
+
+int Frizz::ForLoopAst::get_num_pages() const {
+  return this->num_pages;
+}
+
+int Frizz::ForLoopAst::get_items_per_page() const {
+  int num_pages = this->get_num_pages();
+  int num_items = this->children.size();
+
+  return ceil((float)num_items / num_pages);
+}
 /*
   ########## PassthroughAst ##########
 */
